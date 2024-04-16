@@ -1,0 +1,32 @@
+const {
+    ReadImg,
+    Sleep,
+    RandomPress,
+    GoBack,
+} = require("./Global.js");
+
+const back = ReadImg("back");
+const close = ReadImg("close");
+const confirm = ReadImg("CN_confirm");
+
+const Flow = function ()
+{
+    const shot = captureScreen();
+    const existBack = images.findImage(shot, back, { region: [1183, 8, 90, 58] });
+    const existClose = images.findImage(shot, close, { region: [780, 8, 488, 234] });
+    const existConfirm = images.findImage(shot, confirm, { region: [371, 188, 557, 355] });
+    if (existBack)
+    {
+        GoBack();
+    }
+    if (existClose)
+    {
+        RandomPress([existClose.x, existClose.y, 10, 10]);
+    }
+    if (existConfirm)
+    {
+        RandomPress([existConfirm.x - 20, existConfirm.y - 5, 20, 10]);
+    }
+};
+
+module.exports = Flow;

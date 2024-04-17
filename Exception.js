@@ -8,6 +8,7 @@ const {
 const back = ReadImg("back");
 const close = ReadImg("close");
 const confirm = ReadImg("CN_confirm");
+const version = ReadImg("version");
 
 const Flow = function ()
 {
@@ -27,6 +28,37 @@ const Flow = function ()
     {
         RandomPress([existConfirm.x - 20, existConfirm.y - 5, 20, 10]);
     }
+    ReGetInGame(shot);
 };
+const ReGetInGame = function (shot)
+{
+    const isVersion = images.findImage(shot, version, {
+        region: [1136, 14, 125, 45],
+        threshold: 0.8,
+    });
+    const startGameBtn = ReadImg("startGameBtn");
+    if (isVersion)
+    {
+        RandomPress([136, 63, 966, 500]);
+        Sleep(3000, 5000);
+        let isStart;
+        while (!isStart)
+        {
+            isStart = images.findImage(captureScreen(), startGameBtn, {
+                region: [1118, 634, 107, 67],
+                threshold: 0.8,
+            });
+            if (isStart)
+            {
+                Sleep();
+                let x = isStart.x + random(-40, 90);
+                let y = isStart.y + random(-5, 10);
+                press(x, y, random(100, 300));
+                break;
+            }
+        }
+    }
 
+    startGameBtn.recycle();
+};
 module.exports = Flow;

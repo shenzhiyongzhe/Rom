@@ -25,16 +25,7 @@ const posRef = {
     emailAward: [1070, 660, 160, 25], //邮件领取按钮
     skip: [39, 20, 1225, 653],
     missionFinish: [263, 209, 796, 323],
-    backPack: [1090, 20, 25, 15], //背包图标
-    backPackClose: [1240, 70, 23, 10],
-    backPack_decompose: [1006, 505, 30, 29], //背包分解按钮
-    backPack_decompose_normal: [921, 510, 63, 18],
-    backPack_decompose_btn: [1111, 505, 136, 25],
-    backPack_decompose_confirm: [686, 506, 113, 24],
-    equipment: [1237, 210, 10, 20],
-    equipmentSort: [1073, 507, 23, 23],
-    sortByLevel: [1030, 420, 100, 15],
-    backPack_props: [1230, 286, 31, 30], //背包道具
+
     menu: [1221, 19, 31, 29],
     menu_close: [1222, 21, 31, 25],
     collectionPage: [1098, 121, 19, 27],

@@ -39,6 +39,7 @@ const ReGetInGame = function (shot)
     const startGameBtn = ReadImg("startGameBtn");
     if (isVersion)
     {
+        Sleep(6000, 10000);
         RandomPress([136, 63, 966, 500]);
         Sleep(3000, 5000);
         let isStart;

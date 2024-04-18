@@ -10,6 +10,8 @@ const {
     CharacterIdentity,
 } = require("./Global.js");
 
+const CrucifixFlow = require("./Crucifix.js");
+
 //死亡流程 点击确认按钮，购买药水
 const Flow = function ()
 {
@@ -36,7 +38,9 @@ const Flow = function ()
     }
 
     //寻找死亡弹窗的确认按钮
-    Sleep(1000, 2000);
+    Sleep(3000, 5000);
+    CrucifixFlow();
+    Sleep(2000, 3000);
     GroceryFlow();
 };
 

@@ -1,14 +1,31 @@
-"ui";
-ui.layout(
-    <vertical bg="#ff0000">
-        <button id="start" text="开始" textSize="20sp" />
-        <button id="stop" text="结束" />
-    </vertical>
-);
+// "ui";
+// ui.layout(
+//     <vertical bg="#ff0000">
+//         <button id="start" text="开始" textSize="20sp" />
+//         <button id="stop" text="结束" />
+//     </vertical>
+// );
+// ui.start.click(function ()
+// {
+//     console.log("开始");
 
-const { StartExecution, StopExecution } = require("./UI.js");
-StartExecution();
-StopExecution();
+//     MainThread();
+
+// });
+// ui.stop.click(function ()
+// {
+//     console.log("结束");
+//     // threads.shutDownAll();
+//     // engines.stopAll();
+//     engines.stopAllAndToast();
+//     // java.lang.System.exit(0);
+
+// });
+
+// const { StartExecution, StopExecution } = require("./UI.js");
+
+// StartExecution();
+// StopExecution();
 
 const Sleep = (min, max) =>
 {
@@ -32,6 +49,7 @@ const MenuFlow = require("./Menu.js");
 const ExceptionCatch = require("./Exception.js");
 const MainStory = require("./MainStory.js");
 const BackPackFlow = require("./BackPack.js");
+
 
 const Check = function ()
 {
@@ -57,21 +75,34 @@ const Check = function ()
     ExceptionCatch();
 };
 
-const MainThread = () =>
-    threads.start(function ()
-    {
-        auto();
-        auto.waitFor();
-        requestScreenCapture(true);
-        while (true)
-        {
-            console.time("Elapsed Time");
-            Check();
-            sleep(2000);
-            console.timeEnd("Elapsed Time");
-        }
-    });
+const MainThread = function ()
+{
+    auto();
+    auto.waitFor();
+    requestScreenCapture(true);
 
+    while (true)
+    {
+        console.time("Elapsed Time");
+        Check();
+        console.timeEnd("Elapsed Time");
+        sleep(2000);
+    }
+
+    // threads.start(function ()
+    // {
+
+    //     setInterval(function ()
+    //     {
+    //         console.time("Elapsed Time");
+    //         Check();
+    //         console.timeEnd("Elapsed Time");
+    //     }, 2000);
+
+    // });
+};
+
+MainThread();
 
 
 

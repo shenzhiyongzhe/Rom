@@ -1,32 +1,27 @@
-const {
-    imgRef,
-    posRef,
-    Player,
-    ReadImg,
-    Sleep,
-    RandomClick,
-    RandomPress,
-    GoBack,
-} = require("./Global.js");
+const MainStoryPos = {
+    mainStory: [951, 89, 252, 31],
+    missionFinish: [567, 256, 154, 51],
+    skip: [1160, 3, 115, 59],
+
+};
 
 const autoMissioningTxt = ReadImg("inMission");
 const mainStoryTxt = ReadImg("mainStoryTxt");
-const mainStoryPos = [951, 89, 252, 31];
 const skip = ReadImg("skip");
 const missionFinish = ReadImg("CN_missionFinish");
 //Skip 和 任务完成检查
 const SkipCheck = (shot) => images.findImage(shot, skip, { region: [1160, 3, 115, 59], });
 const MainStoryFinishCheck = (shot) => images.findImage(shot, missionFinish, { region: [567, 256, 154, 51], });
 
-//完成任务 点击空白
-const MainStoryFinishFlow = () => RandomPress(posRef.missionFinish);
-//剧情跳过
+// //完成任务 点击空白
+const MainStoryFinishFlow = () => RandomPress(MainStoryPos.missionFinish);
+// //剧情跳过
 const SkipFlow = () =>
 {
     Sleep(600, 1200);
-    RandomPress(posRef.skip, random(200, 600));
+    RandomPress(MainStoryPos.skip, random(200, 600));
 };
-const Check = function ()
+const MainStoryCheck = function ()
 {
     let shot = captureScreen();
     MainStoryFinishCheck(shot) && MainStoryFinishFlow();
@@ -52,14 +47,22 @@ const Check = function ()
         }
     } else return false;
 };
-const Flow = function ()
+
+/**
+ * @description 主线流程检测,判断玩家是否正在进行主线任务
+ * @param none;
+ * @return none;
+ */
+const MainStoryFlow = function ()
 {
-    if (Check() && Player.pushMainStory == true)
+    if (MainStoryCheck() && Player.pushMainStory == true)
     {
-        RandomPress(mainStoryPos);
+        RandomPress(MainStoryPos.mainStory);
 
     }
+
+    log("MainStoryFlow");
 };
 
 
-module.exports = Flow;
+module.exports = MainStoryFlow;

@@ -30,7 +30,7 @@ const DutyCheck = (shot) => images.findMultiColors(shot, "#c33522", [[-2, 2, "#c
 //制造小红点检查
 const CraftCheck = (shot) => images.findMultiColors(shot, "#b72e1b", [[-4, 3, "#db2e1c"], [1, 3, "#c02517"], [4, 3, "#cf3324"], [0, 5, "#be2618"],], { region: [971, 178, 35, 37] });
 
-const MenuFlow = function ()
+const Flow = function ()
 {
     RandomPress(posRef.menu);
     Sleep();
@@ -59,4 +59,4 @@ const MenuFlow = function ()
     }
 };
 
-module.exports = MenuFlow;
+module.exports = Flow;

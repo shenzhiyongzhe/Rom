@@ -56,7 +56,7 @@ const Player = {
 };
 //《《《------------------------------------简化封装------------------------------------------》》》
 //加载图片函数
-const ReadImg = (name) => images.read(`/sdcard/脚本/img/${name}.png`);
+const ReadImg = (name) => images.read(`/sdcard/脚本/Rom/img/${name}.png`);
 
 const Click = ({ x, y }) => click(x, y);
 const Press = ({ x, y }, time) =>

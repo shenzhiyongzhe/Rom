@@ -1,5 +1,4 @@
-auto();
-requestScreenCapture(true);
+
 const {
     ReadImg,
     Sleep,

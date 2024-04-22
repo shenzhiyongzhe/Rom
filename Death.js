@@ -13,7 +13,7 @@ const {
 const CrucifixFlow = require("./Crucifix.js");
 
 //死亡流程 点击确认按钮，购买药水
-const Flow = function ()
+const DeathFlow = function ()
 {
     const revive = findImage(captureScreen(), imgRef.revive, {
         region: [546, 511, 203, 54],
@@ -83,4 +83,4 @@ const GroceryFlow = function ()
     }
 };
 
-module.exports = Flow;
+module.exports = DeathFlow;

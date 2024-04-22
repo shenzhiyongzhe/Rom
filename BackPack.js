@@ -138,6 +138,15 @@ const props = {
     strengthenScroll_weapon_mark: ReadImg("props/strengthenScroll_weapon_mark"),
     strengthenScroll_defence: ReadImg("props/strengthenScroll_defence"),
     strengthenScroll_defence_tied: ReadImg("props/strengthenScroll_defence_tied"),
+    // slabstone;
+    slabstone_white_normal_gurdian: ReadImg("props/slabstone_white_normal_gurdian"),
+    // slabstone_white_normal_suit: ReadImg("props/slabstone_white_normal_suit"),
+    slabstone_green_highLevel_guardian: ReadImg("props/slabstone_green_highLevel_guardian"),
+    slabstone_green_highQuality_guardian: ReadImg("props/slabstone_green_highQuality_guardian"),
+    slabstone_green_highLevel_suit: ReadImg("props/slabstone_green_highLevel_suit"),
+    slabstone_green_highQuality_suit: ReadImg("props/slabstone_green_highQuality_suit"),
+    slabstone_gray_middleLevel_monster: ReadImg("props/slabstone_gray_middleLevel_monster"),
+    slabstone_gray_middleLevel_suit: ReadImg("props/slabstone_gray_middleLevel_common"),
 };
 const RecognizeProps = function (shot, [x, y, w, h])
 {

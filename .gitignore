@@ -3,3 +3,4 @@ tool.js
 _gsdata_
 node_modules
 package-lock.json
+dist

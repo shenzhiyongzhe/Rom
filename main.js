@@ -1,39 +1,17 @@
-// "ui";
-// ui.layout(
-//     <vertical bg="#ff0000">
-//         <button id="start" text="开始" textSize="20sp" />
-//         <button id="stop" text="结束" />
-//     </vertical>
-// );
-// ui.start.click(function ()
-// {
-//     console.log("开始");
+"ui";
+const UI = require("./UI.js");
+UI();
 
-//     MainThread();
 
-// });
-// ui.stop.click(function ()
-// {
-//     console.log("结束");
-//     // threads.shutDownAll();
-//     // engines.stopAll();
-//     engines.stopAllAndToast();
-//     // java.lang.System.exit(0);
-
-// });
-
-// const { StartExecution, StopExecution } = require("./UI.js");
-
-// StartExecution();
-// StopExecution();
-
-const Sleep = (min, max) =>
-{
-    min = min || 1000;
-    max = max || 2000;
-    sleep(random(min, max));
-};
-
+const {
+    imgRef,
+    posRef,
+    Player,
+    ReadImg,
+    Sleep,
+    RandomPress,
+    GoBack,
+} = require("./Global.js");
 const {
     DeathCheck,
     AbilityPointCheck,
@@ -41,69 +19,44 @@ const {
     MenuCheck,
     BackPackCheck,
 } = require("./Check.js");
+const AbilityPointsFlow = require("./AbilityPoints.js");
 
-const DeathFlow = require("./Death.js");
+
+
+const MainStoryFlow = require("./MainStory.js");
 const MissionFlow = require("./Mission.js");
-const AbilityFlow = require("./AbilityPoints.js");
 const MenuFlow = require("./Menu.js");
-const ExceptionCatch = require("./Exception.js");
-const MainStory = require("./MainStory.js");
 const BackPackFlow = require("./BackPack.js");
-
+const DeathFlow = require("./Death.js");
+const ExceptionCatch = require("./Exception.js");
 
 const Check = function ()
 {
-    let shot = captureScreen();
-    //主线检查
-    MainStory();
-    Sleep(200, 1000);
-    //死亡检查
+    let shot = images.captureScreen();
+    MainStoryFlow();
+    Sleep();
     DeathCheck(shot) && DeathFlow();
-    //任务检查
+    Sleep();
+    AbilityPointCheck(shot) && AbilityPointsFlow();
+    Sleep();
     MissionCheck(shot) && MissionFlow();
-
-    // 技能点检查
-    AbilityPointCheck(shot) && AbilityFlow();
-    Sleep(500, 1000);
-    //背包小红点检查 打开宝箱
-    BackPackCheck(shot) && BackPackFlow();
-    // 菜单检查
+    Sleep();
     MenuCheck(shot) && MenuFlow();
-    Sleep(100, 2000);
-
-    // 异常检查
+    Sleep();
+    BackPackCheck(shot) && BackPackFlow();
+    Sleep();
     ExceptionCatch();
+    // toast("Checking.....");
 };
 
-const MainThread = function ()
+const Main = function ()
 {
-    auto();
-    auto.waitFor();
-    requestScreenCapture(true);
-
-    while (true)
+    threads.start(function ()
     {
-        console.time("Elapsed Time");
-        Check();
-        console.timeEnd("Elapsed Time");
-        sleep(2000);
-    }
+        setInterval(() =>
+        {
+            Check();
+        }, 2000);
 
-    // threads.start(function ()
-    // {
-
-    //     setInterval(function ()
-    //     {
-    //         console.time("Elapsed Time");
-    //         Check();
-    //         console.timeEnd("Elapsed Time");
-    //     }, 2000);
-
-    // });
+    });
 };
-
-MainThread();
-
-
-
-

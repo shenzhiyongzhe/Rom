@@ -10,7 +10,7 @@ const close = ReadImg("close");
 const confirm = ReadImg("CN_confirm");
 const version = ReadImg("version");
 
-const Flow = function ()
+const ExceptionFlow = function ()
 {
     const shot = captureScreen();
     const existBack = images.findImage(shot, back, { region: [1183, 8, 90, 58] });
@@ -39,7 +39,7 @@ const ReGetInGame = function (shot)
     const startGameBtn = ReadImg("startGameBtn");
     if (isVersion)
     {
-        Sleep(6000, 10000);
+        Sleep(12000, 20000);
         RandomPress([136, 63, 966, 500]);
         Sleep(3000, 5000);
         let isStart;
@@ -62,4 +62,4 @@ const ReGetInGame = function (shot)
 
     startGameBtn.recycle();
 };
-module.exports = Flow;
+module.exports = ExceptionFlow;

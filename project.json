@@ -1,8 +1,8 @@
 {
-    "name": "Rom",
+    "name": "Romtest001",
     "main": "main.js",
-    "ignore": ["build"],
-    "packageName": "com.rom",
+    "ignore": ["build", "_gsdata_", "tool.js", "test.js"],
+    "packageName": "com.romtest001",
     "versionName": "1.0.0",
     "versionCode": 1
 }

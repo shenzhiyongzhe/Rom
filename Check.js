@@ -1,5 +1,12 @@
-const ReadImg = (name) => images.read(`/sdcard/脚本/img/${name}.png`);
-
+const {
+    imgRef,
+    posRef,
+    Player,
+    ReadImg,
+    Sleep,
+    RandomPress,
+    GoBack,
+} = require("./Global.js");
 
 const deathTxt = ReadImg("death");
 

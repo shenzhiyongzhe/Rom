@@ -1,9 +1,10 @@
-
+"ui";
+let isRunning = false;
 const UI = () =>
 {
     ui.layout(
         <vertical bg="#fffbe8">
-            <button id="start" text="开始" textSize="20sp" />
+            <button id="start" text="开始" textSize="20sp" bg="#96c996" />
             <button id="stop" text="结束" />
         </vertical>
     );
@@ -13,15 +14,27 @@ const UI = () =>
         "maxBackupSize": 10,
         "filePattern": "%d{dd日}%m%n"
     });
+
     ui.start.click(() =>
     {
-        console.log("开始");
+        if (isRunning == true)
+        {
+            toast("脚本已经在运行中...");
+            console.log("js脚本已经在运行中...");
+            return;
+        };
+        toast("脚本开始运行...");
+        console.log("运行中...");
         threads.start(function ()
         {
             try
             {
                 auto();
                 images.requestScreenCapture(true);
+
+                isRunning = true;
+                ui.start.attr("bg", "#a5a7a6");
+                ui.start.setText("正在运行中...");
                 Main();
 
             }
@@ -44,3 +57,4 @@ const UI = () =>
 }
     ;
 module.exports = UI;
+// UI();

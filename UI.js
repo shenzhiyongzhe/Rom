@@ -5,6 +5,11 @@ const UI = () =>
     ui.layout(
         <vertical bg="#fffbe8">
             <button id="start" text="开始" textSize="20sp" bg="#96c996" />
+            <horizontal>
+                <text text="操作延迟（单位毫秒）" />
+                <input number="true" hint="默认1000 2000" />
+                <button text="普通的按钮" />
+            </horizontal>
             <button id="stop" text="结束" />
         </vertical>
     );

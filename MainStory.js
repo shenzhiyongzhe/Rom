@@ -1,5 +1,8 @@
+
+
 const MainStoryPos = {
     mainStory: [951, 89, 252, 31],
+    mainStoryIcon: [1234, 81, 27, 38],
     missionFinish: [567, 256, 154, 51],
     skip: [1160, 3, 115, 59],
 
@@ -9,6 +12,9 @@ const autoMissioningTxt = ReadImg("inMission");
 const mainStoryTxt = ReadImg("mainStoryTxt");
 const skip = ReadImg("skip");
 const missionFinish = ReadImg("CN_missionFinish");
+const mainStoryIcon = ReadImg("mainStoryIcon");
+
+
 //Skip 和 任务完成检查
 const SkipCheck = (shot) => images.findImage(shot, skip, { region: [1160, 3, 115, 59], });
 const MainStoryFinishCheck = (shot) => images.findImage(shot, missionFinish, { region: [567, 256, 154, 51], });
@@ -27,12 +33,17 @@ const MainStoryCheck = function ()
     MainStoryFinishCheck(shot) && MainStoryFinishFlow();
     SkipCheck(shot) && SkipFlow();
     let hasMission = images.findImage(shot, mainStoryTxt, { region: [967, 72, 49, 38], threshold: 0.8, });
+    let hasMainStoryIcon = images.findImage(shot, mainStoryIcon, { region: [1222, 88, 50, 39], threshold: 0.9, });
     let inMission = images.findImage(shot, autoMissioningTxt, { region: [556, 285, 213, 207], threshold: 0.6, });
     let isGray = images.findMultiColors(
         shot,
         "#31312e", [[-15, 5, "#30302d"], [-33, 5, "#30302b"], [-33, 20, "#312e2a"], [-16, 17, "#32312c"], [4, 18, "#353430"]],
         { region: [1072, 62, 151, 79], threshold: 14 }
     );
+    if (hasMainStoryIcon != null && hasMission == null)
+    {
+        RandomPress(MainStoryPos.mainStoryIcon);
+    }
     if (hasMission)
     {
         if (isGray)

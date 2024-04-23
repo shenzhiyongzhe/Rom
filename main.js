@@ -26,7 +26,7 @@ const AbilityPointsFlow = require("./AbilityPoints.js");
 const MainStoryFlow = require("./MainStory.js");
 const MissionFlow = require("./Mission.js");
 const MenuFlow = require("./Menu.js");
-const BackPackFlow = require("./BackPack.js");
+const { BackPackFlow } = require("./BackPack.js");
 const DeathFlow = require("./Death.js");
 const ExceptionCatch = require("./Exception.js");
 
@@ -41,9 +41,9 @@ const Check = function ()
     Sleep();
     MissionCheck(shot) && MissionFlow();
     Sleep();
-    MenuCheck(shot) && MenuFlow();
-    Sleep();
     BackPackCheck(shot) && BackPackFlow();
+    Sleep();
+    MenuCheck(shot) && MenuFlow();
     Sleep();
     ExceptionCatch();
     // toast("Checking.....");
@@ -51,12 +51,31 @@ const Check = function ()
 
 const Main = function ()
 {
-    threads.start(function ()
+    try
     {
-        setInterval(() =>
+        threads.start(function ()
         {
-            Check();
-        }, 2000);
+            setInterval(() =>
+            {
+                Check();
+            }, 2000);
 
-    });
+        });
+    } catch (e)
+    {
+        console.log(e);
+    }
+
+    while (true)
+    {
+        let w = floaty.window(
+            <frame gravity="center" bg="#fd4b4f">
+                <text id="text">R</text>
+            </frame >
+        );
+        w.setPosition(0, 80);
+        Sleep(8000);
+        w.close();
+    }
+
 };

@@ -6,8 +6,11 @@ const UI = () =>
         <vertical bg="#fffbe8">
             <button id="start" text="开始" textSize="20sp" bg="#96c996" />
             <horizontal>
-                <text text="操作延迟（单位毫秒）" />
-                <input number="true" hint="默认1000 2000" />
+                <text text="操作延迟（单位毫秒）:" />
+                <text text="区间" />
+                <input number="true" hint="1000" />
+                <text text="~" />
+                <input number="true" hint="2000" />
                 <button text="普通的按钮" />
             </horizontal>
             <button id="stop" text="结束" />

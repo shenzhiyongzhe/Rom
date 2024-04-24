@@ -51,6 +51,12 @@ const Check = function ()
 
 const Main = function ()
 {
+    const w = floaty.window(
+        <frame gravity="center" bg="#fd4b4f">
+            <text id="text">R</text>
+        </frame >
+    );
+    w.setPosition(0, 80);
     try
     {
         threads.start(function ()
@@ -64,18 +70,15 @@ const Main = function ()
     } catch (e)
     {
         console.log(e);
+        engines.stopAllAndToast();
+
     }
 
-    while (true)
-    {
-        let w = floaty.window(
-            <frame gravity="center" bg="#fd4b4f">
-                <text id="text">R</text>
-            </frame >
-        );
-        w.setPosition(0, 80);
-        Sleep(8000);
-        w.close();
-    }
+    // Sleep(8000);
+    // while (true)
+    // {
+    //     sleep(10000);
+    //     // w.close();
+    // }
 
 };

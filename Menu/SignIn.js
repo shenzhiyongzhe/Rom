@@ -8,13 +8,18 @@ const {
     GoBack,
 } = require("../Global.js");
 
-const signInPos = [960, 468, 20, 32];
-const getAwardsBtn = [1050, 570, 150, 30];
+const SignInPos = {
+    icon: [960, 468, 20, 32],
+    signIn: [960, 468, 20, 32],
+    awardsBtn: [1050, 570, 150, 30],
+    characterPage: [210, 100, 100, 15],
+    katePage: [386, 100, 88, 21],
+};
 
 //每日登录奖励领取
 const Flow = function ()
 {
-    RandomPress(signInPos, random(100, 300));
+    RandomPress(SignInPos.icon);
     Sleep(1500, 2500);
     const shot = captureScreen();
     const isGreen = images.findMultiColors(shot, "#c02312", [[-3, 1, "#d42b1e"], [0, 4, "#b42416"], [4, 2, "#b62b1c"],], { region: [147, 71, 45, 48], threshold: 12 });
@@ -32,9 +37,7 @@ const Flow = function ()
 
     if (isGreen)
     {
-        RandomPress(signInPos, random(100, 300));
-        Sleep();
-        RandomPress(getAwardsBtn, random(100, 300));
+        RandomPress(SignInPos.awardsBtn, random(100, 300));
         Sleep();
         RandomClick(posRef.blank);
         if (isCharacter == null && kate == null) GoBack();
@@ -43,9 +46,9 @@ const Flow = function ()
 
     if (isCharacter)
     {
-        RandomPress(posRef.characterSignIn, random(200, 400));
+        RandomPress(SignInPos.characterPage);
         Sleep(2000, 2500);
-        RandomPress(posRef.signInAwards, random(100, 300));
+        RandomPress(SignInPos.awardsBtn, random(100, 300));
         Sleep(2000, 4000);
         RandomClick(posRef.blank);
         Sleep(1000, 2000);
@@ -54,9 +57,9 @@ const Flow = function ()
 
     if (kate)
     {
-        RandomPress(posRef.signIn_kate, random(200, 400));
+        RandomPress(SignInPos.katePage, random(200, 400));
         Sleep(2000, 2500);
-        RandomPress(posRef.signInAwards, random(100, 300));
+        RandomPress(SignInPos.awardsBtn, random(100, 300));
         Sleep(2000, 4000);
         RandomClick(posRef.blank);
         Sleep(1000, 2000);
@@ -64,3 +67,4 @@ const Flow = function ()
     }
 };
 module.exports = Flow;
+// Flow();

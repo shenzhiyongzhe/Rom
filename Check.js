@@ -1,5 +1,5 @@
 
-const deathTxt = images.read("./img/death.png");
+const deathTxt = ReadImg("character_deathT");
 
 
 
@@ -7,9 +7,9 @@ const deathTxt = images.read("./img/death.png");
  * @param img
  * @return img
  */
-const DeathCheck = (shot) => images.findImage(shot, deathTxt, { region: [593, 198, 98, 44], });
+const DeathCheck = (shot) => images.findImage(shot, deathTxt, { region: [561, 161, 158, 55], });
 
-/**技能点检测
+/**技能点检测 
  * @param img
  * @return img
  */

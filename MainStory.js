@@ -2,7 +2,7 @@
 
 const MainStoryPos = {
     mainStory: [951, 89, 252, 31],
-    mainStoryIcon: [1234, 81, 27, 38],
+    mainStoryIcon: [1238, 84, 19, 35],
     missionFinish: [567, 256, 154, 51],
     skip: [1160, 3, 115, 59],
 

@@ -1,68 +1,82 @@
-"ui";
+// "ui";
+// const UIConfig = files.open("./UIConfig.json", "rw");
+
 let isRunning = false;
+
+const UIConfig = {
+    "missionType": "mainStory"
+};
+
 const UI = () =>
 {
     ui.layout(
-        <vertical bg="#fffbe8">
-            <button id="start" text="开始" textSize="20sp" bg="#96c996" />
-            <horizontal>
-                <text text="操作延迟（单位毫秒）:" />
-                <text text="区间" />
-                <input number="true" hint="1000" />
-                <text text="~" />
-                <input number="true" hint="2000" />
-                <button text="普通的按钮" />
+        <vertical bg="#CEE5F2" >
+            <horizontal bg="#f2f2f2" padding="10">
+                <text text="模式:" textColor="black" marginTop="6" />
+                <radiogroup id="missionType" orientation="horizontal" >
+                    <radio id="mainStory" text="主线" />
+                    <radio id="sideStory" text="委托" marginLeft="30" />
+                    <radio id="instanceZone" text="副本" marginLeft="30" />
+                </radiogroup>
             </horizontal>
-            <button id="stop" text="结束" />
+            <button id="switch" text="开始" textSize="20sp" bg="#96c996" radius="10" />
         </vertical>
     );
-    console.setGlobalLogConfig({
-        "file": "/sdcard/脚本/log/rom-log.txt",
-        "maxFileSize": 5120 * 1024,
-        "maxBackupSize": 10,
-        "filePattern": "%d{dd日}%m%n"
-    });
 
-    ui.start.click(() =>
+
+
+
+    ui.switch.click(() =>
     {
         if (isRunning == true)
         {
-            toast("脚本已经在运行中...");
-            console.log("js脚本已经在运行中...");
-            return;
-        };
-        toast("脚本开始运行...");
-        console.log("运行中...");
-        threads.start(function ()
+            console.log("结束");
+            // threads.shutDownAll();
+            // engines.stopAll();
+            // engines.stopAllAndToast();
+            java.lang.System.exit(0);
+        }
+        else if (isRunning == false)
         {
-            try
+            toastLog("脚本开始运行...");
+            threads.start(function ()
             {
+                isRunning = true;
                 auto();
                 images.requestScreenCapture(true);
 
-                isRunning = true;
-                ui.start.attr("bg", "#a5a7a6");
-                ui.start.setText("正在运行中...");
+                ui.switch.attr("bg", "#a5a7a6");
+                ui.switch.setText("正在运行中...");
                 Main();
 
             }
-            catch (e)
-            {
-                console.log(e);
-            }
+            );
         }
-        );
+    });
 
-    });
-    ui.stop.click(function ()
+
+    ui.missionType.setOnCheckedChangeListener((group, checkedId) => 
     {
-        console.log("结束");
-        // threads.shutDownAll();
-        // engines.stopAll();
-        engines.stopAllAndToast();
-        // java.lang.System.exit(0);
-    });
-}
-    ;
+        let checkedRadio = $ui.missionType.findViewById(checkedId);
+        switch (checkedRadio)
+        {
+            case $ui.mainStory:
+                UIConfig.missionType = "mainStory";
+                break;
+            case $ui.sideStory:
+                UIConfig.missionType = "sideStory";
+                break;
+            case $ui.instanceZone:
+                UIConfig.missionType = "instanceZone";
+                break;
+            default:
+                toastLog("没有任何单选框被勾选");
+                break;
+        }
+        log("UIConfig.missionType: " + UIConfig.missionType);
+
+    }
+    );
+};
 module.exports = UI;
 // UI();

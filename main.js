@@ -11,7 +11,10 @@ const {
     Sleep,
     RandomPress,
     GoBack,
+    GetLocalTime,
 } = require("./Global.js");
+
+
 const {
     DeathCheck,
     AbilityPointCheck,
@@ -19,9 +22,8 @@ const {
     MenuCheck,
     BackPackCheck,
 } = require("./Check.js");
+
 const AbilityPointsFlow = require("./AbilityPoints.js");
-
-
 
 const MainStoryFlow = require("./MainStory.js");
 const MissionFlow = require("./Mission.js");
@@ -30,55 +32,70 @@ const { BackPackFlow } = require("./BackPack.js");
 const DeathFlow = require("./Death.js");
 const ExceptionCatch = require("./Exception.js");
 
+const TimeRegister = {
+    backPackTimer: 100,
+    collectionChecker: 150,
+};
+let TimerRecorder = {
+    backPackTimer: 100,
+    collectionChecker: 150,
+};
+
+const TimerChecker = function (item)
+{
+    if (TimerRecorder[item] == 0)
+    {
+        TimerRecorder[item] = TimeRegister[item];
+        return true;
+    }
+};
 const Check = function ()
 {
-    let shot = images.captureScreen();
-    MainStoryFlow();
-    Sleep();
-    DeathCheck(shot) && DeathFlow();
-    Sleep();
-    AbilityPointCheck(shot) && AbilityPointsFlow();
-    Sleep();
-    MissionCheck(shot) && MissionFlow();
-    Sleep();
-    BackPackCheck(shot) && BackPackFlow();
-    Sleep();
-    MenuCheck(shot) && MenuFlow();
-    Sleep();
-    ExceptionCatch();
+    try
+    {
+        let shot = images.captureScreen();
+        MainStoryFlow();
+        Sleep();
+        DeathCheck(shot) && DeathFlow();
+        Sleep();
+        AbilityPointCheck(shot) && AbilityPointsFlow();
+        Sleep();
+        MissionCheck(shot) && MissionFlow();
+        Sleep();
+        TimerChecker("backPackTimer") && BackPackCheck(shot) && BackPackFlow();
+        Sleep();
+        TimerChecker("collectionChecker") && MenuCheck(shot) && MenuFlow();
+        Sleep();
+        ExceptionCatch();
+    } catch (e)
+    {
+        console.error(e);
+        alert("出现错误~", `${e}`);
+        java.lang.System.exit(0);
+    }
+
     // toast("Checking.....");
 };
 
+console.setGlobalLogConfig({
+    "file": "/sdcard/脚本/log/rom-log.txt",
+    "filePattern": "%d{dd日}%m%n"
+});
+
+const w = floaty.window(
+    <frame gravity="center" bg="#fd4b4f">
+        <text id="text">R</text>
+    </frame >
+);
+w.setPosition(0, 80);
+
+
 const Main = function ()
 {
-    const w = floaty.window(
-        <frame gravity="center" bg="#fd4b4f">
-            <text id="text">R</text>
-        </frame >
-    );
-    w.setPosition(0, 80);
-    try
+    threads.start(function ()
     {
-        threads.start(function ()
-        {
-            setInterval(() =>
-            {
-                Check();
-            }, 2000);
-
-        });
-    } catch (e)
-    {
-        console.log(e);
-        engines.stopAllAndToast();
-
+        setInterval(() => Check(), 2000);
     }
-
-    // Sleep(8000);
-    // while (true)
-    // {
-    //     sleep(10000);
-    //     // w.close();
-    // }
-
+    );
 };
+// Main();

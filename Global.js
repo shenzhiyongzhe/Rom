@@ -6,6 +6,7 @@ const posRef = {
 
     menu: [1221, 19, 31, 29],
     menu_close: [1222, 21, 31, 25],
+    backPack: [1090, 20, 25, 15],
     collectionPage: [1098, 121, 19, 27],
     collectionPage_login: [752, 610, 109, 23],
 };
@@ -13,11 +14,12 @@ const Player = {
     profession: "archer", //职业
     level: 0,
     equipment: {
-        weapon: "green", //武器
-        chestplate: "green", //胸甲
-        pant: "white", //裤子
-        boots: "green", //鞋子
+        weapon: { color: "whilte", level: 0 }, //武器
+        chestplate: { color: "whilte", level: 0 }, //胸甲
+        pant: { color: "whilte", level: 0 }, //裤子
+        boots: { color: "whilte", level: 0 }, //鞋子
     },
+
     pushMainStory: true, //是否推进主线任务
     isInMainStory: true, //是否正在进行主线任务
 };
@@ -80,17 +82,7 @@ const GetLocalTime = () =>
     let minutes = date.getMinutes();
     return `${month}月${day}日${hours}:${minutes}`;
 };
-const imgRef = {};
-const Init = function ()
-{
-    imgRef.skip = ReadImg("skip");
-    imgRef.haltMode = ReadImg("CN_haltMode");
-    imgRef.back = ReadImg("back");
-    imgRef.confirm = ReadImg("CN_confirm");
-    imgRef.version = ReadImg("version");
-};
 
-Init();
 log("Global.js 加载完成");
 module.exports = {
     imgRef,

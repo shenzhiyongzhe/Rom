@@ -4,13 +4,19 @@
 let isRunning = false;
 
 const UIConfig = {
-    "missionType": "mainStory"
+    "missionType": "mainStory",
+    "tutorial": false
 };
 
 const UI = () =>
 {
     ui.layout(
         <vertical bg="#CEE5F2" >
+            <horizontal>
+                <text text="是否开启新手教程:" textColor="black" marginTop="6" />
+                <Switch id="tutorialSwitch" checked="false" />
+            </horizontal>
+
             <horizontal bg="#f2f2f2" padding="10">
                 <text text="模式:" textColor="black" marginTop="6" />
                 <radiogroup id="missionType" orientation="horizontal" >
@@ -74,9 +80,20 @@ const UI = () =>
                 break;
         }
         log("UIConfig.missionType: " + UIConfig.missionType);
-
     }
     );
+    ui.tutorialSwitch.on("check", function (checked)
+    {
+        if (checked)
+        {
+            UIConfig.tutorial = true;
+            console.log("开启新手教程");
+        } else
+        {
+            UIConfig.tutorial = false;
+            console.log("关闭新手教程");
+        }
+    });
 };
 module.exports = UI;
 // UI();

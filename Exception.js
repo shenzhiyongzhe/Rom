@@ -11,10 +11,10 @@ const backPack_close = ReadImg("backPack_close");
 const menu_close = ReadImg("menu_close");
 const mainStory_confirm = ReadImg("mainStory_confirm");
 const death_confirm = ReadImg("death_confirm");
-const backPackConfirm = ReadImg("backPack_confirmBtn");
+const backPack_confirm = ReadImg("backPack_confirm");
 const version_icon = ReadImg("version");
-const startGameBtn = ReadImg("startGameBtn");
-const haltModeBtn = ReadImg("CN_haltMode");
+const startGameBtn = ReadImg("startGame");
+const haltModeBtn = ReadImg("haltMode");
 
 
 const ConfirmBtnCheck = function (shot)
@@ -25,7 +25,7 @@ const ConfirmBtnCheck = function (shot)
     const hasDeathConfirm = images.findImage(shot, death_confirm, { region: [579, 532, 120, 61], threshold: 0.7 });
     if (hasDeathConfirm) { RandomPress([551, 544, 180, 37]); Sleep(3000, 5000); DeathFlow(); log("character is dead"); return true; }
 
-    const hasBackPackConfirm = images.findImage(shot, backPackConfirm, { region: [649, 501, 158, 112], threshold: 0.7 });
+    const hasBackPackConfirm = images.findImage(shot, backPack_confirm, { region: [649, 501, 158, 112], threshold: 0.7 });
     if (hasBackPackConfirm) { RandomPress([hasBackPackConfirm.x - 20, hasBackPackConfirm.y - 5, 40, 15]); return true; }
 
     return false;
@@ -50,8 +50,8 @@ const ExitGameCheck = function (shot)
     const hasVersion = images.findImage(shot, version_icon, { region: [1136, 14, 125, 45], threshold: 0.8 });
     if (hasVersion) { RandomPress([136, 63, 966, 500]); return true; }
 
-    const hasStart = images.findImage(shot, startGameBtn, { region: [1118, 634, 107, 67], threshold: 0.8, });
-    if (hasStart) { RandomPress([hasStart.x + random(-40, 90), hasStart.y + random(-5, 10), 10, 2]); return true; }
+    const hasStart = images.findImage(shot, startGameBtn, { region: [1124, 647, 92, 41], threshold: 0.8, });
+    if (hasStart) { RandomPress([1102, 655, 144, 28]); return true; }
 
     const hasEnterHaltMode = images.findImage(shot, haltModeBtn, { region: [529, 415, 226, 78] });
     if (hasEnterHaltMode)

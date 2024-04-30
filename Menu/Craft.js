@@ -47,10 +47,10 @@ const CraftFlow = function ()
         }
         Sleep(2000, 4000);
 
-        if (Player.equipment.weapon != "blue")
+        if (Player.equipment.weapon.color != "blue")
         {
             Craft_Weapon();
-        } else if (Player.equipment.chestplate != "blue")
+        } else if (Player.equipment.chestplate.color != "blue")
         {
             Craft_Chestplate();
         }
@@ -138,10 +138,10 @@ const GetEquipmentColor = function ()
     const bootsColor = JudgeEquipmentColor(
         colors.toString(images.pixel(shot, 483, 401))
     );
-    Player.equipment.weapon = weaponColor;
-    Player.equipment.chestplate = chestplateColor;
-    Player.equipment.pant = pantColor;
-    Player.equipment.boots = bootsColor;
+    Player.equipment.weapon.color = weaponColor;
+    Player.equipment.chestplate.color = chestplateColor;
+    Player.equipment.pant.color = pantColor;
+    Player.equipment.boots.color = bootsColor;
     log(
         `装备颜色：武器${weaponColor}，胸甲${chestplateColor}，裤子${pantColor}，靴子${bootsColor}`
     );

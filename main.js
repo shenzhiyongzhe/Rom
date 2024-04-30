@@ -33,20 +33,25 @@ const DeathFlow = require("./Death.js");
 const ExceptionCatch = require("./Exception.js");
 
 const TimeRegister = {
-    backPackTimer: 100,
+    backPackTimer: 3,
     collectionChecker: 150,
 };
 let TimerRecorder = {
-    backPackTimer: 100,
+    backPackTimer: 1,
     collectionChecker: 150,
 };
 
 const TimerChecker = function (item)
 {
-    if (TimerRecorder[item] == 0)
+    if (TimerRecorder[item] <= 0)
     {
         TimerRecorder[item] = TimeRegister[item];
         return true;
+    }
+    else
+    {
+        TimerRecorder[item]--;
+        return false;
     }
 };
 const Check = function ()

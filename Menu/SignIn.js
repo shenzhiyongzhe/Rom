@@ -39,7 +39,6 @@ const Flow = function ()
     {
         RandomPress(SignInPos.awardsBtn, random(100, 300));
         Sleep();
-        RandomClick(posRef.blank);
         if (isCharacter == null && kate == null) GoBack();
     }
     Sleep();
@@ -50,8 +49,6 @@ const Flow = function ()
         Sleep(2000, 2500);
         RandomPress(SignInPos.awardsBtn, random(100, 300));
         Sleep(2000, 4000);
-        RandomClick(posRef.blank);
-        Sleep(1000, 2000);
         if (kate == null) GoBack();
     }
 
@@ -61,8 +58,6 @@ const Flow = function ()
         Sleep(2000, 2500);
         RandomPress(SignInPos.awardsBtn, random(100, 300));
         Sleep(2000, 4000);
-        RandomClick(posRef.blank);
-        Sleep(1000, 2000);
         GoBack();
     }
 };

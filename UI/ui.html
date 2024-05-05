@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Document</title>
+</head>
+
+<body>
+  <div class="card-box">
+    <div id="character-level">
+      <div><strong>角色</strong>职业： 弓箭手</div>
+      <div>当前等级：<span>1</span>级</div>
+    </div>
+    <div id="character-account">
+      <input type="text" placeholder="角色昵称" />
+      <input type="text" placeholder="账号邮箱" />
+      <input type="text" placeholder="账号密码" />
+      <input type="text" placeholder="辅助邮箱" />
+    </div>
+  </div>
+  <div class="card-box">
+    <div id="instance-bar">
+      <h2>副本：</h2>
+      <div class="select-menu">
+        <div class="select">
+          <span>副本等级：</span>
+          <div class="arrow-box">
+            <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
+            <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+          </div>
+        </div>
+        <div class="option-list">
+          <div class="option">30</div>
+          <div class="option">40</div>
+          <div class="option">50</div>
+          <div class="option">60</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="normal-instanceZone" class="select-menu">
+      <div class="select">
+        <span>普通：</span>
+        <div class="arrow-box">
+          <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
+          <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+        </div>
+      </div>
+      <div class="option-list">
+        <div class="option">远古迷宫</div>
+        <div class="option">地下墓穴</div>
+        <div class="option">迪贝格</div>
+        <div class="option">沙漠洞穴</div>
+        <div class="option">地下神殿</div>
+      </div>
+    </div>
+
+    <div id="special-instanceZone" class="select-menu">
+      <div class="select">
+        <span>特殊：</span>
+        <div class="arrow-box">
+          <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
+          <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+        </div>
+      </div>
+      <div class="option-list">
+        <div class="option">精灵的矿山</div>
+        <div class="option">幻影遗迹</div>
+        <div class="option">时间迷宫</div>
+        <div class="option">寒冰神殿</div>
+        <div class="option">混沌城堡</div>
+        <div class="option">精灵城堡</div>
+      </div>
+    </div>
+
+    <div id="deep-instanceZone" class="select-menu">
+      <div class="select">
+        <span>深渊圣城</span>
+        <div class="arrow-box">
+          <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
+          <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+        </div>
+      </div>
+      <div class="option-list">
+        <div class="option">帕梅兹的黄昏</div>
+        <div class="option">玛吉歇斯的怨恨</div>
+        <div class="option">艾克丁的安歇地</div>
+        <div class="option">阿拉玛内德之怒</div>
+        <div class="option">基尔塞亚的审判</div>
+      </div>
+    </div>
+
+    <div id="labor-instanceZone" class="select-menu">
+      <div class="select">
+        <span>工会：</span>
+        <div class="arrow-box">
+          <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
+          <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+        </div>
+      </div>
+      <div class="option-list">
+        <div class="option">痛苦支配着</div>
+        <div class="option">灵魂回响</div>
+        <div class="option">死亡誓约者</div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <button id="startBtn">Start</button>
+  </div>
+  <script>
+    const selects = document.querySelectorAll(".select-menu");
+    const options = document.querySelectorAll(".option");
+    const startBtn = document.querySelector("#startBtn");
+
+    selects.forEach((select) =>
+    {
+      select.addEventListener("click", () =>
+      {
+        select.querySelector(".option-list").classList.toggle("active");
+        select
+          .querySelectorAll(".arrow")
+          .forEach((arrow) => arrow.classList.toggle("arrow-hidden"));
+      });
+    });
+
+    options.forEach((option) =>
+    {
+      option.addEventListener("click", () =>
+      {
+        options.forEach((option) => option.classList.remove("selected"));
+        option.parentNode.parentNode.querySelector(".select>span").innerHTML =
+          option.innerHTML;
+        // option_list.classList.toggle("active");
+        option.classList.add("selected");
+      });
+    });
+    function GetOptionValue(id)
+    {
+      const text = document.querySelector(`#${id}>.select>span`).textContent;
+      console.log(text);
+    }
+    // document
+    //     .querySelector("#test")
+    //     .addEventListener("click", () => GetOptionValue("normal-instanceZone"));
+    startBtn.addEventListener("click", () =>
+    {
+      $autox.callHandler("StartScript", "webData", (callBackData) =>
+      {
+        startBtn.innerHTML = "Stop";
+        startBtn.style.cssText = "background: red";
+        console.log(callBackData);
+      });
+
+    });
+
+    document.addEventListener("AutoxJsBridgeReady", () =>
+    {
+      //$autox.
+    });
+  </script>
+</body>
+
+</html>

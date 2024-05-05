@@ -1,8 +1,5 @@
 
 const {
-    imgRef,
-    posRef,
-    Player,
     ReadImg,
     Sleep,
     RandomPress,
@@ -10,7 +7,7 @@ const {
 } = require("./Global.js");
 
 const CrucifixFlow = require("./Crucifix.js");
-const { BackPack_EquipmentFlow } = require("./BackPack.js");
+const { WearEquipment } = require("./BackPack.js");
 const DeathImg = {
     revive: ReadImg("character_revive"),
 
@@ -89,7 +86,7 @@ const DeathFlow = function ()
     {
         RandomPress([1090, 20, 25, 15]);
         Sleep(2000, 3000);
-        BackPack_EquipmentFlow();
+        WearEquipment();
     }
 
     Sleep(2000, 3000);

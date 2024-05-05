@@ -9,25 +9,46 @@ const {
 const back_icon = ReadImg("back");
 const backPack_close = ReadImg("backPack_close");
 const menu_close = ReadImg("menu_close");
+
 const mainStory_confirm = ReadImg("mainStory_confirm");
-const death_confirm = ReadImg("death_confirm");
-const backPack_confirm = ReadImg("backPack_confirm");
+// const death_confirm = ReadImg("death_confirm");
+// const backPack_confirm = ReadImg("backPack_confirm");
+
 const version_icon = ReadImg("version");
 const startGameBtn = ReadImg("startGame");
 const haltModeBtn = ReadImg("haltMode");
 
+let isCloseLoginTip = false;
+const propsCollection_loginConfirm = ReadImg("propsCollection_warningConfirm");
 
 const ConfirmBtnCheck = function (shot)
 {
-    const hasmainStory_confirm = images.findImage(shot, mainStory_confirm, { region: [672, 444, 143, 74], threshold: 0.7 });
-    if (hasmainStory_confirm) { RandomPress([670, 466, 157, 30]); return true; }
+    // const hasmainStory_confirm = images.findImage(shot, mainStory_confirm, { region: [672, 444, 143, 74], threshold: 0.7 });
+    // if (hasmainStory_confirm) { RandomPress([670, 466, 157, 30]); return true; }
 
-    const hasDeathConfirm = images.findImage(shot, death_confirm, { region: [579, 532, 120, 61], threshold: 0.7 });
-    if (hasDeathConfirm) { RandomPress([551, 544, 180, 37]); Sleep(3000, 5000); DeathFlow(); log("character is dead"); return true; }
+    // const hasDeathConfirm = images.findImage(shot, death_confirm, { region: [579, 532, 120, 61], threshold: 0.7 });
+    // if (hasDeathConfirm) { RandomPress([551, 544, 180, 37]); Sleep(3000, 5000); DeathFlow(); log("character is dead"); return true; }
 
-    const hasBackPackConfirm = images.findImage(shot, backPack_confirm, { region: [649, 501, 158, 112], threshold: 0.7 });
-    if (hasBackPackConfirm) { RandomPress([hasBackPackConfirm.x - 20, hasBackPackConfirm.y - 5, 40, 15]); return true; }
+    // const hasBackPackConfirm = images.findImage(shot, backPack_confirm, { region: [649, 501, 158, 112], threshold: 0.7 });
+    // if (hasBackPackConfirm) { RandomPress([hasBackPackConfirm.x - 20, hasBackPackConfirm.y - 5, 40, 15]); return true; }
 
+    // if (isCloseLoginTip == false)
+    // {
+    //     const hasPropsCollection_loginConfirm = images.findImage(shot, propsCollection_loginConfirm, { region: [687, 416, 109, 86], threshold: 0.7 });
+    //     if (hasPropsCollection_loginConfirm)
+    //     {
+    //         RandomPress([582, 397, 13, 13]); // 关闭不再提示
+    //         Sleep();
+    //         RandomPress([666, 444, 150, 28]); //点击登录
+    //         Sleep();
+    //         isCloseLoginTip = true;
+    //         return true;
+    //     }
+    // }
+
+    // return false;
+    const hasConfirm = images.findImage(shot, mainStory_confirm, { region: [220, 138, 802, 436], threshold: 0.7 });
+    if (hasConfirm) { RandomPress([hasConfirm.x - 15, hasConfirm.y - 5, 30, 15]); return true; }
     return false;
 };
 

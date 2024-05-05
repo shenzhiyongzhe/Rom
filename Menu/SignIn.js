@@ -1,9 +1,5 @@
 const {
-    posRef,
-    Player,
-    ReadImg,
     Sleep,
-    RandomClick,
     RandomPress,
     GoBack,
 } = require("../Global.js");

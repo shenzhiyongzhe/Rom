@@ -85,7 +85,6 @@ const GetLocalTime = () =>
 
 log("Global.js 加载完成");
 module.exports = {
-    imgRef,
     posRef,
     Player,
     ReadImg,

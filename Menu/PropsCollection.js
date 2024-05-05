@@ -6,7 +6,7 @@ const {
     ReadImg,
 } = require("../Global.js");
 
-const { BackPack_EquipmentFlow, DecomposeProps } = require("../BackPack.js");
+const { WearEquipment, DecomposeProps } = require("../BackPack.js");
 const propCollectionPos = [1098, 121, 19, 27];
 const propsLogin = [752, 610, 109, 23];
 const progressAward = [1103, 252, 139, 27];
@@ -68,9 +68,8 @@ const LoginProgressAward = function ()
 };
 const PropsCollectionFlow = function ()
 {
-    RandomPress([1090, 20, 25, 15]); //背包图标
-    Sleep(2000, 3000);
-    BackPack_EquipmentFlow();
+    Sleep();
+    WearEquipment();
     Sleep();
     RandomPress([1223, 18, 29, 32]); // 菜单栏图标
     Sleep();
@@ -93,18 +92,9 @@ const PropsCollectionFlow = function ()
             {
                 RandomPress(propsLogin);
                 Sleep(2000, 3000);
-                const hasWarningTip = images.findImage(captureScreen(), warningConfirm, { threshold: 0.8, region: [496, 340, 43, 36] });
-                if (hasWarningTip)
-                {
-                    RandomPress([582, 397, 13, 13]); // 关闭不再提示
-                    Sleep();
-                    RandomPress([666, 444, 150, 28]); //点击登录
-                    Sleep();
-                }
-
             }
         }
-        warningConfirm.recycle();
+
         GoBack();
         Sleep();
         DecomposeProps();
@@ -116,7 +106,7 @@ const PropsCollectionFlow = function ()
         GoBack();
         Sleep();
     }
-
+    warningConfirm.recycle();
 };
 // PropsCollectionFlow();
 module.exports = PropsCollectionFlow;

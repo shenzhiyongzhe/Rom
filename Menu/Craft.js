@@ -1,5 +1,4 @@
 const {
-    imgRef,
     posRef,
     Player,
     ReadImg,
@@ -21,7 +20,7 @@ const CraftPos = {
     abilityIcon: [14, 14, 50, 44]
 };
 ////----------------------制造-------------------------
-const CraftFlow = function ()
+function CraftFlow()
 {
     Sleep();
     const craftIcon = ReadImg("craft_icon");
@@ -58,7 +57,7 @@ const CraftFlow = function ()
         GoBack();
     }
 };
-const CraftBtn = function ()
+function CraftBtn()
 {
     const isCraftable = images.findMultiColors(
         captureScreen(), "#3b4336", [[128, -2, "#373e32"], [-3, 18, "#2d3529"], [129, 17, "#343b2f"],], {
@@ -72,7 +71,7 @@ const CraftBtn = function ()
         Sleep(1000, 2000);
     }
 };
-const Craft_Weapon = function ()
+function Craft_Weapon()
 {
     RandomPress(CraftPos.equipmentPage);
     Sleep();
@@ -94,7 +93,7 @@ const Craft_Weapon = function ()
         CraftBtn();
     }
 };
-const Craft_Chestplate = function ()
+function Craft_Chestplate()
 {
     RandomPress(CraftPos.equipmentPage);
     Sleep(2000, 3000);
@@ -107,7 +106,7 @@ const Craft_Chestplate = function ()
     CraftBtn();
 };
 //判断装备颜色
-const JudgeEquipmentColor = function (itemColor)
+function JudgeEquipmentColor(itemColor)
 {
     if (colors.isSimilar(itemColor, "#1E4C62", 12))
     {
@@ -121,7 +120,7 @@ const JudgeEquipmentColor = function (itemColor)
     }
 };
 // 获取装备颜色
-const GetEquipmentColor = function ()
+function GetEquipmentColor()
 {
     RandomPress(CraftPos.abilityIcon);
     Sleep(2000, 3000);

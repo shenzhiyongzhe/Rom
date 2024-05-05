@@ -1,7 +1,4 @@
 const {
-    imgRef,
-    posRef,
-    Player,
     ReadImg,
     Sleep,
     RandomPress,

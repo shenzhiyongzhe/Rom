@@ -23,7 +23,7 @@ const AbilityPointsFlow = function ()
     CharacterIdentity();
     Sleep(600, 1500);
     RandomPress(AbilityPointsPos.icon);
-    Sleep(1000, 1500);
+    Sleep(2000, 3000);
     if (Player.profession == "archer")
     {
         RandomPress(AbilityPointsPos.ability_swift); //游侠 敏捷
@@ -32,9 +32,9 @@ const AbilityPointsFlow = function ()
         RandomPress(AbilityPointsPos.ability_wisedom); // 法师 智力
     }
 
-    Sleep(600, 1500);
+    Sleep();
     RandomPress(AbilityPointsPos.confirm);
-    Sleep(600, 1500);
+    Sleep();
     RandomPress(AbilityPointsPos.close);
 };
 module.exports = AbilityPointsFlow;

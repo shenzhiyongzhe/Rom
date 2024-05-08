@@ -87,9 +87,7 @@ const RecoverEquipment = () =>
 function CrucifixFlow() 
 {
     RecoverExp();
-
     Sleep();
-
     const hasRecover = RecoverEquipment();
     Sleep();
     if (random(1) > 0.5) RandomPress(CrucifixPos.icon);

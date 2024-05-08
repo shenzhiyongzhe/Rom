@@ -20,41 +20,48 @@
       <input type="text" placeholder="账号密码" />
       <input type="text" placeholder="辅助邮箱" />
     </div>
+    <div id="gameMode">
+      <label>新手：<input type="checkbox" name="isBeginner" /></label>
+      <div>
+        <label>主线<input type="radio" name="gameMode" value="mainStory" checked="true" /></label>
+
+        <label>副本<input type="radio" name="gameMode" value="instance" /></label>
+
+        <label>委托<input type="radio" name="gameMode" value="delegate" /></label>
+      </div>
+
+    </div>
   </div>
   <div class="card-box">
-    <div id="instance-bar">
-      <h2>副本：</h2>
-      <div class="select-menu">
-        <div class="select">
-          <span>副本等级：</span>
-          <div class="arrow-box">
-            <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
-            <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
-          </div>
-        </div>
-        <div class="option-list">
-          <div class="option">30</div>
-          <div class="option">40</div>
-          <div class="option">50</div>
-          <div class="option">60</div>
-        </div>
-      </div>
-    </div>
-
     <div id="normal-instanceZone" class="select-menu">
       <div class="select">
-        <span>普通：</span>
+        <span>普通副本：</span>
         <div class="arrow-box">
           <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
           <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
         </div>
       </div>
       <div class="option-list">
-        <div class="option">远古迷宫</div>
-        <div class="option">地下墓穴</div>
-        <div class="option">迪贝格</div>
-        <div class="option">沙漠洞穴</div>
-        <div class="option">地下神殿</div>
+        <div class="option"><label><input type="checkbox" />远古迷宫</label>
+          <div><button class="plus">+</button><span>1</span><button class="subtract">-</button></div>
+          <div><span>1</span>级</div>
+        </div>
+        <div class="option"><label><input type="checkbox" />地下墓穴</label>
+          <div><button class="plus">+</button><span>1</span><button class="subtract">-</button></div>
+          <div><span>28</span>级</div>
+        </div>
+        <div class="option"><label><input type="checkbox" />迪贝格</label>
+          <div><button class="plus">+</button><span>1</span><button class="subtract">-</button></div>
+          <div><span>50</span>级</div>
+        </div>
+        <div class="option"><label><input type="checkbox" />沙漠洞穴</label>
+          <div><button class="plus">+</button><span>1</span><button class="subtract">-</button></div>
+          <div><span>67</span>级</div>
+        </div>
+        <div class="option"><label><input type="checkbox" />地下神殿</label>
+          <div><button class="plus">+</button><span>1</span><button class="subtract">-</button></div>
+          <div>无</div>
+        </div>
       </div>
     </div>
 
@@ -67,58 +74,59 @@
         </div>
       </div>
       <div class="option-list">
-        <div class="option">精灵的矿山</div>
-        <div class="option">幻影遗迹</div>
-        <div class="option">时间迷宫</div>
-        <div class="option">寒冰神殿</div>
-        <div class="option">混沌城堡</div>
-        <div class="option">精灵城堡</div>
+        <div class="option"><input type="checkbox" id="special_01" /><label for="special_01"><span>精灵的矿山</span></label>
+        </div>
+        <div class="option"><input type="checkbox" id="special_02" /><label for="special_02"><span>幻影遗迹</span></label>
+        </div>
+        <div class="option"><input type="checkbox" id="special_03" /><label for="special_03"><span>时间迷宫</span></label>
+        </div>
+        <div class="option"><input type="checkbox" id="special_04" /><label for="special_04"><span>寒冰神殿</span></label>
+        </div>
+        <div class="option"><input type="checkbox" id="special_05" /><label for="special_05"><span>混沌城堡</span></label>
+        </div>
+        <div class="option"><input type="checkbox" id="special_06" /><label for="special_06"><span>精灵城堡</span></label>
+        </div>
       </div>
     </div>
 
-    <div id="deep-instanceZone" class="select-menu">
-      <div class="select">
-        <span>深渊圣城</span>
-        <div class="arrow-box">
-          <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
-          <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
-        </div>
-      </div>
-      <div class="option-list">
-        <div class="option">帕梅兹的黄昏</div>
-        <div class="option">玛吉歇斯的怨恨</div>
-        <div class="option">艾克丁的安歇地</div>
-        <div class="option">阿拉玛内德之怒</div>
-        <div class="option">基尔塞亚的审判</div>
-      </div>
-    </div>
-
-    <div id="labor-instanceZone" class="select-menu">
-      <div class="select">
-        <span>工会：</span>
-        <div class="arrow-box">
-          <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
-          <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
-        </div>
-      </div>
-      <div class="option-list">
-        <div class="option">痛苦支配着</div>
-        <div class="option">灵魂回响</div>
-        <div class="option">死亡誓约者</div>
-      </div>
-    </div>
   </div>
   <div>
     <button id="startBtn">Start</button>
   </div>
   <script>
+    const ui = {
+      gameMode: "mainStory",
+      isBeginner: false,
+      normalZone: [
+        { checked: false, time: 1, level: 1 },
+        { checked: false, time: 1, level: 1 },
+        { checked: false, time: 1, level: 1 },
+        { checked: false, time: 1, level: 1 },
+        { checked: false, time: 1, level: 1 },
+      ]
+    };
     const selects = document.querySelectorAll(".select-menu");
-    const options = document.querySelectorAll(".option");
+    const options = document.querySelectorAll("#normal-instanceZone .option");
     const startBtn = document.querySelector("#startBtn");
+    const beginnerCheckBox = document.querySelector("input[name=isBeginner]");
 
+    //单选框点击事件
+    document.querySelectorAll("input[name= gameMode]").forEach((radio) =>
+    {
+      radio.addEventListener("click", () =>
+      {
+        ui.gameMode = radio.value;
+      });
+    });
+    //新手复选框
+    beginnerCheckBox.addEventListener("click", () =>
+    {
+      ui.isBeginner = beginnerCheckBox.checked;
+    });
+    //下拉菜单显示与隐藏
     selects.forEach((select) =>
     {
-      select.addEventListener("click", () =>
+      select.querySelector(".select").addEventListener("click", () =>
       {
         select.querySelector(".option-list").classList.toggle("active");
         select
@@ -127,28 +135,44 @@
       });
     });
 
-    options.forEach((option) =>
+
+    //选项的点击事件
+    options.forEach((option, index) =>
     {
-      option.addEventListener("click", () =>
+      let time = option.querySelector("span:first-of-type");
+      let input = option.querySelector("input");
+      input.addEventListener("click", () =>
       {
-        options.forEach((option) => option.classList.remove("selected"));
-        option.parentNode.parentNode.querySelector(".select>span").innerHTML =
-          option.innerHTML;
-        // option_list.classList.toggle("active");
-        option.classList.add("selected");
+        ui.normalZone[index].checked = input.checked;
+        console.log(ui.normalZone[index]);
       });
+      let plus = option.querySelector(".plus");
+      plus.addEventListener("click", () =>
+      {
+        let addTime = parseInt(time.innerText);
+        addTime++;
+        time.innerText = addTime;
+        ui.normalZone[index].time = addTime;
+      });
+      let subtract = option.querySelector(".subtract");
+      subtract.addEventListener("click", () =>
+      {
+        let subTime = parseInt(time.innerText);
+        if (subTime == 1)
+        {
+          subTime = 1;
+        }
+        else subTime--;
+        time.innerText = subTime;
+        ui.normalZone[index].time = subTime;
+      });
+
     });
-    function GetOptionValue(id)
-    {
-      const text = document.querySelector(`#${id}>.select>span`).textContent;
-      console.log(text);
-    }
-    // document
-    //     .querySelector("#test")
-    //     .addEventListener("click", () => GetOptionValue("normal-instanceZone"));
+
+    //开始按钮点击事件
     startBtn.addEventListener("click", () =>
     {
-      $autox.callHandler("StartScript", "webData", (callBackData) =>
+      $autox.callHandler("StartScript", JSON.stringify(ui), (callBackData) =>
       {
         startBtn.innerHTML = "Stop";
         startBtn.style.cssText = "background: red";
@@ -160,6 +184,7 @@
     document.addEventListener("AutoxJsBridgeReady", () =>
     {
       //$autox.
+      console.log("AutoxJsBridegReady");
     });
   </script>
 </body>

@@ -56,6 +56,7 @@ function CreateCharacter()
     }
 
     if (hasCharacterOption == null) return false;
+
     RandomPress(BeginnerPos.profession);
     Sleep(2000, 3000);
     //tuo option skip or continue
@@ -90,7 +91,16 @@ function CreateCharacter()
         Sleep();
         RandomPress(BeginnerPos.create_confirm);
         Sleep();
-        if (images.findImage(captureScreen(), BeginnerImg.close, { region: BeginnerCheckPos.close }) == null) break;
+        let shot = captureScreen();
+        let confirmTip = ReadImg("mainStory_confirm");
+        if (images.findImage(shot, BeginnerImg.close, { region: BeginnerCheckPos.close }) == null) break;
+        else if (images.findImage(shot, confirmTip, { region: [594, 419, 93, 76] }))
+        {
+            log("昵称包含敏感词汇，需要重新输入");
+            RandomPress([574, 442, 137, 27]);
+            confirmTip.recycle();
+        }
+
     }
     log("Character created!");
     const storage = storages.create("game_config");

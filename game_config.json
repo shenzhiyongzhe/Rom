@@ -1,0 +1,21 @@
+{
+    "player":{
+        "deathtime": 0,
+        "level":1,
+        "profession": "archer",
+        "equipment":{
+            "weapon":{"color": "white", "level": 0},
+            "chestplate":{"color": "white", "level": 0},
+            "pants":{"color": "white", "level": 0},
+            "boots":{"color": "white", "level": 0}
+        }
+    },
+    "ui":{
+        "isBeginner":false,
+        "gameMode": "mainStory"
+    },
+    "setting":{
+        
+        "isFirstPropsLogin": false
+    }
+}

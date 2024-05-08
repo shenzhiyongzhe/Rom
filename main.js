@@ -5,17 +5,17 @@ UI();
 
 const {
     posRef,
-    Player,
+    game_config,
     ReadImg,
     Sleep,
     RandomPress,
     GoBack,
     GetLocalTime,
+    RWFile,
 } = require("./Global.js");
 
 
 const {
-    DeathCheck,
     AbilityPointCheck,
     MissionCheck,
     MenuCheck,
@@ -28,9 +28,10 @@ const MainStoryFlow = require("./MainStory.js");
 const MissionFlow = require("./Mission.js");
 const MenuFlow = require("./Menu.js");
 const { WearEquipment, UseProps, DecomposeProps } = require("./BackPack.js");
-const DeathFlow = require("./Death.js");
+const { DeathFlow, DeathCheck } = require("./Death.js");
 const ExceptionCatch = require("./Exception.js");
-const BeginnerFlow = require("./BeginnerTutorial.js");
+const BeginnerFlow = require("./Beginner.js");
+const EnterInstanceZones = require("./Menu/InstanceZones.js");
 
 const TimeRegister = {
     abilityPoint: 10,
@@ -47,7 +48,7 @@ const TimeRegister = {
 };
 
 let TimeRecorder = {
-    abilityPoint: 10,
+    abilityPoint: 2,
     backPack: {
         equip: 3,
         props: 3
@@ -59,26 +60,7 @@ let TimeRecorder = {
     }
 };
 
-const game_config = {
-    player: {},
-    ui: {},
-    setting: { isBeginner: true, gameMode: "mainStory" }
-};
 
-function Init()
-{
-    const storage = storages.create("game_config");
-    const hasInit = storage.get("game_config");
-    if (hasInit == null)
-    {
-        storage.put("game_config", JSON.stringify(game_config));
-    }
-    else
-    {
-        game_config = JSON.parse(hasInit);
-    }
-    Sleep();
-}
 function TimeChecker(item)
 {
     for (let key in TimeRecorder)
@@ -119,16 +101,18 @@ function TimeChecker(item)
 }
 
 
+
 const Check = function ()
 {
     try
     {
         let shot = images.captureScreen();
-        game_config.setting.gameMode == "mainStory" && MainStoryFlow();
+
+        game_config.ui.gameMode == "mainStory" && MainStoryFlow();
         Sleep();
-        DeathCheck(shot) && DeathFlow();
+        DeathCheck() && DeathFlow();
         Sleep();
-        TimeChecker("ableAbilityPoint") && AbilityPointCheck(shot) && AbilityPointsFlow();
+        TimeChecker("abilityPoint") && AbilityPointCheck(shot) && AbilityPointsFlow();
         Sleep();
         MissionCheck(shot) && MissionFlow();
         Sleep();
@@ -138,12 +122,16 @@ const Check = function ()
         Sleep();
         MenuCheck(shot) && MenuFlow();
         Sleep();
+        game_config.gameMode == "mainStory" && MainStoryFlow();
+        Sleep();
         ExceptionCatch();
+        log("Check flow");
     } catch (e)
     {
         console.error(e);
         alert("出现错误~", `${e}`);
         java.lang.System.exit(0);
+        // engines.stopAllAndToast();
     }
 };
 
@@ -152,19 +140,50 @@ console.setGlobalLogConfig({
     "filePattern": "%d{dd日}%m%n"
 });
 
-const w = floaty.window(
-    <frame gravity="center" bg="#fd4b4f">
-        <text id="text">R</text>
-    </frame >
+const floaty_window = floaty.window(
+    <frame gravity="center">
+        <button id="menuBtn" w="10" h="10" bg="#00ff00"></button>
+    </frame>
 );
-w.setPosition(0, 80);
-
-
-
-const Main = function ()
+floaty_window.setPosition(0, 80);
+let isRuning = true;
+floaty_window.menuBtn.click(function ()
 {
-    Init();
-    game_config.setting.isBeginner && BeginnerFlow();
+    let color = floaty_window.menuBtn.attr("bg");
+    if (color == "#00ff00")
+    {
+        floaty_window.menuBtn.attr("bg", "#ff0000");
+        isRuning = false;
+    }
+    else
+    {
+        floaty_window.menuBtn.attr("bg", "#00ff00");
+        isRuning = true;
+    }
+    PauseScripte();
+});
+function PauseScripte()
+{
+    let pauseThread = threads.start(function ()
+    {
+        while (isRuning)
+        {
+            Sleep(1000);
+        }
+        console.log("脚本暂停");
+    }
+    );
+}
+
+const Main = function (data)
+{
+    let data = JSON.parse(data);
+    console.log(`脚本启动时间：${GetLocalTime()}`);
+    RWFile('ui', data);
+    game_config.ui = data;
+    console.log(`游戏配置：${game_config.ui.isBeginner}`);
+    game_config.ui.isBeginner == true && BeginnerFlow();
+    game_config.ui.gameMode == "instance" && EnterInstanceZones();
     threads.start(function ()
     {
         setInterval(() => Check(), 2000);

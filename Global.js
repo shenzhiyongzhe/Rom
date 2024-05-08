@@ -10,20 +10,57 @@ const posRef = {
     collectionPage: [1098, 121, 19, 27],
     collectionPage_login: [752, 610, 109, 23],
 };
-const Player = {
-    profession: "archer", //职业
-    level: 0,
-    equipment: {
-        weapon: { color: "whilte", level: 0 }, //武器
-        chestplate: { color: "whilte", level: 0 }, //胸甲
-        pant: { color: "whilte", level: 0 }, //裤子
-        boots: { color: "whilte", level: 0 }, //鞋子
+let game_config = {
+    "player": {
+        "deathtime": 0,
+        "level": 1,
+        "profession": "archer",
+        "equipment": {
+            "weapon": { "color": "white", "level": 0 },
+            "chestplate": { "color": "white", "level": 0 },
+            "pants": { "color": "white", "level": 0 },
+            "boots": { "color": "white", "level": 0 }
+        }
     },
+    "ui": {
+        "isBeginner": false,
+        "gameMode": "mainStory"
+    },
+    "setting": {
 
-    pushMainStory: true, //是否推进主线任务
-    isInMainStory: true, //是否正在进行主线任务
+        "isFirstPropsLogin": false
+    }
 };
+function RWFile(type, obj)
+{
+    let file = files.read("./game_config.json");
+    let data = JSON.parse(file);
+    if (type == null || obj == null)
+    {
+        return data;
+    }
+    else if (type == "player")
+    {
+        data.player = obj;
+    }
+    else if (type == "ui")
+    {
+        data.ui = obj;
+    }
+    else if (type == "setting")
+    {
+        data.setting = obj;
+    }
 
+    try
+    {
+        files.write("./game_config.json", JSON.stringify(data));
+    } catch (e)
+    {
+        log(e);
+    }
+}
+game_config = RWFile();
 //《《《------------------------------------简化封装------------------------------------------》》》
 /**
  * @description 读取图片
@@ -62,13 +99,18 @@ const GoBack = () => RandomPress(posRef.goBack, random(20, 300));
 const CharacterIdentity = function ()
 {
     const actor = ReadImg("archer");
-    if (images.findImage(captureScreen(), actor, { region: [6, 4, 78, 79] }))
+    const isArcher = images.findImage(captureScreen(), actor, { region: [6, 4, 78, 79] });
+    actor.recycle();
+    const player = game_config.player;
+    if (isArcher)
     {
-        actor.recycle();
+        player.profession = "archer";
+        RWFile("player", player);
         return true;
     } else
     {
-        actor.recycle();
+        player.profession = "wizard";
+        RWFile("player", player);
         return false;
     }
 };
@@ -86,7 +128,8 @@ const GetLocalTime = () =>
 log("Global.js 加载完成");
 module.exports = {
     posRef,
-    Player,
+    game_config,
+    RWFile,
     ReadImg,
     Sleep,
     GenerateRandomPos,

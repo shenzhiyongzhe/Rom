@@ -1,20 +1,12 @@
 
-const {
-    ReadImg,
-    Sleep,
-    RandomPress,
-    GoBack,
-} = require("./Global.js");
+const { ReadImg, Sleep, RandomPress, GoBack, game_config, } = require("./Global.js");
 
 const CrucifixFlow = require("./Crucifix.js");
 const { WearEquipment } = require("./BackPack.js");
 const DeathImg = {
     revive: ReadImg("character_revive"),
-
 };
 const DeathPos = {
-    revive: [554, 556, 175, 39],
-    deathConfirm: [551, 544, 179, 37],
     grocery: [70, 270, 100, 30],
     potion: [160, 137, 221, 51],
     potionMax: [820, 365, 40, 20],
@@ -22,8 +14,6 @@ const DeathPos = {
 };
 
 const Death_RecPos = {
-    revive: [546, 511, 203, 54],
-    deathConfirm: [609, 541, 67, 44],
     grocery: [54, 257, 89, 64],
     potion: [160, 220, 200, 40],
     potionMax: [820, 365, 40, 20],
@@ -68,31 +58,44 @@ const GroceryFlow = function ()
     }
     groceryIcon.recycle();
 };
+const DeathCheck = function ()
+{
+    const hasRevive = findImage(captureScreen(), DeathImg.revive, { region: [568, 544, 124, 68] });
+    if (hasRevive)
+    {
+        game_config.player.deathtime++;
+        console.log("死亡次数：" + game_config.player.deathtime);
+        Sleep(1000, 5000);
+        RandomPress([574, 565, 140, 25]);
+        Sleep(12000, 15000);
+        RandomPress([563, 546, 160, 34]);
+        Sleep();
+        return true;
+    }
+    else return false;
+};
 //死亡流程 点击确认按钮，购买药水
 const DeathFlow = function ()
 {
-    const hasRevive = findImage(captureScreen(), DeathImg.revive, { region: Death_RecPos.revive });
-    if (hasRevive)
-    {
-        Sleep(1000, 8000);
-        RandomPress(DeathPos.revive);
-        Sleep(10000, 15000);
-        RandomPress(DeathPos.deathConfirm);
-    }
+    console.log("开始死亡流程");
+
 
     const hasRecover = CrucifixFlow();
     Sleep();
     if (hasRecover)
     {
-        RandomPress([1090, 20, 25, 15]);
-        Sleep(2000, 3000);
         WearEquipment();
     }
 
     Sleep(2000, 3000);
     GroceryFlow();
+    if (game_config.player.deathtime > 2)
+    {
+        console.log("死亡次数大于2次，退出游戏");
+        alert("死亡三次，退出主线");
+    }
 };
 
 
-module.exports = DeathFlow;
+module.exports = { DeathFlow, DeathCheck };
 // DeathFlow();

@@ -1,6 +1,6 @@
 const {
     posRef,
-    Player,
+    game_config,
     ReadImg,
     Sleep,
     RandomPress,
@@ -57,11 +57,16 @@ function WearEquipment()
 
     RandomPress(BackPackPos.equipment);
     Sleep();
-    RandomPress(BackPackPos.equipmentSort);
-    Sleep();
-    RandomPress(BackPackPos.sortByLevel);
-    Sleep();
-    const shot = captureScreen();
+    const isfewEquip = images.findImage(captureScreen(), BackPackImg.blank, { region: [1137, 254, 85, 70] });
+    if (isfewEquip == null)
+    {
+        RandomPress(BackPackPos.equipmentSort);
+        Sleep();
+        RandomPress(BackPackPos.sortByLevel);
+        Sleep();
+    }
+
+    let shot = captureScreen();
 
     const plus = ReadImg("plus");
     for (let i = 0; i < 6; i++)
@@ -69,9 +74,7 @@ function WearEquipment()
         for (let j = 0; j < 5; j++)
         {
             let isEquip = images.findImage(shot, BackPackImg.E, { region: [920 + j * 65, 110 + i * 65, 40, 40], threshold: 0.8, });
-            let isBlank = images.findMultiColors(shot, "#1b1b1b", [[15, 0, "#1e1e1f"], [33, 0, "#1f1f21"], [5, 12, "#1c1c1e"],
-            [17, 9, "#1e1e1f"], [33, 9, "#1f2020"],], { region: [890 + j * 65, 125 + i * 65, 50, 50] });
-
+            let isBlank = images.findImage(shot, BackPackImg.blank, { region: [890 + j * 65, 125 + i * 65, 50, 50] });
             if (isBlank)
             {
                 RandomPress(BackPackPos.close);
@@ -174,6 +177,8 @@ function OpenTreasureBox()
     let hasConfirm_big = findImage(treasureBox_shot, BackPackImg.confirm, { region: BackPackCheckPos.props_confirm_big, threshold: 0.8 });
     if (hasConfirm_big)
     {
+        RandomPress([778, 454, 50, 31]);
+        Sleep();
         RandomPress(BackPackPos.props_confirm_big);
         Sleep();
         RandomPress(posRef.blank);
@@ -202,14 +207,14 @@ function UseStrengthenScroll(scrollType)
             if (weaponColor == "blue" || weaponColor == "green")
             {
                 log("need strengthen:" + " " + weaponColor);
-                RandomPress([895 + i * 65, 115 + i * 65, 35, 35]);
+                RandomPress([895 + i * 65, 115, 35, 35]);
                 Sleep();
                 let isVanish = IsLeadToVanish();
                 if (isVanish)
                 {
                     log("weapon is strengthened to 7,lead to vanish");
-                    Player.equipment.weapon.level = 7;
-                    Player.equipment.weapon.color = weaponColor;
+                    game_config.player.equipment.weapon.level = 7;
+                    game_config.player.equipment.weapon.color = weaponColor;
                 }
                 else
                 {
@@ -273,8 +278,20 @@ function UseStrengthenScroll(scrollType)
     }
 }
 
-function UseSlabstone()
-{ }
+function OpenSlabstone()
+{
+    let hasConfirm_small = findImage(captureScreen(), BackPackImg.confirm, { region: BackPackCheckPos.props_confirm_small, threshold: 0.8 });
+
+    if (hasConfirm_small)
+    {
+        RandomPress(BackPackPos.props_confirm_small);
+        Sleep();
+    }
+    RandomPress([548, 635, 185, 33]);
+    Sleep(6000, 8000);
+    RandomPress([548, 635, 185, 33]);
+    Sleep();
+}
 /**
  * @description使用背包道具
  */
@@ -320,7 +337,7 @@ function UseProps()
                 || type == "strengthenScroll_defence_tied"
                 || type == "strengthenScroll_defence")
             {
-                if (Player.equipment.weapon.level == 7) continue;
+                if (game_config.player.equipment.weapon.level == 7) continue;
                 log("use strengthenScroll");
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
                 Sleep();
@@ -338,7 +355,12 @@ function UseProps()
                 || type == "slabstone_gray_middleLevel_suit"
                 || type == "slabstone_gray_middleLevel_monster")
             {
-                log("use slabstone");
+                log("use slabstone" + type);
+                RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
+                Sleep();
+                RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
+                Sleep(6000, 8000);
+                OpenSlabstone();
             }
             else
             {

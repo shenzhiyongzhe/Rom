@@ -1,6 +1,5 @@
 const {
     posRef,
-    Player,
     ReadImg,
     Sleep,
     RandomClick,
@@ -14,7 +13,7 @@ const MissionPos = {
     achievement: [420, 95, 80, 15],
     getAwards: [1145, 160, 100, 15],
 };
-const Flow = function ()
+const MissionFlow = function ()
 {
     RandomPress(MissionPos.rewards, random(100, 400));
     Sleep(2000, 3000);
@@ -35,7 +34,7 @@ const Flow = function ()
         GoBack();
     }
 };
-module.exports = Flow;
+module.exports = MissionFlow;
 
 
 

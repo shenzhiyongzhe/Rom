@@ -1,6 +1,5 @@
 const {
     posRef,
-    Player,
     ReadImg,
     Sleep,
     RandomClick,
@@ -14,6 +13,7 @@ const EmailFlow = require("./Menu/Email.js");
 const CraftFlow = require("./Menu/Craft.js");
 const DutyFlow = require("./Menu/Duty.js");
 const PropsCollectionFlow = require("./Menu/PropsCollection.js");
+const WearSlabStone = require("./Menu/SlabStone.js");
 //每日签到检测
 const SignInCheck = (shot) => images.findMultiColors(shot, "#d8564a", [[4, 1, "#c82819"], [0, 2, "#c82117"], [4, 2, "#c52719"],], { region: [952, 446, 56, 49] });
 
@@ -29,7 +29,10 @@ const DutyCheck = (shot) => images.findMultiColors(shot, "#c33522", [[-2, 2, "#c
 //制造小红点检查
 const CraftCheck = (shot) => images.findMultiColors(shot, "#b72e1b", [[-4, 3, "#db2e1c"], [1, 3, "#c02517"], [4, 3, "#cf3324"], [0, 5, "#be2618"],], { region: [971, 178, 35, 37] });
 
-const Flow = function ()
+const SuitCheck = (shot) => images.findMultiColors(shot, "#c92613", [[2, 0, "#d0291a"], [1, 2, "#c72718"]], { region: [969, 99, 37, 40] });
+const FollowerCheck = (shot) => images.findMultiColors(shot, "#b52313", [[-3, 2, "#c12416"], [0, 2, "#c52718"], [-1, 4, "#ba2517"]], { region: [1034, 93, 45, 43] });
+
+const MenuFlow = function ()
 {
     RandomPress(posRef.menu);
     Sleep();
@@ -40,6 +43,9 @@ const Flow = function ()
     const isCollectionPage = PropCollectionCheck(shot);
     const isDuty = DutyCheck(shot);
     const isCraft = CraftCheck(shot);
+    const isSuit = SuitCheck(shot);
+    const isFollower = FollowerCheck(shot);
+
     if (isSignIn)
     {
         SignInFlow();
@@ -56,6 +62,16 @@ const Flow = function ()
     {
         CraftFlow();
     }
+    else if (isSuit)
+    {
+        WearSlabStone("suit");
+    }
+    else if (isFollower)
+    {
+        WearSlabStone("follower");
+    }
 };
 
-module.exports = Flow;
+module.exports = MenuFlow;
+// Flow();
+// log(SuitCheck(captureScreen()));

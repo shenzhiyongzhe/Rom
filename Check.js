@@ -1,13 +1,4 @@
 
-const deathTxt = ReadImg("character_deathT");
-
-
-
-/**死亡检测
- * @param img
- * @return img
- */
-const DeathCheck = (shot) => images.findImage(shot, deathTxt, { region: [561, 161, 158, 55], });
 
 /**技能点检测 
  * @param img
@@ -39,7 +30,6 @@ const BackPackCheck = (shot) => images.findMultiColors(shot, "#b52213", [[-3, 0,
     { region: [1102, 3, 34, 28] });
 
 module.exports = {
-    DeathCheck,
     AbilityPointCheck,
     MissionCheck,
     MenuCheck,

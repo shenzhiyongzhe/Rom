@@ -1,6 +1,8 @@
+const { WearEquipment } = require("../BackPack.js");
 const {
     posRef,
-    Player,
+    game_config,
+    RWFile,
     ReadImg,
     Sleep,
     RandomClick,
@@ -19,6 +21,8 @@ const CraftPos = {
     craft_staff: [28, 314, 129, 31],
     abilityIcon: [14, 14, 50, 44]
 };
+
+const player = game_config.player;
 ////----------------------制造-------------------------
 function CraftFlow()
 {
@@ -46,16 +50,18 @@ function CraftFlow()
         }
         Sleep(2000, 4000);
 
-        if (Player.equipment.weapon.color != "blue")
+        if (player.equipment.weapon.color != "blue")
         {
             Craft_Weapon();
-        } else if (Player.equipment.chestplate.color != "blue")
+        } else if (player.equipment.chestplate.color != "blue")
         {
             Craft_Chestplate();
         }
         craftIcon.recycle();
         GoBack();
     }
+    Sleep();
+    WearEquipment();
 };
 function CraftBtn()
 {
@@ -76,16 +82,16 @@ function Craft_Weapon()
     RandomPress(CraftPos.equipmentPage);
     Sleep();
     CharacterIdentity()
-        ? Player.profession == "archer"
-        : Player.profession == "wizard";
-    if (Player.profession == "archer")
+        ? player.profession == "archer"
+        : player.profession == "wizard";
+    if (player.profession == "archer")
     {
         RandomPress(CraftPos.craft_bow); //点击弓 页面
         Sleep();
         RandomPress([291, 148, 213, 45]); //点击右侧第一个武器
         Sleep();
         CraftBtn();
-    } else if (Player.profession == "wizard")
+    } else if (player.profession == "wizard")
     {
         RandomPress(CraftPos.craft_staff);
         RandomPress([291, 148, 213, 45]);
@@ -131,18 +137,20 @@ function GetEquipmentColor()
     const chestplateColor = JudgeEquipmentColor(
         colors.toString(images.pixel(shot, 435, 208))
     );
-    const pantColor = JudgeEquipmentColor(
+    const pantsColor = JudgeEquipmentColor(
         colors.toString(images.pixel(shot, 435, 363))
     );
     const bootsColor = JudgeEquipmentColor(
         colors.toString(images.pixel(shot, 483, 401))
     );
-    Player.equipment.weapon.color = weaponColor;
-    Player.equipment.chestplate.color = chestplateColor;
-    Player.equipment.pant.color = pantColor;
-    Player.equipment.boots.color = bootsColor;
+
+    player.equipment.weapon.color = weaponColor;
+    player.equipment.chestplate.color = chestplateColor;
+    player.equipment.pants.color = pantsColor;
+    player.equipment.boots.color = bootsColor;
+    RWFile("player", player);
     log(
-        `装备颜色：武器${weaponColor}，胸甲${chestplateColor}，裤子${pantColor}，靴子${bootsColor}`
+        `装备颜色：武器${weaponColor}，胸甲${chestplateColor}，裤子${pantsColor}，靴子${bootsColor}`
     );
 };
 

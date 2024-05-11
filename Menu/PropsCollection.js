@@ -2,8 +2,8 @@ const {
     Sleep,
     RandomPress,
     GoBack,
-    posRef,
     ReadImg,
+    PressBlank,
 } = require("../Global.js");
 
 const { WearEquipment, DecomposeProps } = require("../BackPack.js");
@@ -55,12 +55,13 @@ const LoginProgressAward = function ()
     for (let i = 0; i < 5; i++)
     {
         let isgotAward = images.findMultiColors(shot, "#de6c09", [[1, 0, "#ed7208"], [2, 0, "#ed7208"], [4, 0, "#d96a09"]],
-            { region: [1215, 314 + i * 51, 15, 26], threshold: 12 });
+            { region: [1220, 314 + i * 51, 15, 26], threshold: 12 });
         if (isgotAward == null)
         {
-            press(1200 + random(-10, 10), 314 + i * 51 + random(-10, 10), random(30, 200));
+            RandomPress([1222, 320 + i * 50, 10, 10]);
+            // press(1200 + random(-10, 10), 314 + i * 51 + random(-10, 10), random(30, 200));
             Sleep();
-            RandomPress(posRef.blank);
+            PressBlank();
             Sleep();
         };
     }

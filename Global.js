@@ -1,15 +1,22 @@
-const posRef = {
-    goBack: [1180, 24, 60, 14], // 返回按钮
-    blank: [300, 200, 600, 300],
-
-    skip: [39, 20, 1225, 653],
-
-    menu: [1221, 19, 31, 29],
-    menu_close: [1222, 21, 31, 25],
-    backPack: [1090, 20, 25, 15],
-    collectionPage: [1098, 121, 19, 27],
-    collectionPage_login: [752, 610, 109, 23],
+const Sleep = (min, max) =>
+{
+    min = min || 1000;
+    max = max || 2000;
+    sleep(random(min, max));
 };
+const RandomPress = ([startX, startY, w, h]) =>
+{
+    const time = random(16, 512);
+    const x = Math.round(Math.random() * w + startX);
+    const y = Math.round(Math.random() * h + startY);
+    press(x, y, time);
+    Sleep();
+};
+const ReadImg = (name) => images.read(`./img/${name}.png`);
+const GoBack = () => RandomPress([1149, 10, 125, 52]);
+const PressBlank = () => RandomPress([270, 96, 647, 502]);
+
+const PressMenu = () => RandomPress([1226, 19, 24, 27]);
 let game_config = {
     "player": {
         "deathtime": 0,
@@ -28,7 +35,8 @@ let game_config = {
     },
     "setting": {
 
-        "isFirstPropsLogin": false
+        "isFirstPropsLogin": false,
+        "time": "2024-05-09T12:00:00.000Z"
     }
 };
 function RWFile(type, obj)
@@ -61,6 +69,10 @@ function RWFile(type, obj)
     }
 }
 game_config = RWFile();
+game_config.setting.time = new Date().getTime();
+const currentVariables = {
+    instancePos: [0, 1]
+};
 //《《《------------------------------------简化封装------------------------------------------》》》
 /**
  * @description 读取图片
@@ -68,33 +80,9 @@ game_config = RWFile();
  * @returns img
  */
 // const ReadImg = (name) => images.read(`/sdcard/脚本/Rom/img/${name}.png`);
-const ReadImg = (name) => images.read(`./img/${name}.png`);
 
-const Click = ({ x, y }) => click(x, y);
-const Press = ({ x, y }, time) =>
-{
-    time = time || random(100, 500);
-    press(x, y, time);
-};
-const Sleep = (min, max) =>
-{
-    min = min || 1000;
-    max = max || 2000;
-    sleep(random(min, max));
-};
-const GenerateRandomPos = function GenerateRandomPos([startX, startY, w, h])
-{
-    const x = Math.round(Math.random() * w + startX);
-    const y = Math.round(Math.random() * h + startY);
-    return { x, y };
-};
-const RandomClick = (area) => Click(GenerateRandomPos(area));
-const RandomPress = (area, time) =>
-{
-    time = time || random(20, 500);
-    Press(GenerateRandomPos(area), time);
-};
-const GoBack = () => RandomPress(posRef.goBack, random(20, 300));
+
+
 
 const CharacterIdentity = function ()
 {
@@ -115,7 +103,7 @@ const CharacterIdentity = function ()
     }
 };
 
-const GetLocalTime = () =>
+function GetLocalTime()
 {
     const date = new Date();
     let day = date.getDate();
@@ -124,17 +112,21 @@ const GetLocalTime = () =>
     let minutes = date.getMinutes();
     return `${month}月${day}日${hours}:${minutes}`;
 };
+// setInterval(() =>
+// {
+//     game_config.setting.time = GetLocalTime();
+// }, 1000);
 
 log("Global.js 加载完成");
 module.exports = {
-    posRef,
     game_config,
+    currentVariables,
+    Sleep,
+    RandomPress,
+    PressBlank,
+    PressMenu,
     RWFile,
     ReadImg,
-    Sleep,
-    GenerateRandomPos,
-    RandomClick,
-    RandomPress,
     GoBack,
     CharacterIdentity,
     GetLocalTime,

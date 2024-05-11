@@ -45,10 +45,8 @@ const RecoverExp = () =>
         for (let i = 0; i < expArr.length; i++)
         {
             RandomPress([expArr[i].x, expArr[i].y, random(-50, 180), random(-17, 26)]);
-            Sleep(600, 1000);
         }
         RandomPress(CrucifixPos.recoverBtn);
-        Sleep();
         const confirmBtn = ReadImg("crucifix_confirm");
         const hasConfirm = images.findImage(captureScreen(), confirmBtn, { region: CrucifixCheckPos.confirm, threshold: 0.8 });
         if (hasConfirm == null) return;
@@ -73,7 +71,7 @@ const RecoverEquipment = () =>
     {
         for (let i = 0; i < equipmentArr.length; i++)
         {
-            RandomPress([equipmentArr[i].x, equipmentArr[i].y, random(-10, 180), random(-15, 25)]);
+            RandomPress([equipmentArr[i].x + 30, equipmentArr[i].y - 20, 70, 45]);
             Sleep(600, 1000);
         }
         Sleep();

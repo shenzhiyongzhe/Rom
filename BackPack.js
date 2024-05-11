@@ -1,10 +1,10 @@
 const {
-    posRef,
     game_config,
     ReadImg,
     Sleep,
     RandomPress,
     GoBack,
+    PressBlank,
 
 } = require("./Global.js");
 
@@ -150,9 +150,9 @@ function GetWeaponColor(shot, [x, y, w, h])
     const isGreen = images.findMultiColors(shot, "#4b6329", [[0, 6, "#445b25"], [0, 9, "#465a22"], [0, 15, "#3a5325"]],
         { region: [x, y, w, h], threshold: 16 });
     const isEquiped = images.findImage(shot, BackPackImg.E, { region: [x, y, w, h], threshold: 0.7 });
-    if (isEquiped == null) return false;
-    else if (isBlue) return "blue";
+    if (isBlue) return "blue";
     else if (isGreen) return "green";
+    else if (isEquiped == null) return false;
     else return false;
 };
 function IsLeadToVanish()
@@ -169,20 +169,15 @@ function OpenTreasureBox()
     if (hasConfirm_small)
     {
         RandomPress(BackPackPos.props_confirm_small);
-        Sleep();
-        RandomPress(posRef.blank);
-        Sleep();
+        PressBlank()
         return;
     }
     let hasConfirm_big = findImage(treasureBox_shot, BackPackImg.confirm, { region: BackPackCheckPos.props_confirm_big, threshold: 0.8 });
     if (hasConfirm_big)
     {
         RandomPress([778, 454, 50, 31]);
-        Sleep();
         RandomPress(BackPackPos.props_confirm_big);
-        Sleep();
-        RandomPress(posRef.blank);
-        Sleep();
+        PressBlank()
         return;
     }
 }
@@ -191,7 +186,6 @@ function UseStrengthenScroll(scrollType)
     if (scrollType.indexOf("weapon") != -1)
     {
         RandomPress(BackPackPos.props_scroll_weaponPage);
-        Sleep();
         const weaponStrengthen_shot = captureScreen();
         for (let i = 0; i < 5; i++)
         {
@@ -201,20 +195,19 @@ function UseStrengthenScroll(scrollType)
             {
                 log("强化完毕，退出");
                 RandomPress(BackPackPos.pageBack);
-                Sleep();
-                return;
+                return false;
             }
             if (weaponColor == "blue" || weaponColor == "green")
             {
                 log("need strengthen:" + " " + weaponColor);
                 RandomPress([895 + i * 65, 115, 35, 35]);
-                Sleep();
                 let isVanish = IsLeadToVanish();
                 if (isVanish)
                 {
-                    log("weapon is strengthened to 7,lead to vanish");
                     game_config.player.equipment.weapon.level = 7;
                     game_config.player.equipment.weapon.color = weaponColor;
+                    log("weapon is strengthened to 7,lead to vanish;" + game_config.player.equipment.weapon.level);
+                    return false;
                 }
                 else
                 {
@@ -224,12 +217,13 @@ function UseStrengthenScroll(scrollType)
                     if (canStrengthen)
                     {
                         RandomPress(BackPackPos.strengthenBtn);
-                        Sleep();
+                        return false;
                     }
                 }
 
-                Sleep();
+
             }
+
         }
     }
     else if (scrollType.indexOf("defence") != -1)
@@ -242,6 +236,7 @@ function UseStrengthenScroll(scrollType)
             for (let j = 0; j < 5; j++)
             {
                 let defenceColor = GetWeaponColor(defenceStrengthen_shot, [870 + j * 65, 100 + i * 65, 80, 65]);
+                log("defenceColor:" + defenceColor);
                 if (defenceColor == "blue" || defenceColor == "green")
                 {
                     log("need strengthen:" + " " + defenceColor);
@@ -251,6 +246,7 @@ function UseStrengthenScroll(scrollType)
                     if (isVanish)
                     {
                         log("lead to vanish");
+                        continue;
                     }
                     else
                     {
@@ -270,7 +266,7 @@ function UseStrengthenScroll(scrollType)
                     log("强化完毕，退出" + (i + 1) + " " + (j + 1));
                     RandomPress(BackPackPos.pageBack);
                     Sleep();
-                    return;
+                    return true;
                 }
                 Sleep();
             }
@@ -337,13 +333,16 @@ function UseProps()
                 || type == "strengthenScroll_defence_tied"
                 || type == "strengthenScroll_defence")
             {
-                if (game_config.player.equipment.weapon.level == 7) continue;
+                if (type.indexOf("weapon") != -1 && game_config.player.equipment.weapon.level == 7) continue;
                 log("use strengthenScroll");
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
                 Sleep();
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
                 Sleep(3000, 4000);
                 UseStrengthenScroll(type);
+                Sleep();
+                RandomPress(BackPackPos.pageBack);
+                return true;
             }
 
             else if (type == "slabstone_white_normal_guardian"
@@ -372,7 +371,7 @@ function UseProps()
                 log("blank :" + (i + 1) + " " + (j + 1));
                 RandomPress(BackPackPos.close);
                 Sleep();
-                return;
+                return false;
             };
         }
     }
@@ -384,7 +383,7 @@ function DecomposeProps()
     if (isBackPack == null) return;
 
     RandomPress(BackPackPos.icon);
-    Sleep(3000, 4000);
+    Sleep(2000, 3000);
 
     const decompositionIcon = ReadImg("backPack_decompose");
     const isDecompose = images.findImage(captureScreen(), decompositionIcon, { region: [991, 495, 62, 52], });
@@ -394,16 +393,10 @@ function DecomposeProps()
     RandomPress(BackPackPos.decompose);
     Sleep(2000, 2500);
     RandomPress(BackPackPos.decompose_normal);
-    Sleep();
     RandomPress(BackPackPos.decompose_btn);
-    Sleep();
-
     RandomPress(BackPackPos.decompose_confirm);
-    Sleep(2000, 3000);
-    RandomPress(posRef.blank);
-    Sleep();
+    PressBlank();
     RandomPress(BackPackPos.close);
-    Sleep();
     RandomPress(BackPackPos.close);
 
     decompositionIcon.recycle();
@@ -414,9 +407,15 @@ module.exports = {
     UseProps,
     DecomposeProps
 };
+
 // WearEquipment();
 // DecomposeProps();
-// UseProps();
+// for (let i = 0; i < 3; i++)
+// {
+//     let u = UseProps();
+//     log(u);
+
+// }
 // OpenTreasureBox();
 // let isWhite = images.findImage(captureScreen(), BackPackImg.blank,
 //     // { region: [870 + 3 * 65, 115 + 2 * 65, 80, 80], threshold: 0.8, });

@@ -4,7 +4,6 @@ UI();
 
 
 const {
-    posRef,
     game_config,
     ReadImg,
     Sleep,
@@ -36,8 +35,9 @@ const EnterInstanceZones = require("./Menu/InstanceZones.js");
 const TimeRegister = {
     abilityPoint: 10,
     backPack: {
-        equip: 32,
-        props: 64
+        equip: 16,
+        props: 32,
+        decompose: 100
     },
     menu: {
         collection: 216,
@@ -51,7 +51,8 @@ let TimeRecorder = {
     abilityPoint: 2,
     backPack: {
         equip: 3,
-        props: 3
+        props: 3,
+        decompose: 100
     },
     menu: {
         collection: 216,
@@ -60,7 +61,7 @@ let TimeRecorder = {
     }
 };
 
-
+let gameMode;
 function TimeChecker(item)
 {
     for (let key in TimeRecorder)
@@ -100,31 +101,33 @@ function TimeChecker(item)
     }
 }
 
-
-
 const Check = function ()
 {
     try
     {
         let shot = images.captureScreen();
-
-        game_config.ui.gameMode == "mainStory" && MainStoryFlow();
-        Sleep();
         DeathCheck() && DeathFlow();
         Sleep();
         TimeChecker("abilityPoint") && AbilityPointCheck(shot) && AbilityPointsFlow();
         Sleep();
         MissionCheck(shot) && MissionFlow();
         Sleep();
-        TimeChecker("equip") && BackPackCheck(shot) && WearEquipment();
-        Sleep();
-        TimeChecker("props") && BackPackCheck(shot) && UseProps();
-        Sleep();
-        MenuCheck(shot) && MenuFlow();
-        Sleep();
-        game_config.gameMode == "mainStory" && MainStoryFlow();
-        Sleep();
+        if (gameMode == "mainStory")
+        {
+            TimeChecker("equip") && BackPackCheck(shot) && WearEquipment();
+            Sleep();
+            TimeChecker("props") && BackPackCheck(shot) && UseProps();
+            Sleep();
+            MenuCheck(shot) && MenuFlow();
+            Sleep();
+        }
+        else if (gameMode == "instance")
+        {
+            TimeChecker("decompose") && DecomposeProps();
+            Sleep();
+        }
         ExceptionCatch();
+        Sleep();
         log("Check flow");
     } catch (e)
     {
@@ -142,51 +145,106 @@ console.setGlobalLogConfig({
 
 const floaty_window = floaty.window(
     <frame gravity="center">
-        <button id="menuBtn" w="10" h="10" bg="#00ff00"></button>
+        <button id="menuBtn" w="15" h="15" bg="#90dbdb"></button>
     </frame>
 );
-floaty_window.setPosition(0, 80);
-let isRuning = true;
+
+floaty_window.setPosition(0, 60);
+let isRunning = true;
 floaty_window.menuBtn.click(function ()
 {
     let color = floaty_window.menuBtn.attr("bg");
-    if (color == "#00ff00")
+    if (color == "#90dbdb")
     {
         floaty_window.menuBtn.attr("bg", "#ff0000");
-        isRuning = false;
+        isRunning = false;
     }
     else
     {
-        floaty_window.menuBtn.attr("bg", "#00ff00");
-        isRuning = true;
+        floaty_window.menuBtn.attr("bg", "#90dbdb");
+        isRunning = true;
     }
-    PauseScripte();
 });
-function PauseScripte()
+
+let startTime = new Date().getTime();
+let normalZone;
+let specialZone;
+function zoneCheck()
 {
-    let pauseThread = threads.start(function ()
+    for (let i = 0; i < specialZone.length; i++)
     {
-        while (isRuning)
+        if (specialZone[i].checked == true)
         {
-            Sleep(1000);
+            let isTimeUp = (new Date().getTime() - startTime) / 3600000 - specialZone[i].time;
+            log("time passed: " + isTimeUp);
+            if (isTimeUp >= 0)
+            {
+                console.log("进入特殊副本, 第" + (i + 1) + "个");
+                return true;
+            }
+            else return false;
         }
-        console.log("脚本暂停");
     }
-    );
+    for (let i = 0; i < normalZone.length; i++)
+    {
+        if (normalZone[i].checked == true)
+        {
+            let isTimeUp = (new Date().getTime() - startTime) / 3600000 - normalZone[i].time;
+            log("time passed: " + isTimeUp);
+            if (isTimeUp >= 0)
+            {
+                console.log("进入普通副本，第" + (i + 1) + "个");
+                return true;
+            }
+            else return false;
+        }
+    }
+    return false;
+
 }
 
 const Main = function (data)
 {
     let data = JSON.parse(data);
-    console.log(`脚本启动时间：${GetLocalTime()}`);
+    console.log(`脚本启动时间：${GetLocalTime()} \n ${data.normalZone}`);
     RWFile('ui', data);
     game_config.ui = data;
-    console.log(`游戏配置：${game_config.ui.isBeginner}`);
     game_config.ui.isBeginner == true && BeginnerFlow();
-    game_config.ui.gameMode == "instance" && EnterInstanceZones();
+    normalZone = data.normalZone;
+    specialZone = data.specialZone;
+    gameMode = game_config.ui.gameMode;
     threads.start(function ()
     {
-        setInterval(() => Check(), 2000);
+        Check();
+        Sleep(10000, 2000);
+        game_config.ui.gameMode == "instance" && EnterInstanceZones();
+        setInterval(() =>
+        {
+            if (isRunning == true)
+            {
+                Check();
+
+                if (gameMode == "mainStory")
+                {
+                    MainStoryFlow();
+                }
+                else if (gameMode == "instance")
+                {
+                    log("副本检查");
+                    zoneCheck() && EnterInstanceZones();
+                    let autoBattle = images.findMultiColors(captureScreen(), "#5d3518", [[40, 0, "#643a18"], [48, 0, "#5b3719"], [30, -20, "#4e2f19"], [30, 21, "#523118"]], { region: [1139, 517, 81, 87], threshold: 12 });
+                    if (autoBattle == null)
+                    {
+                        RandomPress([1161, 549, 35, 29]);
+                    }
+                }
+            }
+            else
+            {
+                console.log("脚本已暂停运行");
+            }
+
+        }, 4000);
     }
     );
 };

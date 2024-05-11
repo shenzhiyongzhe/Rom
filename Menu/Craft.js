@@ -1,11 +1,11 @@
 const { WearEquipment } = require("../BackPack.js");
 const {
-    posRef,
+
     game_config,
+    PressBlank,
     RWFile,
     ReadImg,
     Sleep,
-    RandomClick,
     RandomPress,
     GoBack,
     CharacterIdentity,
@@ -73,8 +73,8 @@ function CraftBtn()
     {
         RandomPress(CraftPos.craft_button);
         Sleep(10000, 15000);
-        RandomClick(posRef.blank);
-        Sleep(1000, 2000);
+        PressBlank();
+        Sleep();
     }
 };
 function Craft_Weapon()

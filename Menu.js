@@ -1,8 +1,6 @@
 const {
-    posRef,
     ReadImg,
     Sleep,
-    RandomClick,
     RandomPress,
     GoBack,
     CharacterIdentity,
@@ -34,8 +32,7 @@ const FollowerCheck = (shot) => images.findMultiColors(shot, "#b52313", [[-3, 2,
 
 const MenuFlow = function ()
 {
-    RandomPress(posRef.menu);
-    Sleep();
+    RandomPress([1226, 20, 25, 24]);
     const shot = captureScreen();
     Sleep(100, 300);
     const isSignIn = SignInCheck(shot);

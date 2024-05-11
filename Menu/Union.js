@@ -3,7 +3,7 @@ const {
     Sleep,
     RandomPress,
     GoBack,
-} = require("./Global.js");
+} = require("../Global.js");
 
 const UnionPos = {
     icon: [957, 363, 31, 38],

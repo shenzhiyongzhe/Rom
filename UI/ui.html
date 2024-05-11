@@ -9,17 +9,7 @@
 </head>
 
 <body>
-  <div class="card-box">
-    <div id="character-level">
-      <div><strong>角色</strong>职业： 弓箭手</div>
-      <div>当前等级：<span>1</span>级</div>
-    </div>
-    <div id="character-account">
-      <input type="text" placeholder="角色昵称" />
-      <input type="text" placeholder="账号邮箱" />
-      <input type="text" placeholder="账号密码" />
-      <input type="text" placeholder="辅助邮箱" />
-    </div>
+  <div class="card-box neumorphism">
     <div id="gameMode">
       <label>新手：<input type="checkbox" name="isBeginner" /></label>
       <div>
@@ -32,9 +22,9 @@
 
     </div>
   </div>
-  <div class="card-box">
+  <div class="card-box neumorphism">
     <div id="normal-instanceZone" class="select-menu">
-      <div class="select">
+      <div class="select neumorphism">
         <span>普通副本：</span>
         <div class="arrow-box">
           <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
@@ -43,72 +33,120 @@
       </div>
       <div class="option-list">
         <div class="option"><label><input type="checkbox" />远古迷宫</label>
-          <div><button class="plus">+</button><span>1</span><button class="subtract">-</button></div>
+          <div><button class="plus neumorphism">+</button><span>1</span><button class="subtract neumorphism">-</button>
+          </div>
           <div><span>1</span>级</div>
         </div>
         <div class="option"><label><input type="checkbox" />地下墓穴</label>
-          <div><button class="plus">+</button><span>1</span><button class="subtract">-</button></div>
+          <div><button class="plus neumorphism">+</button><span>1</span><button class="subtract neumorphism">-</button>
+          </div>
           <div><span>28</span>级</div>
         </div>
         <div class="option"><label><input type="checkbox" />迪贝格</label>
-          <div><button class="plus">+</button><span>1</span><button class="subtract">-</button></div>
+          <div><button class="plus neumorphism">+</button><span>1</span><button class="subtract neumorphism">-</button>
+          </div>
           <div><span>50</span>级</div>
         </div>
         <div class="option"><label><input type="checkbox" />沙漠洞穴</label>
-          <div><button class="plus">+</button><span>1</span><button class="subtract">-</button></div>
+          <div><button class="plus neumorphism">+</button><span>1</span><button class="subtract neumorphism">-</button>
+          </div>
           <div><span>67</span>级</div>
         </div>
         <div class="option"><label><input type="checkbox" />地下神殿</label>
-          <div><button class="plus">+</button><span>1</span><button class="subtract">-</button></div>
+          <div><button class="plus neumorphism">+</button><span>1</span><button class="subtract neumorphism">-</button>
+          </div>
           <div>无</div>
         </div>
       </div>
     </div>
 
-    <div id="special-instanceZone" class="select-menu">
-      <div class="select">
-        <span>特殊：</span>
-        <div class="arrow-box">
-          <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
-          <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+    <div id="special-instanceZone">
+      <div class="select-menu">
+        <div class="select neumorphism">
+          <span>特殊副本：</span>
+          <div class="arrow-box">
+            <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
+            <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+          </div>
+        </div>
+        <div class="option-list">
+          <div class="option"><label><input type="checkbox" /><span>精灵矿山</span></label>
+          </div>
+          <div class="option"><label><input type="checkbox" /><span>幻影遗迹</span></label>
+          </div>
+          <div class="option"><label><input type="checkbox" /><span>时间迷宫</span></label>
+          </div>
+          <div class="option"><label><input type="checkbox" /><span>寒冰神殿</span></label>
+          </div>
+          <div class="option"><label><input type="checkbox" /><span>混沌城堡</span></label>
+          </div>
+          <div class="option"><label><input type="checkbox" /><span>精灵城堡</span></label>
+          </div>
         </div>
       </div>
-      <div class="option-list">
-        <div class="option"><input type="checkbox" id="special_01" /><label for="special_01"><span>精灵的矿山</span></label>
-        </div>
-        <div class="option"><input type="checkbox" id="special_02" /><label for="special_02"><span>幻影遗迹</span></label>
-        </div>
-        <div class="option"><input type="checkbox" id="special_03" /><label for="special_03"><span>时间迷宫</span></label>
-        </div>
-        <div class="option"><input type="checkbox" id="special_04" /><label for="special_04"><span>寒冰神殿</span></label>
-        </div>
-        <div class="option"><input type="checkbox" id="special_05" /><label for="special_05"><span>混沌城堡</span></label>
-        </div>
-        <div class="option"><input type="checkbox" id="special_06" /><label for="special_06"><span>精灵城堡</span></label>
-        </div>
+      <div>
+        副本挂机总时间：<span id="time">0</span>小时
       </div>
     </div>
 
+
   </div>
   <div>
-    <button id="startBtn">Start</button>
+    <button id="startBtn" class="neumorphism">Start</button>
   </div>
   <script>
     const ui = {
       gameMode: "mainStory",
       isBeginner: false,
       normalZone: [
-        { checked: false, time: 1, level: 1 },
-        { checked: false, time: 1, level: 1 },
-        { checked: false, time: 1, level: 1 },
-        { checked: false, time: 1, level: 1 },
-        { checked: false, time: 1, level: 1 },
+        { checked: false, time: 1, level: "firstLevel" },
+        { checked: false, time: 1, level: "firstLevel" },
+        { checked: false, time: 1, level: "firstLevel" },
+        { checked: false, time: 1, level: "firstLevel" },
+        { checked: false, time: 1, level: "firstLevel" },
+      ],
+      specialZone: [
+        { checked: false, time: 1, level: "firstLevel" },
+        { checked: false, time: 1, level: "firstLevel" },
+        { checked: false, time: 1, level: "firstLevel" },
+        { checked: false, time: 1, level: "firstLevel" },
+        { checked: false, time: 1, level: "firstLevel" },
       ]
     };
     const selects = document.querySelectorAll(".select-menu");
-    const options = document.querySelectorAll("#normal-instanceZone .option");
+    const normalOption = document.querySelectorAll("#normal-instanceZone .option");
+    const specialOption = document.querySelectorAll("#special-instanceZone .option");
+    // const zoneCheckBoxes = document.querySelectorAll(".option input[type=checkbox]");
     const startBtn = document.querySelector("#startBtn");
     const beginnerCheckBox = document.querySelector("input[name=isBeginner]");
+    const time = document.querySelector("#time");
+
+    // zoneCheckBoxes.forEach((checkbox) =>
+    // {
+    //   checkbox.addEventListener("click", () =>
+    //   {
+    //     GetTotalTime();
+    //   });
+    // });
+    function GetTotalTime()
+    {
+      let totalTime = 0;
+      ui.normalZone.forEach((zone) =>
+      {
+        if (zone.checked)
+        {
+          totalTime += zone.time;
+        }
+      });
+      ui.specialZone.forEach((zone) =>
+      {
+        if (zone.checked)
+        {
+          totalTime += zone.time;
+        }
+      });
+      time.innerText = totalTime;
+    }
 
     //单选框点击事件
     document.querySelectorAll("input[name= gameMode]").forEach((radio) =>
@@ -137,7 +175,7 @@
 
 
     //选项的点击事件
-    options.forEach((option, index) =>
+    normalOption.forEach((option, index) =>
     {
       let time = option.querySelector("span:first-of-type");
       let input = option.querySelector("input");
@@ -145,6 +183,7 @@
       {
         ui.normalZone[index].checked = input.checked;
         console.log(ui.normalZone[index]);
+        GetTotalTime();
       });
       let plus = option.querySelector(".plus");
       plus.addEventListener("click", () =>
@@ -153,6 +192,7 @@
         addTime++;
         time.innerText = addTime;
         ui.normalZone[index].time = addTime;
+        GetTotalTime();
       });
       let subtract = option.querySelector(".subtract");
       subtract.addEventListener("click", () =>
@@ -165,14 +205,26 @@
         else subTime--;
         time.innerText = subTime;
         ui.normalZone[index].time = subTime;
+        GetTotalTime();
       });
 
+    });
+
+    specialOption.forEach((option, index) =>
+    {
+      let input = option.querySelector("input");
+      input.addEventListener("click", () =>
+      {
+        ui.specialZone[index].checked = input.checked;
+        console.log(ui.specialZone[index]);
+        GetTotalTime();
+      });
     });
 
     //开始按钮点击事件
     startBtn.addEventListener("click", () =>
     {
-      $autox.callHandler("StartScript", JSON.stringify(ui), (callBackData) =>
+      $autox.callHandler("WebToAndroid", JSON.stringify(ui), (callBackData) =>
       {
         startBtn.innerHTML = "Stop";
         startBtn.style.cssText = "background: red";
@@ -180,7 +232,16 @@
       });
 
     });
-
+    // $autox.registerHandler("AndroidToWeb", (data, callBack) =>
+    // {
+    //   time.innerText = data;
+    //   console.log("time:" + JSON.parse(data));
+    //   setTimeout(() =>
+    //   {
+    //     //回调安卓
+    //     callBack("web回调数据");
+    //   }, 1000);
+    // });
     document.addEventListener("AutoxJsBridgeReady", () =>
     {
       //$autox.

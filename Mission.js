@@ -1,11 +1,11 @@
 const {
-    posRef,
     ReadImg,
     Sleep,
     RandomClick,
     RandomPress,
     GoBack,
     CharacterIdentity,
+    PressBlank,
 } = require("./Global.js");
 //任务成就奖励
 const MissionPos = {
@@ -29,8 +29,7 @@ const MissionFlow = function ()
         Sleep(1000, 1500);
         RandomPress(MissionPos.getAwards, random(100, 400));
         Sleep(2000, 3000);
-        RandomClick(posRef.blank);
-        Sleep(1000, 2000);
+        PressBlank()
         GoBack();
     }
 };

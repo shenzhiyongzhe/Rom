@@ -1,6 +1,4 @@
-"ui";
-
-
+const { game_config } = require("./Global.js");
 
 let isRunning = false;
 function StartScript(data)
@@ -36,7 +34,7 @@ const UI = () =>
 
     ui.web.loadUrl("file://" + files.path("./UI/ui.html"));
 
-    ui.web.jsBridge.registerHandler("StartScript", (data, callBack) =>
+    ui.web.jsBridge.registerHandler("WebToAndroid", (data, callBack) =>
     {
         toastLog("拿到html页面数据,脚本开始运行..." + data);
         StartScript(data);
@@ -47,7 +45,14 @@ const UI = () =>
         }, 1000);
     });
 
-
+    // setInterval(() =>
+    // {
+    //     console.log("UI:game_config.setting.time:" + game_config.setting.time);
+    //     ui.web.jsBridge.callHandler('AndroidToWeb', JSON.stringify(game_config), (data) =>
+    //     {
+    //         console.log("web callback:" + data);
+    //     });
+    // }, 1000);
 
 
 };

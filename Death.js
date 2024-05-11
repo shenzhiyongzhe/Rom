@@ -1,8 +1,9 @@
 
-const { ReadImg, Sleep, RandomPress, GoBack, game_config, } = require("./Global.js");
+const { ReadImg, Sleep, RandomPress, GoBack, game_config, currentVariables, } = require("./Global.js");
 
 const CrucifixFlow = require("./Crucifix.js");
 const { WearEquipment } = require("./BackPack.js");
+const EnterInstanceZones = require("./Menu/InstanceZones.js");
 const DeathImg = {
     revive: ReadImg("character_revive"),
 };
@@ -30,7 +31,6 @@ const GroceryFlow = function ()
     if (inGrocery)
     {
         RandomPress(DeathPos.grocery);
-        Sleep(300, 5000);
         for (let i = 0; i < 10; i++)
         {
             let staminaPotion = images.findImage(captureScreen(), staminaPotion_icon);
@@ -89,10 +89,25 @@ const DeathFlow = function ()
 
     Sleep(2000, 3000);
     GroceryFlow();
-    if (game_config.player.deathtime > 2)
+    Sleep(3000, 5000);
+    if (game_config.ui.gameMode == "mainStory" && game_config.player.deathtime > 2)
     {
         console.log("死亡次数大于2次，退出游戏");
         alert("死亡三次，退出主线");
+    }
+    else if (game_config.ui.gameMode == "instance")
+    {
+        console.log("副本挂机死亡，重新进入副本");
+        if (currentVariables.instancePos[0] == 0)
+        {
+            game_config.ui.normalZone[currentVariables.instancePos[1]].checked = true;
+        }
+        else if (currentVariables.instancePos[0] == 1)
+        {
+            game_config.ui.specialZone[currentVariables.instancePos[1]].checked = true;
+        }
+        Sleep();
+        EnterInstanceZones();
     }
 };
 

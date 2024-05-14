@@ -70,17 +70,6 @@ function RWFile(type, obj)
 }
 game_config = RWFile();
 game_config.setting.time = new Date().getTime();
-const currentVariables = {
-    instancePos: [0, 1]
-};
-//《《《------------------------------------简化封装------------------------------------------》》》
-/**
- * @description 读取图片
- * @param {*} name 
- * @returns img
- */
-// const ReadImg = (name) => images.read(`/sdcard/脚本/Rom/img/${name}.png`);
-
 
 
 
@@ -120,7 +109,6 @@ function GetLocalTime()
 log("Global.js 加载完成");
 module.exports = {
     game_config,
-    currentVariables,
     Sleep,
     RandomPress,
     PressBlank,

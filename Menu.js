@@ -6,8 +6,6 @@ const {
     CharacterIdentity,
 } = require("./Global.js");
 
-const SignInFlow = require("./Menu/SignIn.js");
-const EmailFlow = require("./Menu/Email.js");
 const CraftFlow = require("./Menu/Craft.js");
 const DutyFlow = require("./Menu/Duty.js");
 const PropsCollectionFlow = require("./Menu/PropsCollection.js");
@@ -43,13 +41,8 @@ const MenuFlow = function ()
     const isSuit = SuitCheck(shot);
     const isFollower = FollowerCheck(shot);
 
-    if (isSignIn)
-    {
-        SignInFlow();
-    } else if (isEmail)
-    {
-        EmailFlow();
-    } else if (isCollectionPage)
+
+    if (isCollectionPage)
     {
         PropsCollectionFlow();
     } else if (isDuty)

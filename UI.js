@@ -1,4 +1,3 @@
-const { game_config } = require("./Global.js");
 
 let isRunning = false;
 function StartScript(data)
@@ -17,6 +16,7 @@ function StartScript(data)
             isRunning = true;
             auto();
             images.requestScreenCapture(true);
+            app.launch("com.kakaogames.rom");
             Main(data);
 
         }
@@ -36,7 +36,6 @@ const UI = () =>
 
     ui.web.jsBridge.registerHandler("WebToAndroid", (data, callBack) =>
     {
-        toastLog("拿到html页面数据,脚本开始运行..." + data);
         StartScript(data);
         setTimeout(() =>
         {

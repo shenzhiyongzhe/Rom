@@ -3,7 +3,7 @@ const { ReadImg, Sleep, RandomPress, GoBack, game_config, currentVariables, } = 
 
 const CrucifixFlow = require("./Crucifix.js");
 const { WearEquipment } = require("./BackPack.js");
-const EnterInstanceZones = require("./Menu/InstanceZones.js");
+const { EnterInstanceZones } = require("./Instance.js");
 const DeathImg = {
     revive: ReadImg("character_revive"),
 };
@@ -21,6 +21,7 @@ const Death_RecPos = {
     potionConfirm: [685, 520, 65, 25],
     grocery: [54, 257, 89, 64]
 };
+const gameMode = game_config.ui.gameMode;
 
 //购买药水
 const GroceryFlow = function ()
@@ -77,9 +78,8 @@ const DeathCheck = function ()
 //死亡流程 点击确认按钮，购买药水
 const DeathFlow = function ()
 {
+    Sleep();
     console.log("开始死亡流程");
-
-
     const hasRecover = CrucifixFlow();
     Sleep();
     if (hasRecover)
@@ -90,23 +90,14 @@ const DeathFlow = function ()
     Sleep(2000, 3000);
     GroceryFlow();
     Sleep(3000, 5000);
-    if (game_config.ui.gameMode == "mainStory" && game_config.player.deathtime > 2)
+    if (gameMode == "mainStory" && game_config.player.deathtime > 2)
     {
         console.log("死亡次数大于2次，退出游戏");
         alert("死亡三次，退出主线");
     }
-    else if (game_config.ui.gameMode == "instance")
+    else if (gameMode == "instance")
     {
         console.log("副本挂机死亡，重新进入副本");
-        if (currentVariables.instancePos[0] == 0)
-        {
-            game_config.ui.normalZone[currentVariables.instancePos[1]].checked = true;
-        }
-        else if (currentVariables.instancePos[0] == 1)
-        {
-            game_config.ui.specialZone[currentVariables.instancePos[1]].checked = true;
-        }
-        Sleep();
         EnterInstanceZones();
     }
 };

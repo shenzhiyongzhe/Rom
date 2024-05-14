@@ -6,7 +6,7 @@ function WearSlabStone(type)
     {
         RandomPress([961, 125, 22, 44]);
     }
-    else if (type == "follower")
+    else if (type == "guardian")
     {
         RandomPress([1029, 116, 20, 53]);
     }

@@ -1,37 +1,25 @@
-const { ReadImg, Sleep } = require("./Global.js");
-const AbilityPoints = require("./AbilityPoints.js");
-const fn1 = () => false;
+const { Sleep } = require("./Global.js");
 
-const fn2 = () => true;
-function fn()
+const GameTime = {
+    startTime: '',
+    currentTime: ''
+};
+
+GameTime.startTime = new Date().getTime();
+
+setInterval(() =>
 {
-    log("test success");
-};
-function AbilityPointCheck(shot) {
-     return images.findMultiColors(shot, "#bd220f", [[3, 0, "#bd2415"], [-1, 3, "#d62d1d"], [3, 3, "#bb2316"],],
-    { region: [13, 4, 71, 31] });
-}
+    GameTime.currentTime = new Date().getTime();
+}, 1000);
 
-const conditiosnList = {
-    abilityPoints: (shot) => AbilityPointCheck,
-    test: fn1
-};
+// Daily Check Function
 
-const excuteList = {
-    abilityPoints: AbilityPoints,
-    test: fn
-};
 
-function Check()
+// 长间隔检查函数
+
+function LongIntervalCheck()
 {
-    const shot = captureScreen();
-    for (let key of Object.keys(conditiosnList))
-    {
-        // if (conditiosnList[key]())
-        // {
-        //     excuteList[key]();
-        // }
-        log(conditiosnList[key]());
-    }
+    // 长间隔检查代码
+    console.log("长间隔检查");
+
 }
-Check();

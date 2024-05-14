@@ -146,13 +146,12 @@ function RecognizeProps(shot, [x, y, w, h])
 
 function GetWeaponColor(shot, [x, y, w, h])
 {
-    const isBlue = images.findMultiColors(shot, "#1c3340", [[11, 0, "#1d3c4f"], [26, 28, "#214f65"], [26, 35, "#204b61"]], { region: [x, y, w, h], threshold: 16 });
-    const isGreen = images.findMultiColors(shot, "#4b6329", [[0, 6, "#445b25"], [0, 9, "#465a22"], [0, 15, "#3a5325"]],
-        { region: [x, y, w, h], threshold: 16 });
-    const isEquiped = images.findImage(shot, BackPackImg.E, { region: [x, y, w, h], threshold: 0.7 });
-    if (isBlue) return "blue";
+    const isPurple = images.findMultiColors(shot, "#31213c", [[4, 0, "#3d244b"], [27, 20, "#59326b"], [27, 26, "#4f2861"]], { region: [x, y, w, h] });
+    const isBlue = images.findMultiColors(shot, "#1c3340", [[11, 0, "#1d3c4f"], [26, 28, "#214f65"], [26, 35, "#204b61"]], { region: [x, y, w, h] });
+    const isGreen = images.findMultiColors(shot, "#4b6329", [[0, 6, "#445b25"], [0, 9, "#465a22"], [0, 15, "#3a5325"]], { region: [x, y, w, h] });
+    if (isPurple) return "purple";
+    else if (isBlue) return "blue";
     else if (isGreen) return "green";
-    else if (isEquiped == null) return false;
     else return false;
 };
 function IsLeadToVanish()
@@ -169,7 +168,7 @@ function OpenTreasureBox()
     if (hasConfirm_small)
     {
         RandomPress(BackPackPos.props_confirm_small);
-        PressBlank()
+        PressBlank();
         return;
     }
     let hasConfirm_big = findImage(treasureBox_shot, BackPackImg.confirm, { region: BackPackCheckPos.props_confirm_big, threshold: 0.8 });
@@ -177,7 +176,7 @@ function OpenTreasureBox()
     {
         RandomPress([778, 454, 50, 31]);
         RandomPress(BackPackPos.props_confirm_big);
-        PressBlank()
+        PressBlank();
         return;
     }
 }
@@ -220,8 +219,6 @@ function UseStrengthenScroll(scrollType)
                         return false;
                     }
                 }
-
-
             }
 
         }
@@ -236,7 +233,6 @@ function UseStrengthenScroll(scrollType)
             for (let j = 0; j < 5; j++)
             {
                 let defenceColor = GetWeaponColor(defenceStrengthen_shot, [870 + j * 65, 100 + i * 65, 80, 65]);
-                log("defenceColor:" + defenceColor);
                 if (defenceColor == "blue" || defenceColor == "green")
                 {
                     log("need strengthen:" + " " + defenceColor);
@@ -287,12 +283,14 @@ function OpenSlabstone()
     Sleep(6000, 8000);
     RandomPress([548, 635, 185, 33]);
     Sleep();
+    return true;
 }
 /**
  * @description使用背包道具
  */
 function UseProps()
 {
+    let hasOpenSlabstone = false;
     const isBackPack = findImage(captureScreen(), BackPackImg.icon, { region: BackPackCheckPos.icon });
     if (isBackPack == null) return;
 
@@ -334,7 +332,6 @@ function UseProps()
                 || type == "strengthenScroll_defence")
             {
                 if (type.indexOf("weapon") != -1 && game_config.player.equipment.weapon.level == 7) continue;
-                log("use strengthenScroll");
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
                 Sleep();
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
@@ -342,7 +339,7 @@ function UseProps()
                 UseStrengthenScroll(type);
                 Sleep();
                 RandomPress(BackPackPos.pageBack);
-                return true;
+                return;
             }
 
             else if (type == "slabstone_white_normal_guardian"
@@ -360,10 +357,7 @@ function UseProps()
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
                 Sleep(6000, 8000);
                 OpenSlabstone();
-            }
-            else
-            {
-                log("unknown props");
+                hasOpenSlabstone = type;
             }
             let isBlank = images.findImage(shot, BackPackImg.blank, { region: [870 + j * 65, 115 + i * 65, 80, 80] });
             if (isBlank)
@@ -371,10 +365,11 @@ function UseProps()
                 log("blank :" + (i + 1) + " " + (j + 1));
                 RandomPress(BackPackPos.close);
                 Sleep();
-                return false;
+                return hasOpenSlabstone;
             };
         }
     }
+    return hasOpenSlabstone;
 }
 //分解道具
 function DecomposeProps()

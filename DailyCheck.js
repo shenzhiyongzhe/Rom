@@ -8,6 +8,11 @@ const overMaxNumber = () =>
     if (hasConfirm) RandomPress([570, 443, 141, 26]);
     confirm.recycle();
 };
+//每日签到检测
+const SignInCheck = (shot) => images.findMultiColors(shot, "#d8564a", [[4, 1, "#c82819"], [0, 2, "#c82117"], [4, 2, "#c52719"],], { region: [952, 446, 56, 49] });
+
+//邮箱检测
+const EmailCheck = (shot) => images.findMultiColors(shot, "#ca6054", [[-2, 3, "#ca291d"], [2, 3, "#cb2818"], [2, 7, "#d33120"],], { region: [1018, 449, 59, 41] });
 
 /**
  * 邮件奖励领取
@@ -109,9 +114,9 @@ const PressConfirm = () => RandomPress([686, 578, 151, 24]);
 
 const DaliyCall = () =>
 {
-    RandomPress([167, 96, 80, 33]);
+    RandomPress([167, 96, 80, 33]); // 召唤页
     Sleep();
-    RandomPress([18, 270, 171, 39]);
+    RandomPress([18, 270, 171, 39]); //每日召唤
 };
 
 const DailyShopFlow = function ()
@@ -137,6 +142,10 @@ const DailyShopFlow = function ()
     RandomPress([255, 223, 186, 394]);
     PressMax();
     PressConfirm(); //确定
+    Sleep();
+
+    //每日召唤
+    DaliyCall();
     Sleep();
     GoBack();
 };

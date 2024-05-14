@@ -1,10 +1,6 @@
-const {
-    ReadImg,
-    Sleep,
-    RandomPress,
-    GoBack,
-    GetLocalTime,
-} = require("./Global.js");
+const { UseProps, WearEquipment } = require("./BackPack.js");
+const { ReadImg, Sleep, RandomPress, GoBack, GetLocalTime, } = require("./Global.js");
+const WearSlabStone = require("./Menu/SlabStone.js");
 
 const MainStory_ClickPos = {
     mainStory: [951, 89, 252, 31],
@@ -33,23 +29,92 @@ const MainStoryImg = {
 const SkipCheck = (shot) => images.findImage(shot, MainStoryImg.skip, { region: MainStory_RegPos.skip, });
 const MainStoryFinishCheck = (shot) => images.findImage(shot, MainStoryImg.missionFinish, { region: MainStory_RegPos.missionFinish });
 
+
 // //完成任务 点击空白
 const MainStoryFinishFlow = () => RandomPress(MainStory_ClickPos.missionFinish);
 // //剧情跳过
 const SkipFlow = () => RandomPress(MainStory_ClickPos.skip);
 
+/**背包小红点检查
+ * @param img
+ * @return img
+ */
+const BackPackCheck = (shot) => images.findMultiColors(shot, "#b52213", [[-3, 0, "#c13221"], [0, 2, "#c62718"], [-3, 5, "#c72c1a"],],
+    { region: [1102, 3, 34, 28] });
+
+/**技能点检测 
+* @param img
+* @return img
+*/
+const AbilityPointCheck = (shot) => images.findMultiColors(shot, "#bd220f", [[3, 0, "#bd2415"], [-1, 3, "#d62d1d"], [3, 3, "#bb2316"],],
+    { region: [13, 4, 71, 31] });
+
+/**
+* @description 技能点全部点防御
+* @param 无
+* @returns 无
+*/
+const AbilityPointsFlow = function ()
+{
+    // const isArcher = CharacterIdentity();
+    Sleep();
+    RandomPress([14, 14, 50, 44]);
+    Sleep(2000, 3000);
+    RandomPress([312, 282, 25, 20]); //游侠 敏捷
+
+    Sleep();
+    RandomPress([230, 510, 120, 20]);
+    Sleep();
+    game_config.player.level++;
+    console.log(`Level UP! 技能点敏捷，当前等级：${game_config.player.level}`);
+    RWFile("player", game_config.player);
+    if (random() > 0.5)
+    {
+        RandomPress([335, 70, 30, 12]);
+    }
+    else
+    {
+        RandomPress([14, 14, 50, 44]);
+    }
+};
 const MainStoryFlow = function ()
 {
-    log("MainStoryFlow keep on trace mainStory");
     const shot = captureScreen();
     if (MainStoryFinishCheck(shot))
     {
         MainStoryFinishFlow();
+        Sleep(1000);
+        if (BackPackCheck(shot))
+        {
+            const hasUsedSlab = UseProps();
+            Sleep();
+            WearEquipment();
+            Sleep();
+            if (hasUsedSlab.indexOf("suit"))
+            {
+                WearSlabStone("suit");
+            }
+            else if (hasUsedSlab.indexOf("guardian"))
+            {
+                WearSlabStone("guardian");
+            }
+        }
+
+        BackPackCheck(shot) && WearEquipment();
+        Sleep();
+        const hasLevelUp = AbilityPointCheck(shot);
+
+        if (hasLevelUp)
+        {
+            AbilityPointsFlow();
+            Sleep();
+        }
         return;
     }
     if (SkipCheck(shot))
     {
         SkipFlow();
+        Sleep();
         return;
     }
     const hasMainStory_icon = images.findImage(shot, MainStoryImg.mainStory_icon, { region: [1221, 68, 51, 63] });
@@ -76,10 +141,16 @@ const MainStoryFlow = function ()
         RandomPress([982, 87, 215, 38]);
     }
 
+    Sleep();
+    const curShot = images.clip(captureScreen(), 621, 324, 36, 76);
 
-
+    const hasStopMoving = images.findImage(shot, curShot, { region: [524, 244, 230, 223], threshold: 0.8 });
+    if (hasStopMoving)
+    {
+        console.log("character is stop moving");
+        RandomPress([272, 98, 628, 476]);
+    }
 };
-
 
 module.exports = MainStoryFlow;
 // MainStoryFlow();

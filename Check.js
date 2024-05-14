@@ -1,11 +1,8 @@
+const { game_config } = require("./Global");
+const MainStoryFlow = require("./MainStory");
+const { EnterInstanceZones, HaltModeCheck, InstanceCheck } = require("./Instance.js");
+const ExceptionCheck = require("./Exception.js");
 
-
-/**技能点检测 
- * @param img
- * @return img
- */
-const AbilityPointCheck = (shot) => images.findMultiColors(shot, "#bd220f", [[3, 0, "#bd2415"], [-1, 3, "#d62d1d"], [3, 3, "#bb2316"],],
-    { region: [13, 4, 71, 31] });
 
 /**任务奖励检测
  * @param img
@@ -22,16 +19,26 @@ const MenuCheck = (shot) => images.findMultiColors(shot, "#b82412", [[3, 0, "#b8
     { region: [1218, 1, 54, 51] });
 
 
-/**背包小红点检查
- * @param img
- * @return img
- */
-const BackPackCheck = (shot) => images.findMultiColors(shot, "#b52213", [[-3, 0, "#c13221"], [0, 2, "#c62718"], [-3, 5, "#c72c1a"],],
-    { region: [1102, 3, 34, 28] });
 
-module.exports = {
-    AbilityPointCheck,
-    MissionCheck,
-    MenuCheck,
-    BackPackCheck,
+
+
+const Check = function (gameMode)
+{
+    const shot = images.captureScreen();
+    if (gameMode == "mainStory")
+    {
+        MainStoryFlow(shot);
+    }
+    else if (gameMode == "instance")
+    {
+        InstanceCheck(shot);
+    }
+    else if (gameMode == "delegate")
+    {
+        // DelegateFlow(shot)
+        console.log("DelegateFlow");
+    }
+    ExceptionCheck(shot);
 };
+
+module.exports = Check;

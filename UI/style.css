@@ -41,13 +41,7 @@ input[type="radio"] {
     align-items: center;
     width: 100%;
     font-size: 14px;
-}
-#gameMode>div{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 60%;
-    
+    gap: 10px;
 }
 #gameMode label{
   display: flex;
@@ -55,7 +49,7 @@ input[type="radio"] {
   justify-content: center;
 }
 #gameMode label input{
-  margin-left: 5px;
+  margin-left: 2px;
 }
 input:focus {
     border-color: #66afe9;
@@ -113,6 +107,15 @@ input:focus {
     font-family: "Microsoft soft";
 }
 
+.option .select-menu{
+    width: 100px;
+    background-color: green;
+}
+.option .select-menu .select{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
 .selected {
     color: #00a8ff;
 }
@@ -150,16 +153,8 @@ input:focus {
     align-items: center;
     gap: 10px;
 }
-#normal-instanceZone .option div:first-of-type{
-    width: 30%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-#normal-instanceZone .option div:last-of-type{
-    margin-left: 30px;
 
-}
+
 #normal-instanceZone button{
     width: 30px;
     padding: 3px;
@@ -189,4 +184,36 @@ input:focus {
     border: none;
     border-radius: 40px;
 }
-
+.level-select-menu{
+    width: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+    font-size: 12px;
+}
+.level-select{
+    width: 60%;
+    display: flex;
+    padding: 3px;
+    border-radius: 20px;
+    justify-content: space-between;
+}
+.level-option-list{
+    width: 80%;
+    position: absolute;
+    background-color: rgb(62, 123, 134);
+    border-radius: 10px;
+    top: 120%;
+    height: 0;
+    overflow-y: hidden;
+    z-index: 100;
+}
+.level-selected{
+    height: 120px;
+}
+.level-option{
+    padding: 10px 0;
+    border-bottom: 1px solid rgb(46, 81, 105);
+}

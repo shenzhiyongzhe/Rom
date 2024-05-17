@@ -1,5 +1,7 @@
+const { game_config, ReadImg, Sleep, RandomPress, GoBack, PressMenu } = require("./Global.js");
 const { DecomposeProps } = require("./BackPack.js");
-const { game_config, ReadImg, Sleep, RandomPress, GoBack } = require("./Global.js");
+const { DailyFlow } = require("./DailyFlow.js");
+
 
 const instancePos = [
     [36, 156, 174, 483],
@@ -22,6 +24,8 @@ const instanceImg = {
 
 };
 let instanceQueue = [];
+let curInstanceType = "normal";
+
 const GetInstanceQueue = function ()
 {
     instanceQueue = [];
@@ -35,7 +39,18 @@ const HaltModeCheck = function (shot)
     const hasEnterHaltMode = images.findImage(shot, instanceImg.haltMode, { region: [529, 415, 226, 78] });
     if (hasEnterHaltMode)
     {
-        Sleep(60000, 600000);
+        console.log(`Entering Halt Mode! type:${curInstanceType} Sleeping......`);
+        if (curInstanceType == "special")
+        {
+            Sleep(600000, 1800000);
+        }
+        else if (curInstanceType == "normal")
+        {
+            Sleep(3600000, 18000000);
+        }
+        // Sleep(3000, 6000); //test time
+        const hasExitHaltMode = images.findImage(captureScreen(), instanceImg.haltMode, { region: [529, 415, 226, 78] });
+        if (hasExitHaltMode == null) return;
         const x1 = 630 + random(-20, 20);
         const y1 = 200 + random(-10, 10);
         const x2 = x1 + random(-10, 10);
@@ -51,9 +66,9 @@ const HaltModeCheck = function (shot)
 };
 const AutoBattleCheck = function (shot)
 {
-    const hasAutoBattle = images.findImage(shot, instanceImg.auto, { region: [1185, 561, 72, 70] });
+    const hasAutoBattle = images.findImage(shot, instanceImg.auto, { region: [1132, 513, 98, 101] });
     if (hasAutoBattle) return;
-    const hasAutoGray = images.findImage(shot, instanceImg.auto_gray, { region: [1185, 561, 72, 70] });
+    const hasAutoGray = images.findImage(shot, instanceImg.auto_gray, { region: [1132, 513, 98, 101] });
     if (hasAutoGray == null) return;
 
     RandomPress([1161, 549, 35, 29]);
@@ -73,7 +88,7 @@ const InstanceCheck = function (shot)
 {
     HaltModeCheck(shot);
     OutInstanceCheck(shot);
-    AutoBattleCheck(shot);
+    // AutoBattleCheck(shot);
 };
 function EnterInstanceZones()
 {
@@ -85,7 +100,10 @@ function EnterInstanceZones()
     menuIcon.recycle();
     if (hasMenuIcon == null) return;
 
-    RandomPress([1228, 24, 20, 22]); //menu icon
+    const hasGetAward = DailyFlow();
+
+    Sleep(2000, 3000);
+    if (hasGetAward == true) PressMenu();
     Sleep(2000, 3000);
     RandomPress([958, 286, 27, 34]); //instance icon
     Sleep(3000, 6000);
@@ -95,11 +113,13 @@ function EnterInstanceZones()
         {
             RandomPress([176, 92, 57, 39]); //special zone page
             Sleep();
+            curInstanceType = "special";
         }
         else if (instanceQueue[i].type == "normal")
         {
             RandomPress([45, 101, 82, 25]); //normal zone page
             Sleep();
+            curInstanceType = "normal";
         }
         let hasEntered = images.findImage(captureScreen(), instanceImg.finish, { region: [168 + parseInt(instanceQueue[i].index) * 250, 540, 93, 40] });
         if (hasEntered) continue;
@@ -131,5 +151,8 @@ function EnterInstanceZones()
 
 }
 
-module.exports = { HaltModeCheck, InstanceCheck, EnterInstanceZones };
+module.exports = { InstanceCheck };
 // EnterInstanceZones();
+// AutoBattleCheck(captureScreen());
+// log(images.matchTemplate(captureScreen(), instanceImg.auto_gray, { region: [1132, 513, 98, 101] }));
+// HaltModeCheck(captureScreen());

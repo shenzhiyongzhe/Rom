@@ -1,12 +1,4 @@
-const {
-    game_config,
-    ReadImg,
-    Sleep,
-    RandomPress,
-    GoBack,
-    PressBlank,
-
-} = require("./Global.js");
+const { game_config, ReadImg, Sleep, RandomPress, GoBack, PressBlank, } = require("./Global.js");
 
 const BackPackImg = {
     E: ReadImg("E"),
@@ -47,6 +39,34 @@ const BackPackCheckPos = {
 };
 /*@description：穿戴背包中的装备
  */
+const IsQualityBetter = function ()
+{
+    Sleep();
+    const shot = captureScreen();
+    let curEquipColor = null;
+    let equipColor = null;
+    let isWhite = images.findMultiColors(shot, "#2a2b2b", [[23, -2, "#2e2f2f"], [56, 26, "#494a4a"], [57, 46, "#414242"]], { region: [51, 55, 114, 109] });
+    let isGreen = images.findMultiColors(shot, "#233222", [[21, 0, "#233c20"], [61, 31, "#425a23"], [60, 59, "#385527"]], { region: [51, 55, 114, 109] });
+    let isBlue = images.findMultiColors(shot, "#1e2b34", [[29, 0, "#1d3442"], [59, 20, "#295e75"], [58, 35, "#214d62"]], { region: [51, 55, 114, 109] });
+    if (isWhite) curEquipColor = "white";
+    else if (isGreen) curEquipColor = "green";
+    else if (isBlue) curEquipColor = "blue";
+
+    isWhite = images.findMultiColors(shot, "#2a2b2b", [[23, -2, "#2e2f2f"], [56, 26, "#494a4a"], [57, 46, "#414242"]], { region: [566, 59, 95, 97] });
+    isGreen = images.findMultiColors(shot, "#233222", [[21, 0, "#233c20"], [61, 31, "#425a23"], [60, 59, "#385527"]], { region: [566, 59, 95, 97] });
+    isBlue = images.findMultiColors(shot, "#1e2b34", [[29, 0, "#1d3442"], [59, 20, "#295e75"], [58, 35, "#214d62"]], { region: [566, 59, 95, 97] });
+    if (isWhite) equipColor = "white";
+    else if (isGreen) equipColor = "green";
+    else if (isBlue) equipColor = "blue";
+
+
+    if (curEquipColor == null || equipColor == null) return false;
+    else if (curEquipColor == "white" && equipColor == "green") return true;
+    else if (curEquipColor == "white" && equipColor == "blue") return true;
+    else if (curEquipColor == "green" && equipColor == "blue") return true;
+    else return false;
+    // return [curEquipColor, equipColor];
+};
 function WearEquipment()
 {
     const isBackPack = findImage(captureScreen(), BackPackImg.icon, { region: BackPackCheckPos.icon });
@@ -93,12 +113,13 @@ function WearEquipment()
             RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
             Sleep();
             let equipmentItem_shot = captureScreen();
+            let isQualityBetter_result = IsQualityBetter();
             let isBetter = images.findImage(equipmentItem_shot, plus, { region: [747, 154, 128, 70], });
             let newEquip = images.findMultiColors(equipmentItem_shot,
                 "#262626", [[19, 3, "#252626"], [4, 18, "#242526"], [31, 18, "#242526"],],
                 { region: [176, 192, 60, 132] }
             );
-            if (isBetter || newEquip == null)
+            if (isQualityBetter_result == true || isBetter || newEquip == null)
             {
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
                 Sleep();
@@ -134,6 +155,41 @@ const props = {
     slabstone_gray_middleLevel_suit: ReadImg("props/slabstone_gray_middleLevel_suit"),
     slabstone_gray_middleLevel_monster: ReadImg("props/slabstone_gray_middleLevel_monster"),
 };
+
+function WearSlabStone(type)
+{
+    RandomPress([1225, 20, 26, 24]);
+    if (type == "suit")
+    {
+        RandomPress([961, 125, 22, 44]);
+    }
+    else if (type == "guardian")
+    {
+        RandomPress([1029, 116, 20, 53]);
+    }
+    Sleep(5000, 6000);
+    for (let i = 0; i < 3; i++)
+    {
+        RandomPress([49, 431 + i * 65, 18, 26]);
+        let shot = captureScreen();
+        let isSealed = images.findMultiColors(shot, "#2f2b27", [[2, 15, "#221f1d"], [3, 27, "#1f1c19"], [112, 0, "#2b2724"], [110, 16, "#262221"], [112, 27, "#22201e"]], { region: [928, 486, 173, 74] });
+        if (isSealed) continue;
+        if (isSealed == null) { RandomPress([1175, 12, 98, 33]); break; };
+        let canPress = images.findMultiColors(shot, "#3e4638", [[1, 12, "#353c2f"], [1, 26, "#2b3527"], [116, 1, "#3b4436"], [116, 15, "#343d30"]], { region: [1011, 485, 175, 75] });
+        if (canPress)
+        {
+            RandomPress([1035, 509, 122, 31]);
+            break;
+        }
+    }
+    const suitCollectionTipPoint = images.findMultiColors(captureScreen(), "#c7321f", [[3, 0, "#cb2f20"], [-1, 3, "#ca2a19"], [2, 3, "#bb2316"]], { region: [356, 75, 60, 48] });
+    if (suitCollectionTipPoint)
+    {
+        RandomPress([306, 102, 62, 19]);
+        RandomPress([1175, 12, 98, 33]);
+    }
+}
+// WearSlabStone("guardian");
 function RecognizeProps(shot, [x, y, w, h])
 {
     for (let key in props)
@@ -325,6 +381,8 @@ function UseProps()
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
                 Sleep();
                 OpenTreasureBox();
+                Sleep();
+                shot = captureScreen();
             }
             else if (type == "strengthenScroll_weapon_tied"
                 || type == "strengthenScroll_weapon_mark"
@@ -339,7 +397,10 @@ function UseProps()
                 UseStrengthenScroll(type);
                 Sleep();
                 RandomPress(BackPackPos.pageBack);
-                return;
+                RandomPress(BackPackPos.icon);
+                RandomPress(BackPackPos.props);
+                Sleep();
+                shot = captureScreen();
             }
 
             else if (type == "slabstone_white_normal_guardian"
@@ -357,6 +418,8 @@ function UseProps()
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
                 Sleep(6000, 8000);
                 OpenSlabstone();
+                Sleep();
+                shot = captureScreen();
                 hasOpenSlabstone = type;
             }
             let isBlank = images.findImage(shot, BackPackImg.blank, { region: [870 + j * 65, 115 + i * 65, 80, 80] });
@@ -365,11 +428,18 @@ function UseProps()
                 log("blank :" + (i + 1) + " " + (j + 1));
                 RandomPress(BackPackPos.close);
                 Sleep();
-                return hasOpenSlabstone;
             };
         }
     }
-    return hasOpenSlabstone;
+    if (hasOpenSlabstone == false) return;
+    else if (hasOpenSlabstone.indexOf("suit"))
+    {
+        WearSlabStone("suit");
+    }
+    else if (hasOpenSlabstone.indexOf("guardian"))
+    {
+        WearSlabStone("guardian");
+    }
 }
 //分解道具
 function DecomposeProps()
@@ -397,12 +467,54 @@ function DecomposeProps()
     decompositionIcon.recycle();
 };
 
+function ReturnHome()
+{
+    // const gameMode = game_config.ui.gameMode;
+    const gameMode = "instance";
+    if (gameMode == "mainStory")
+    {
+        console.log("mainStory is a little difficul to decide to return home");
+    }
+    else if (gameMode == "instance")
+    {
+        const autoBattle = ReadImg("instance_auto");
+        Sleep();
+        const hasAutoBattle = images.findImage(captureScreen(), autoBattle, { region: [1143, 520, 74, 82] });
+        if (hasAutoBattle)
+        {
+            RandomPress([1161, 553, 33, 25]);
+        }
+        Sleep(20000, 35000);
+        autoBattle.recycle();
+
+        const isBackPack = findImage(captureScreen(), BackPackImg.icon, { region: BackPackCheckPos.icon });
+        if (isBackPack == null) return;
+
+        RandomPress(BackPackPos.icon);
+        Sleep(3000, 4000);
+
+        RandomPress(BackPackPos.props);
+        Sleep();
+
+        const returnHomeIcon = ReadImg("return_home");
+        const hasReturnHome = images.findImage(captureScreen(), returnHomeIcon, { region: [883, 104, 344, 401] });
+        returnHomeIcon.recycle();
+        if (hasReturnHome)
+        {
+            RandomPress([hasReturnHome.x - 10, hasReturnHome.y - 6, 30, 30]);
+            RandomPress([hasReturnHome.x - 10, hasReturnHome.y - 6, 30, 30]);
+            log("return home");
+        }
+    }
+}
 module.exports = {
     WearEquipment,
     UseProps,
-    DecomposeProps
+    DecomposeProps,
+    ReturnHome
 };
-
+// UseProps();
+// WearSlabStone("suit");
 // WearEquipment();
 // DecomposeProps();
 // for (let i = 0; i < 3; i++)
@@ -417,3 +529,5 @@ module.exports = {
 //     { region: [870 + 1 * 65, 100, 70, 70] }
 // );
 // log(isWhite);
+// ReturnHome();
+// DecomposeProps();

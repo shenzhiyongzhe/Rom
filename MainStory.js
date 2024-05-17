@@ -1,7 +1,7 @@
+const { ReadImg, Sleep, RandomPress, GoBack, PressMenu, } = require("./Global.js");
 const { UseProps, WearEquipment } = require("./BackPack.js");
-const { ReadImg, Sleep, RandomPress, GoBack, GetLocalTime, } = require("./Global.js");
-const WearSlabStone = require("./Menu/SlabStone.js");
-
+const { AbilityPointsFlow, MissionAwardFlow } = require("./Part.js");
+const CraftFlow = require("./Craft.js");
 const MainStory_ClickPos = {
     mainStory: [951, 89, 252, 31],
     mainStoryIcon: [1238, 84, 19, 35],
@@ -23,17 +23,19 @@ const MainStoryImg = {
     mainStory_icon: ReadImg("mainStory_icon"),
 };
 
-
-
 //Skip 和 任务完成检查
 const SkipCheck = (shot) => images.findImage(shot, MainStoryImg.skip, { region: MainStory_RegPos.skip, });
 const MainStoryFinishCheck = (shot) => images.findImage(shot, MainStoryImg.missionFinish, { region: MainStory_RegPos.missionFinish });
+//制造小红点检查
+const CraftCheck = (shot) => images.findMultiColors(shot, "#b72e1b", [[-4, 3, "#db2e1c"], [1, 3, "#c02517"], [4, 3, "#cf3324"], [0, 5, "#be2618"],], { region: [971, 178, 35, 37] });
 
 
 // //完成任务 点击空白
 const MainStoryFinishFlow = () => RandomPress(MainStory_ClickPos.missionFinish);
 // //剧情跳过
 const SkipFlow = () => RandomPress(MainStory_ClickPos.skip);
+//菜单小红点检查
+const MenuCheck = (shot) => images.findMultiColors(shot, "#b8200c", [[0, 3, "#d72a19"], [2, 3, "#b72215"], [1, 5, "#c22b1c"]], { region: [1237, 2, 32, 28] });
 
 /**背包小红点检查
  * @param img
@@ -42,41 +44,7 @@ const SkipFlow = () => RandomPress(MainStory_ClickPos.skip);
 const BackPackCheck = (shot) => images.findMultiColors(shot, "#b52213", [[-3, 0, "#c13221"], [0, 2, "#c62718"], [-3, 5, "#c72c1a"],],
     { region: [1102, 3, 34, 28] });
 
-/**技能点检测 
-* @param img
-* @return img
-*/
-const AbilityPointCheck = (shot) => images.findMultiColors(shot, "#bd220f", [[3, 0, "#bd2415"], [-1, 3, "#d62d1d"], [3, 3, "#bb2316"],],
-    { region: [13, 4, 71, 31] });
 
-/**
-* @description 技能点全部点防御
-* @param 无
-* @returns 无
-*/
-const AbilityPointsFlow = function ()
-{
-    // const isArcher = CharacterIdentity();
-    Sleep();
-    RandomPress([14, 14, 50, 44]);
-    Sleep(2000, 3000);
-    RandomPress([312, 282, 25, 20]); //游侠 敏捷
-
-    Sleep();
-    RandomPress([230, 510, 120, 20]);
-    Sleep();
-    game_config.player.level++;
-    console.log(`Level UP! 技能点敏捷，当前等级：${game_config.player.level}`);
-    RWFile("player", game_config.player);
-    if (random() > 0.5)
-    {
-        RandomPress([335, 70, 30, 12]);
-    }
-    else
-    {
-        RandomPress([14, 14, 50, 44]);
-    }
-};
 const MainStoryFlow = function ()
 {
     const shot = captureScreen();
@@ -86,33 +54,38 @@ const MainStoryFlow = function ()
         Sleep(1000);
         if (BackPackCheck(shot))
         {
-            const hasUsedSlab = UseProps();
+            UseProps();
             Sleep();
             WearEquipment();
             Sleep();
-            if (hasUsedSlab.indexOf("suit"))
-            {
-                WearSlabStone("suit");
-            }
-            else if (hasUsedSlab.indexOf("guardian"))
-            {
-                WearSlabStone("guardian");
-            }
         }
-
-        BackPackCheck(shot) && WearEquipment();
+        AbilityPointsFlow();
         Sleep();
-        const hasLevelUp = AbilityPointCheck(shot);
-
-        if (hasLevelUp)
+        MissionAwardFlow();
+        Sleep();
+        const hasMenu = MenuCheck(shot);
+        if (hasMenu != null)
         {
-            AbilityPointsFlow();
+            PressMenu();
             Sleep();
+            const isCraft = CraftCheck(captureScreen());
+            if (isCraft)
+            {
+                console.log("craft equipment");
+                CraftFlow();
+                return;
+            }
+            else
+            {
+                PressMenu();
+            }
         }
-        return;
+
+
     }
     if (SkipCheck(shot))
     {
+        Sleep();
         SkipFlow();
         Sleep();
         return;
@@ -152,7 +125,7 @@ const MainStoryFlow = function ()
     }
 };
 
-module.exports = MainStoryFlow;
+module.exports = { MainStoryFlow };
 // MainStoryFlow();
 // let shot = captureScreen();
 // log(images.matchTemplate(captureScreen(), MainStoryImg.mainStory_icon, { region: MainStory_RegPos.mainStory_icon }));

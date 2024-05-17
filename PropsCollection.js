@@ -4,9 +4,9 @@ const {
     GoBack,
     ReadImg,
     PressBlank,
-} = require("../Global.js");
+} = require("./Global.js");
 
-const { WearEquipment, DecomposeProps } = require("../BackPack.js");
+const { WearEquipment, DecomposeProps } = require("./BackPack.js");
 const propCollectionPos = [1098, 121, 19, 27];
 const propsLogin = [752, 610, 109, 23];
 const progressAward = [1103, 252, 139, 27];
@@ -59,7 +59,7 @@ const LoginProgressAward = function ()
         if (isgotAward == null)
         {
             RandomPress([1222, 320 + i * 50, 10, 10]);
-            // press(1200 + random(-10, 10), 314 + i * 51 + random(-10, 10), random(30, 200));
+
             Sleep();
             PressBlank();
             Sleep();

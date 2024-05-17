@@ -1,4 +1,4 @@
-const { WearEquipment } = require("../BackPack.js");
+const { WearEquipment } = require("./BackPack.js");
 const {
 
     game_config,
@@ -9,7 +9,7 @@ const {
     RandomPress,
     GoBack,
     CharacterIdentity,
-} = require("../Global.js");
+} = require("./Global.js");
 
 const CraftPos = {
     icon: [953, 200, 33, 31],

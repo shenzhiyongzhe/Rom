@@ -1,4 +1,5 @@
-const { ReadImg, Sleep, RandomPress, GoBack, PressBlank, PressMenu } = require("./Global.js");
+const { ReadImg, Sleep, RandomPress, GoBack, PressBlank, PressMenu, game_config } = require("./Global.js");
+const DutyFlow = require("./Menu/Duty.js");
 
 
 const overMaxNumber = () =>
@@ -8,18 +9,22 @@ const overMaxNumber = () =>
     if (hasConfirm) RandomPress([570, 443, 141, 26]);
     confirm.recycle();
 };
+//菜单小红点检查
+const MenuCheck = (shot) => images.findMultiColors(shot, "#b8200c", [[0, 3, "#d72a19"], [2, 3, "#b72215"], [1, 5, "#c22b1c"]], { region: [1237, 2, 32, 28] });
 //每日签到检测
 const SignInCheck = (shot) => images.findMultiColors(shot, "#d8564a", [[4, 1, "#c82819"], [0, 2, "#c82117"], [4, 2, "#c52719"],], { region: [952, 446, 56, 49] });
 
 //邮箱检测
 const EmailCheck = (shot) => images.findMultiColors(shot, "#ca6054", [[-2, 3, "#ca291d"], [2, 3, "#cb2818"], [2, 7, "#d33120"],], { region: [1018, 449, 59, 41] });
 
+//使命检查
+const DutyCheck = (shot) => images.findMultiColors(shot, "#c33522", [[-2, 2, "#c92419"], [3, 2, "#d92d1c"], [0, 5, "#ba2516"],], { region: [1169, 180, 44, 37] });
+
 /**
  * 邮件奖励领取
 */
 const EmailFlow = function ()
 {
-    PressMenu();
     RandomPress([1025, 475, 25, 10]);
     Sleep();
     const shot = captureScreen();
@@ -59,7 +64,6 @@ const EmailFlow = function ()
 */
 const SignInFlow = function ()
 {
-    PressMenu();
     RandomPress([960, 468, 20, 32]);
     Sleep();
     const shot = captureScreen();
@@ -118,46 +122,128 @@ const DaliyCall = () =>
     Sleep();
     RandomPress([18, 270, 171, 39]); //每日召唤
 };
-
-const DailyShopFlow = function ()
+const NoMoneyCheck = function ()
+{
+    Sleep();
+    const isNoMoney = images.findMultiColors(captureScreen(), "#3d4538", [[121, 1, "#384033"], [143, 11, "#333b2f"], [4, 17, "#2b3428"]], { region: [658, 556, 209, 66] });
+    if (isNoMoney == null) return;
+    else
+    {
+        console.log("No Money");
+        if (random() > 0.5)
+        {
+            RandomPress([447, 580, 157, 21]);
+        }
+        else
+        {
+            RandomPress([958, 78, 32, 14]);
+        }
+    }
+};
+const ShopFlow = function ()
 {
     RandomPress([955, 19, 35, 30]); // 商城
     Sleep();
     RandomPress([296, 98, 72, 28]); //第三页 普通页
     RandomPress([17, 211, 173, 37]); // 强化卷轴页
+    // 购买回城卷轴
+    RandomPress([534, 159, 217, 240]);
+    RandomPress([858, 415, 19, 24]); // 计算器图标
+    const numberArr = [[652, 237, 42, 41], [529, 306, 41, 37], [591, 305, 41, 41], [653, 305, 41, 41], [531, 373, 39, 40], [591, 374, 41, 36], [653, 371, 39, 42]];
+    const number = Math.floor(Math.random() * numberArr.length);
+    RandomPress(numberArr[number]);
+    RandomPress([663, 509, 91, 28]);
+    PressConfirm(); //确定
+    Sleep();
+    NoMoneyCheck();
     // 购买防御卷轴
     RandomPress([817, 159, 224, 243]);
     PressMax();
     PressConfirm();
     Sleep();
+    NoMoneyCheck();
     // 购买武器卷轴
-    RandomPress([537, 443, 201, 241]);
-    PressMax();
-    PressConfirm(); //确定
-    Sleep();
-
+    // RandomPress([537, 443, 201, 241]);
+    // PressMax();
+    // PressConfirm(); //确定
+    // Sleep();
+    // NoMoneyCheck();
+    //购买装备宝箱
+    // RandomPress([821, 439, 186, 241]);
+    // PressMax();
+    // PressConfirm(); //确定
+    // Sleep();
+    // NoMoneyCheck();
     //购买水晶宝箱
-    RandomPress([417, 96, 79, 33]);
-    RandomPress([18, 209, 171, 39]);
-    RandomPress([255, 223, 186, 394]);
-    PressMax();
-    PressConfirm(); //确定
-    Sleep();
-
+    // RandomPress([417, 96, 79, 33]);
+    // RandomPress([18, 209, 171, 39]);
+    // RandomPress([255, 223, 186, 394]);
+    // PressMax();
+    // PressConfirm(); //确定
+    // Sleep();
+    // NoMoneyCheck();
     //每日召唤
-    DaliyCall();
-    Sleep();
+    // DaliyCall();
+    // Sleep();
     GoBack();
 };
-function DailyCheck()
+function DailyFlow()
 {
-    console.log("Daily Check");
-    EmailFlow();
-    Sleep();
-    SignInFlow();
+    const hasMenu = MenuCheck(captureScreen());
+    if (hasMenu == null) return true;
 
+    console.log("Daily Flow Start! get email and signin reward");
+    PressMenu();
+    Sleep();
+    const shot = captureScreen();
+    const hasGetSignIn = SignInCheck(shot);
+    const hasGetEmail = EmailCheck(shot);
+    const hasDuty = DutyCheck(shot);
+    if (hasGetSignIn != null)
+    {
+        console.log("Get SignIn Reward");
+        SignInFlow();
+        if (hasDuty != null)
+        {
+            console.log("Get Duty Reward");
+            PressMenu();
+            DutyFlow();
+        }
+    }
+
+    if (hasGetSignIn == null && hasGetEmail != null)
+    {
+        Sleep();
+        EmailFlow();
+        Sleep();
+        ShopFlow();
+    }
+    else if (hasGetSignIn != null && hasGetEmail != null)
+    {
+        PressMenu();
+        Sleep();
+        EmailFlow();
+        Sleep();
+        ShopFlow();
+    }
+    if (hasGetEmail == null && hasGetSignIn == null)
+    {
+        if (game_config.ui.gameMode == "mainStory")
+        {
+            PressMenu();
+            return false;
+        }
+        else if (game_config.ui.gameMode == "daily")
+        {
+            return false;
+        }
+    }
 }
 
+
+module.exports = { DailyFlow };
 // EmailFlow();
 // SignInFlow();
-DailyShopFlow();
+// ShopFlow();
+// MenuCheck(captureScreen()) && console.log("Menu Check");
+// DailyFlow();

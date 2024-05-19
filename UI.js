@@ -24,6 +24,41 @@ function StartScript(data)
     }
 }
 
+const UpdateScript = function ()
+{
+    threads.start(function ()
+    {
+        console.log("start update scripte:");
+        const url = "http://10.6.130.129:82/Rom.apk";
+        const apkUrl = "/sdcard/Rom/Rom.apk";
+        let r = http.client().newCall(
+            http.buildRequest(url, {
+                method: "GET",
+            })
+        ).execute();
+        files.createWithDirs("/sdcard/Rom/");
+        let fs = new java.io.FileOutputStream(apkUrl);
+
+        let is = r.body().byteStream();
+        const buffer = util.java.array("byte", 1024);
+        let byteRead; //每次读取的byte数
+        while ((byteRead = is.read(buffer)) != -1)
+        {
+            fs.write(buffer, 0, byteRead); //读取
+        }
+        if (files.exists(apkUrl))
+        {
+            app.viewFile(apkUrl);
+            sleep(1000);
+            click(580, 765);
+        } else
+        {
+            toastLog('下载失败');
+        }
+    });
+
+
+};
 
 const UI = () =>
 {
@@ -42,6 +77,12 @@ const UI = () =>
             //回调web
             callBack("successful");
         }, 1000);
+    });
+
+    ui.web.jsBridge.registerHandler("updateScript", (data, callBack) =>
+    {
+        UpdateScript();
+        callBack("successful");
     });
 
     // setInterval(() =>

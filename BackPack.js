@@ -67,16 +67,21 @@ const IsQualityBetter = function ()
     else return false;
     // return [curEquipColor, equipColor];
 };
-function WearEquipment()
+function WearEquipment(needOpen, needClose)
 {
-    const isBackPack = findImage(captureScreen(), BackPackImg.icon, { region: BackPackCheckPos.icon });
-    if (isBackPack == null) return;
+    log("开始穿戴装备");
+    needOpen = needOpen || true;
+    needClose = needClose || true;
+    if (needOpen == true)
+    {
+        const isBackPack = findImage(captureScreen(), BackPackImg.icon, { region: BackPackCheckPos.icon });
+        if (isBackPack == null) return;
 
-    RandomPress(BackPackPos.icon);
-    Sleep(3000, 4000);
+        RandomPress(BackPackPos.icon);
+        Sleep(3000, 4000);
+    }
 
-    RandomPress(BackPackPos.equipment);
-    Sleep();
+    RandomPress([1238, 211, 25, 25]);
     const isfewEquip = images.findImage(captureScreen(), BackPackImg.blank, { region: [1137, 254, 85, 70] });
     if (isfewEquip == null)
     {
@@ -102,7 +107,6 @@ function WearEquipment()
                 return;
             }
             if (isEquip) continue;
-
             if (i > 2)
             {
                 let isWhite = images.findMultiColors(shot, "#2a2b2b", [[10, 0, "#2e2f2f"], [20, 0, "#2e2f2f"], [30, 0, "#383838"]],
@@ -129,7 +133,11 @@ function WearEquipment()
 
     }
     plus.recycle();
-    RandomPress(BackPackPos.close);
+    if (needClose)
+    {
+
+        RandomPress(BackPackPos.close);
+    }
     Sleep();
 }
 
@@ -168,19 +176,16 @@ function WearSlabStone(type)
         RandomPress([1029, 116, 20, 53]);
     }
     Sleep(5000, 6000);
-    for (let i = 0; i < 3; i++)
+    const ifFirstWear = images.findMultiColors(captureScreen(), "#394235", [[2, 14, "#2c3428"], [1, 27, "#2b3427"], [100, 0, "#394235"], [100, 24, "#31392d"]], { region: [992, 476, 203, 88] });
+    if (ifFirstWear)
     {
-        RandomPress([49, 431 + i * 65, 18, 26]);
-        let shot = captureScreen();
-        let isSealed = images.findMultiColors(shot, "#2f2b27", [[2, 15, "#221f1d"], [3, 27, "#1f1c19"], [112, 0, "#2b2724"], [110, 16, "#262221"], [112, 27, "#22201e"]], { region: [928, 486, 173, 74] });
-        if (isSealed) continue;
-        if (isSealed == null) { RandomPress([1175, 12, 98, 33]); break; };
-        let canPress = images.findMultiColors(shot, "#3e4638", [[1, 12, "#353c2f"], [1, 26, "#2b3527"], [116, 1, "#3b4436"], [116, 15, "#343d30"]], { region: [1011, 485, 175, 75] });
-        if (canPress)
-        {
-            RandomPress([1035, 509, 122, 31]);
-            break;
-        }
+        RandomPress([1043, 512, 117, 27]);
+        return;
+    }
+    else
+    {
+        RandomPress([224, 575, 68, 105]);
+        RandomPress([1043, 512, 117, 27]);
     }
     const suitCollectionTipPoint = images.findMultiColors(captureScreen(), "#c7321f", [[3, 0, "#cb2f20"], [-1, 3, "#ca2a19"], [2, 3, "#bb2316"]], { region: [356, 75, 60, 48] });
     if (suitCollectionTipPoint)
@@ -344,14 +349,20 @@ function OpenSlabstone()
 /**
  * @description使用背包道具
  */
-function UseProps()
+function UseProps(needOpen, needClose)
 {
+    needOpen = needOpen || true;
+    needClose = needClose || true;
     let hasOpenSlabstone = false;
-    const isBackPack = findImage(captureScreen(), BackPackImg.icon, { region: BackPackCheckPos.icon });
-    if (isBackPack == null) return;
+    if (needOpen)
+    {
+        const isBackPack = findImage(captureScreen(), BackPackImg.icon, { region: BackPackCheckPos.icon });
+        if (isBackPack == null) return;
 
-    RandomPress(BackPackPos.icon);
-    Sleep(3000, 4000);
+        RandomPress(BackPackPos.icon);
+        Sleep(3000, 4000);
+    }
+
 
     RandomPress(BackPackPos.props);
     Sleep();
@@ -514,7 +525,7 @@ module.exports = {
     ReturnHome
 };
 // UseProps();
-// WearSlabStone("suit");
+// WearSlabStone("guardian");
 // WearEquipment();
 // DecomposeProps();
 // for (let i = 0; i < 3; i++)

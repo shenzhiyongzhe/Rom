@@ -3,13 +3,10 @@ const UI = require("./UI.js");
 UI();
 
 
-const {
-    game_config,
-    RWFile,
-} = require("./Global.js");
+const { game_config, RWFile, } = require("./Global.js");
 
 const Check = require("./Check.js");
-
+const { AsyncException } = require("./Exception.js");
 const BeginnerFlow = require("./Beginner.js");
 
 console.setGlobalLogConfig({
@@ -57,6 +54,7 @@ const Main = function (data)
             if (isRunning == true)
             {
                 Check(gameMode);
+
             }
             else
             {
@@ -64,6 +62,14 @@ const Main = function (data)
             }
 
         }, 4000);
+    }
+    );
+    threads.start(function ()
+    {
+        setInterval(() =>
+        {
+            AsyncException();
+        }, 10000);
     }
     );
 };

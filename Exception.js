@@ -1,86 +1,19 @@
+const { ReadImg, Sleep } = require("./Global.js");
 
-const { game_config, ReadImg, Sleep, RandomPress, } = require("./Global.js");
 const { ReturnHome, DecomposeProps } = require("./BackPack.js");
 const { GroceryFlow } = require("./Death.js");
-const PropsCollectionFlow = require("./PropsCollection.js");
-
+//断开连接
 const imgArr = {
+    disconnected: ReadImg("exception_disconnected"),
     potion_zero: ReadImg("potion_zero"),
     version: ReadImg("version"),
     startGame: ReadImg("startGame"),
-    haltMode: ReadImg("haltMode"),
-    disconnected: ReadImg("game_disconnected"),
     longTimeTip: ReadImg("game_longTimeTip"),
-    // cancel: ReadImg("cancel"),
-    mainStory_confirm: ReadImg("mainStory_confirm"),
-    propsLogin: ReadImg("propsCollection_warningConfirm"),
-    backPack_close: ReadImg("backPack_close"),
-    instance_close: ReadImg("instance_close"),
-    menu_close: ReadImg("menu_close"),
-
-    pageBack: ReadImg("back")
-    // exitGame: ReadImg("exitGame"),
-};
-
-const checkList = {
-    //confirm
-    mainStory_confirm: [imgArr.mainStory_confirm, [672, 444, 143, 74], [670, 466, 157, 30]],
-    //close
-    backPack_close: [imgArr.backPack_close, [1223, 54, 56, 51], [1240, 68, 33, 17]],
-    instance_close: [imgArr.instance_close, [850, 115, 80, 58], [880, 140, 27, 12]],
-    menu_close: [imgArr.menu_close, [1210, 3, 58, 55], [1227, 21, 24, 23]],
-    //special
-    version: [imgArr.version, [1136, 14, 125, 45], [136, 63, 966, 500]],
-    startGame: [imgArr.startGame, [1115, 636, 130, 70], [1106, 660, 132, 21]],
-    longTimeTip: [imgArr.longTimeTip, [596, 426, 86, 60], [576, 443, 133, 27]],
-    pageBack: [imgArr.pageBack, [1213, 6, 56, 52], [1148, 5, 131, 54]]
 
 };
 
-let isFirstPropsLogin = game_config.setting.isFirstPropsLogin;
-
-const NormalCheck = function (shot)
+function AsyncException()
 {
-    for (let key in checkList)
-    {
-        let hasException = images.findImage(shot, checkList[key][0], { region: checkList[key][1] });
-        if (hasException)
-        {
-            log("Exception Found: " + key);
-            Sleep();
-            RandomPress(checkList[key][2]);
-            return false;
-        }
-    }
-    return true;
-};
-
-
-const SpecialCheck = function (shot)
-{
-    const useOutofPotion = images.findImage(shot, imgArr.potion_zero, { region: [941, 618, 77, 78] });
-    if (useOutofPotion)
-    {
-        console.log("药水用完了，回城购买");
-        ReturnHome();
-        Sleep(20000, 30000);
-        GroceryFlow();
-        return false;
-    }
-    if (isFirstPropsLogin == true)
-    {
-        const hasPropsCollection_loginConfirm = images.findImage(shot, imgArr.propsLogin, { region: [687, 416, 109, 86] });
-        if (hasPropsCollection_loginConfirm)
-        {
-            RandomPress([582, 397, 13, 13]); // 关闭不再提示
-            Sleep();
-            RandomPress([666, 444, 150, 28]); //点击登录
-            Sleep();
-            isFirstPropsLogin = false;
-            return false;
-        }
-    }
-    //断开连接
     const hasDisconnected = images.findImage(shot, imgArr.disconnected, { region: [483, 418, 110, 71] });
     if (hasDisconnected)
     {
@@ -112,29 +45,36 @@ const SpecialCheck = function (shot)
         Sleep(20000, 30000);
         return false;
     }
-    // const hasCancel = images.findImage(shot, imgArr.haltMode, { region: [1115, 636, 130, 70] });
-    // if (hasCancel)
-    // {
-    //     console.log("检测到游戏中断，尝试重新启动游戏");
-    //     RandomPress([1106, 660, 132, 21]);
-    //     return false;
-    // }
+
+    const useOutofPotion = images.findImage(shot, imgArr.potion_zero, { region: [941, 618, 77, 78] });
+    if (useOutofPotion)
+    {
+        console.log("药水用完了，回城购买");
+        ReturnHome();
+        Sleep(20000, 30000);
+        GroceryFlow();
+        return false;
+    }
+    //special
+    const hasVersion = images.findImage(shot, imgArr.version, { region: [1136, 14, 125, 45] });
+    if (hasVersion)
+    {
+        console.log("游戏主界面，点击开始游戏");
+        RandomPress([136, 63, 966, 500]); return false;
+    }
+    const hasStartGame = images.findImage(shot, imgArr.startGame, { region: [1115, 636, 130, 70] });
+    if (hasStartGame)
+    {
+        console.log("角色界面，点击开始游戏");
+        RandomPress([1106, 660, 132, 21]); return false;
+    }
+    const hasLongTimeTip = images.findImage(shot, imgArr.longTimeTip, { region: [596, 426, 86, 60] });
+    if (hasLongTimeTip)
+    {
+        console.log("长时间未操作，自动点击");
+        RandomPress([576, 443, 133, 27]); return false;
+    }
     return true;
-};
-
-const ExceptionCheck = function ()
-{
-    const shot = captureScreen();
-    NormalCheck(shot) &&
-
-        SpecialCheck(shot);
-};
-
-// console.time("test");
-// ExceptionCheck();
-
-// console.timeEnd("test");
-
-
-module.exports = { ExceptionCheck };
-
+}
+module.exports = { AsyncException };
+// AsyncException();

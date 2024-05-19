@@ -5,12 +5,12 @@ const DutyFlow = require("./Menu/Duty.js");
 const overMaxNumber = () =>
 {
     const confirm = ReadImg("mainStory_confirm");
+    Sleep();
     const hasConfirm = images.findImage(captureScreen(), confirm, { region: [595, 426, 90, 63] });
     if (hasConfirm) RandomPress([570, 443, 141, 26]);
     confirm.recycle();
 };
-//菜单小红点检查
-const MenuCheck = (shot) => images.findMultiColors(shot, "#b8200c", [[0, 3, "#d72a19"], [2, 3, "#b72215"], [1, 5, "#c22b1c"]], { region: [1237, 2, 32, 28] });
+
 //每日签到检测
 const SignInCheck = (shot) => images.findMultiColors(shot, "#d8564a", [[4, 1, "#c82819"], [0, 2, "#c82117"], [4, 2, "#c52719"],], { region: [952, 446, 56, 49] });
 
@@ -45,7 +45,11 @@ const EmailFlow = function ()
         overMaxNumber();
         PressBlank();
         Sleep();
-        if (characterPage == null) GoBack();
+        if (characterPage == null)
+        {
+            GoBack();
+            return;
+        }
     }
     if (characterPage)
     {
@@ -54,9 +58,10 @@ const EmailFlow = function ()
         Sleep(1500, 2500);
         overMaxNumber();
         PressBlank();
+        Sleep();
+        GoBack();
     }
-    Sleep();
-    GoBack();
+
 };
 
 /** 
@@ -187,63 +192,38 @@ const ShopFlow = function ()
     // Sleep();
     GoBack();
 };
-function DailyFlow()
+function Daily()
 {
-    const hasMenu = MenuCheck(captureScreen());
-    if (hasMenu == null) return true;
-
-    console.log("Daily Flow Start! get email and signin reward");
     PressMenu();
     Sleep();
     const shot = captureScreen();
     const hasGetSignIn = SignInCheck(shot);
-    const hasGetEmail = EmailCheck(shot);
-    const hasDuty = DutyCheck(shot);
-    if (hasGetSignIn != null)
+
+    if (hasGetSignIn)
     {
-        console.log("Get SignIn Reward");
+        Sleep();
         SignInFlow();
+        Sleep();
+        ShopFlow();
+        const hasDuty = DutyCheck(captureScreen());
         if (hasDuty != null)
         {
-            console.log("Get Duty Reward");
             PressMenu();
+            Sleep();
             DutyFlow();
         }
+        return;
     }
 
-    if (hasGetSignIn == null && hasGetEmail != null)
-    {
-        Sleep();
-        EmailFlow();
-        Sleep();
-        ShopFlow();
-    }
-    else if (hasGetSignIn != null && hasGetEmail != null)
-    {
-        PressMenu();
-        Sleep();
-        EmailFlow();
-        Sleep();
-        ShopFlow();
-    }
-    if (hasGetEmail == null && hasGetSignIn == null)
-    {
-        if (game_config.ui.gameMode == "mainStory")
-        {
-            PressMenu();
-            return false;
-        }
-        else if (game_config.ui.gameMode == "daily")
-        {
-            return false;
-        }
-    }
+    const hasGetEmail = EmailCheck(shot);
+    if (hasGetEmail) EmailFlow();
+    else PressMenu();
 }
 
 
-module.exports = { DailyFlow };
+module.exports = { Daily };
 // EmailFlow();
 // SignInFlow();
 // ShopFlow();
 // MenuCheck(captureScreen()) && console.log("Menu Check");
-// DailyFlow();
+// Daily();

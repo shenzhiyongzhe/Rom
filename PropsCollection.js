@@ -1,4 +1,5 @@
 const {
+    game_config,
     Sleep,
     RandomPress,
     GoBack,
@@ -67,6 +68,26 @@ const LoginProgressAward = function ()
     }
 
 };
+let isFirstPropsLogin = game_config.setting.isFirstPropsLogin;
+
+function FirstLoginCheck()
+{
+    const propsLogin = ReadImg("propsCollection_warningConfirm");
+    if (isFirstPropsLogin == true)
+    {
+        const hasPropsCollection_loginConfirm = images.findImage(shot, propsLogin, { region: [687, 416, 109, 86] });
+        if (hasPropsCollection_loginConfirm)
+        {
+            RandomPress([582, 397, 13, 13]); // 关闭不再提示
+            Sleep();
+            RandomPress([666, 444, 150, 28]); //点击登录
+            Sleep();
+            isFirstPropsLogin = false;
+            return false;
+        }
+    }
+}
+
 const PropsCollectionFlow = function ()
 {
     Sleep();

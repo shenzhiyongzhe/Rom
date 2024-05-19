@@ -2,8 +2,8 @@
 const { ReadImg, Sleep, RandomPress, GoBack, game_config } = require("./Global.js");
 
 const { WearEquipment } = require("./BackPack.js");
-const { DailyFlow } = require("./DailyFlow.js");
-const { MissionAwardFlow } = require("./Part.js");
+const { DailyFlow } = require("./Daily.js");
+const { MissionAwardFlow } = require("./Common.js");
 
 const DeathImg = {
     revive: ReadImg("character_revive"),
@@ -73,8 +73,8 @@ const CrucifixFlow = function ()
 
         needToEquip = true;
     }
-    if (random() > 0.5) RandomPress([355, 71, 26, 14]);
-    else RandomPress([891, 19, 26, 33]);
+    RandomPress([355, 71, 26, 14]);
+
     return needToEquip;
 };
 // log(images.findMultiColors(captureScreen(), "#3f421f", [[39, 0, "#3e3f1f"], [-7, 25, "#3f421f"], [-2, 58, "#3f431f"], [39, 60, "#3c3f1f"]], { region: [63, 203, 111, 97] }));

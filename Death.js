@@ -2,14 +2,8 @@
 const { ReadImg, Sleep, RandomPress, GoBack, game_config } = require("./Global.js");
 
 const { WearEquipment } = require("./BackPack.js");
-const { DailyFlow } = require("./Daily.js");
+const { Daily } = require("./Daily.js");
 const { MissionAwardFlow } = require("./Common.js");
-
-const DeathImg = {
-    revive: ReadImg("character_revive"),
-    confirm: ReadImg("mainStory_confirm"),
-};
-
 
 const CrucifixFlow = function () 
 {
@@ -77,8 +71,6 @@ const CrucifixFlow = function ()
 
     return needToEquip;
 };
-// log(images.findMultiColors(captureScreen(), "#3f421f", [[39, 0, "#3e3f1f"], [-7, 25, "#3f421f"], [-2, 58, "#3f431f"], [39, 60, "#3c3f1f"]], { region: [63, 203, 111, 97] }));
-// CrucifixFlow();
 
 //购买药水
 const GroceryFlow = function ()
@@ -98,40 +90,16 @@ const GroceryFlow = function ()
     RandomPress([821, 370, 51, 23]); // max
     RandomPress([684, 527, 167, 23]);// confirm
     Sleep(3000, 5000);
-    const isNoMoney = images.findMultiColors(captureScreen(), "#3d4538", [[34, 2, "#394134"], [111, 0, "#393f33"], [130, 18, "#323a2d"], [34, 16, "#2e3629"]], { region: [655, 505, 218, 66] });
+    const isNoMoney = images.findMultiColors(captureScreen(), "#3e4638", [[21, 2, "#363e32"], [139, 1, "#383f34"], [141, 18, "#32392d"], [19, 16, "#30382b"]],
+        { region: [653, 504, 218, 68] });
     if (isNoMoney)
     {
         console.log("No money to buy potion");
-        if (random() > 0.5) RandomPress([442, 526, 156, 23]);
-        else RandomPress([442, 526, 156, 23]);
+        if (random() > 0.5) RandomPress([439, 528, 161, 21]);
+        else RandomPress([883, 139, 29, 14]);
     }
-    RandomPress([884, 140, 28, 14]); //go back
+    RandomPress([1138, 16, 133, 32]); //go back
 
-};
-const DeathCheck = function (shot)
-{
-    const hasRevive = findImage(shot, DeathImg.revive, { region: [568, 544, 124, 68] });
-    const hasDead = images.findImage(shot, DeathImg.confirm, { region: [598, 529, 82, 69], threshold: 0.8 });
-
-    if (hasRevive)
-    {
-        game_config.player.deathtime++;
-        console.log("character is Dead! Death Time: " + game_config.player.deathtime);
-        Sleep(1000, 5000);
-        RandomPress([574, 565, 140, 25]);
-        Sleep(15000, 20000);
-        RandomPress([563, 546, 160, 34]);
-        Sleep(3000, 5000);
-        DeathFlow();
-    }
-    else if (hasDead)
-    {
-        game_config.player.deathtime++;
-        console.log("character is Dead! Death Time: " + game_config.player.deathtime);
-        RandomPress([555, 547, 168, 32]);
-        Sleep(5000, 8000);
-        DeathFlow();
-    }
 };
 
 //死亡流程 点击确认按钮，购买药水
@@ -148,11 +116,12 @@ function DeathFlow()
     }
 
     Sleep(2000, 3000);
-    GroceryFlow();
-    Sleep(3000, 5000);
-    DailyFlow();
+    Daily();
     Sleep();
     MissionAwardFlow();
+    Sleep(3000, 5000);
+    GroceryFlow();
+    Sleep();
     if (gameMode == "mainStory" && game_config.player.deathtime > 2)
     {
         console.log("死亡次数大于2次，退出游戏");
@@ -161,7 +130,8 @@ function DeathFlow()
 };
 
 
-module.exports = { DeathCheck, GroceryFlow };
+module.exports = { DeathFlow, GroceryFlow };
 // DeathFlow();
 // CrucifixFlow();
 // MissionAwardFlow();
+// GroceryFlow();

@@ -3,11 +3,11 @@ const UI = require("./UI.js");
 UI();
 
 
-const { game_config, RWFile, } = require("./Global.js");
+const { game_config, RWFile, PressMenu, Sleep } = require("./Global.js");
 
 const Check = require("./Check.js");
-const { AsyncException } = require("./Exception.js");
 const BeginnerFlow = require("./Beginner.js");
+const { EnterInstanceZones } = require("./Instance.js");
 
 console.setGlobalLogConfig({
     "file": "/sdcard/脚本/log/rom-log.txt",
@@ -62,14 +62,12 @@ const Main = function (data)
             }
 
         }, 4000);
-    }
-    );
-    threads.start(function ()
-    {
-        setInterval(() =>
+
+        if (gameMode == "instance")
         {
-            AsyncException();
-        }, 10000);
+            Sleep(15000, 20000);
+            EnterInstanceZones();
+        }
     }
     );
 };

@@ -1,49 +1,43 @@
 const { game_config, ReadImg, Sleep, RandomPress, GoBack, PressMenu } = require("./Global.js");
-const { DecomposeProps } = require("./BackPack.js");
-// const { Daily } = require("./Daily.js");
+const { Daily } = require("./Daily.js");
+const { GroceryFlow } = require("./Death.js");
+const { AbilityPointsFlow } = require("./Common.js");
 
 const WorldMap = {
-    "06": "test map", //林斯特
-    "07": "11 ", //地下墓穴B1"
-    "08": "", //火之平原
-    "09": "", //塞巴绿洲
-    "10": "", //鳄鱼森林
-    "11": "", //林波特
-    "12": "", //迷雾之谷    
-    "13": "", //远古迷宫B2
-    "14": "", //凯伦火山
-    "15": "", //地下墓穴B2
-    "16": "", //迪贝格   
-    "17": "", //克雷默湖
-    "18": "", //雷恩湾
-    "19": "", //阿卡玛盐漠
-    "20": "", //远古迷宫B3
-    "21": "", //寒冰港口  
-    "22": "", //地下墓穴B3
-    "23": "", //塞巴废墟
-    "24": "", //沙漠洞穴B1
-    "25": "", //迪贝格B1    
-    "26": "", //无尽森林
-    "27": "", //埃斯克尔
-    "28": "", //利贝尔遗迹
-    "29": "", //地下神殿
-    "30": "", //迪贝格B2
+    "06": "림스트", //林斯特
+    "07": "카타콤 B1", //地下墓穴B1"
+    "08": "불의 평원", //火之平原 불의 평원
+    "09": "세바 오아시스", //塞巴绿洲
+    "10": "악어 숲", //鳄鱼森林
+    "11": "린포트", //林波特
+    "12": "안개 계곡", //迷雾之谷    
+    "13": "고대 미궁 B2", //远古迷宫B213. 
+    "14": "카렌 화산", //凯伦火山 카렌 화산
+    "15": "카타콤 B2", //地下墓穴B2
+    "16": "드베르그", //迪贝格   
+    "17": "크레모 호수", //克雷默湖
+    "18": "레인베이", //雷恩湾
+    "19": "아카마 소금 사막", //阿卡玛盐漠
+    "20": "고대 미궁 B3", //远古迷宫B3
+    "21": "얼음 항구", //寒冰港口  
+    "22": "카타콤 B3", //地下墓穴B3
+    "23": "세바 폐허", //塞巴废墟
+    "24": "사막 동굴 B1", //沙漠洞穴B1
+    "25": "드베르그 B1", //迪贝格B1    
+    "26": "끝없는 정글", //无尽森林
+    "27": "에스켈", //埃斯克尔
+    "28": "리베르 유적지", //利贝尔遗迹
+    "29": "지하 신전", //地下神殿 지하 신전 지하 신전
+    "30": "드베르그 B2", //迪贝格B2
 };
 
-const HangUp = function (number)
-{
-    const mapName = WorldMap[number];
-    log("HangUp on " + mapName);
-    //判断是否已经在该地图
-    //
-};
-HangUp("07");
+
 const instancePos = [
-    [36, 156, 174, 483],
-    [292, 156, 167, 477],
-    [530, 151, 187, 481],
-    [780, 155, 185, 486],
-    [1032, 156, 179, 479],
+    [42, 202, 173, 325],
+    [283, 167, 185, 368],
+    [538, 167, 179, 377],
+    [783, 169, 182, 361],
+    [1038, 168, 176, 365],
 ];
 const instanceLevel = [
     [396, 225, 493, 38],
@@ -66,41 +60,28 @@ const GetInstanceQueue = function ()
     instanceQueue = [];
     game_config.ui.instanceQueue.forEach((item) => { if (item.type == "special") instanceQueue.push(item); });
     game_config.ui.instanceQueue.forEach((item) => { if (item.type == "normal") instanceQueue.push(item); });
+    game_config.ui.instanceQueue.forEach((item) => { if (item.type == "wild") instanceQueue.push(item); });
 
 };
 
-const ExitHaltMode = function ()
+
+function InstanceExceptionCheck(shot)
 {
-    const hasEnterHaltMode = images.findImage(shot, instanceImg.haltMode, { region: [529, 415, 226, 78] });
-    if (hasEnterHaltMode)
+    const errorPopup = images.findMultiColors(shot, "#393939", [[52, 6, "#c5c5c3"], [68, 15, "#aaaaa8"], [97, 9, "#2f2f2f"]], { region: [433, 594, 200, 62] });
+    if (errorPopup)
     {
-        console.log(`Entering Halt Mode! type:${curInstanceType} Sleeping......`);
-        if (curInstanceType == "special")
-        {
-            Sleep(600000, 1800000);
-        }
-        else if (curInstanceType == "normal")
-        {
-            Sleep(3600000, 18000000);
-        }
-        // Sleep(3000, 6000); //test time
-        const hasExitHaltMode = images.findImage(captureScreen(), instanceImg.haltMode, { region: [529, 415, 226, 78] });
-        if (hasExitHaltMode == null) return;
-        const x1 = 630 + random(-20, 20);
-        const y1 = 200 + random(-10, 10);
-        const x2 = x1 + random(-10, 10);
-        const y2 = 400 + random(-20, 100);
-        gesture(1000, [x1, y1], [x2, y2]);
-        log("Exiting Halt Mode");
-        Sleep(10000, 20000);
-        Sleep();
-        return true;
+        console.log("Instance Exception popup");
+        RandomPress([461, 614, 148, 24]);
+        return;
     }
-    return false;
-};
-const AutoBattleCheck = function ()
+
+}
+const AutoBattleCheck = function (shot)
 {
-    const shot = captureScreen();
+    shot = shot || captureScreen();
+    const isInHaltMode = images.findMultiColors(shot, "#4d4d4d", [[13, 1, "#2a2a2a"], [23, -3, "#282726"], [53, -6, "#595857"], [81, 3, "#434343"], [46, 33, "#242323"]],
+        { region: [549, 202, 192, 178] });
+    if (isInHaltMode) return;
     const hasAutoBattle = images.findImage(shot, instanceImg.auto, { region: [1132, 513, 98, 101] });
     if (hasAutoBattle) return;
     const hasAutoGray = images.findImage(shot, instanceImg.auto_gray, { region: [1132, 513, 98, 101] });
@@ -115,30 +96,33 @@ const OutInstanceCheck = function (shot)
     const outInstance = images.findImage(shot, instanceImg.grocery, { region: [48, 252, 104, 73] });
     if (outInstance)
     {
+        Sleep();
+        const isZeroPotion = images.findMultiColors(captureScreen(), "#511414", [[12, -12, "#504e4f"], [28, 9, "#b1b1b1"], [32, 10, "#aaaaaa"], [23, 8, "#1d1d1d"], [21, 12, "#1c1d1c"]],
+            { region: [944, 622, 74, 70] },);
+        if (isZeroPotion)
+        {
+            GroceryFlow();
+            Sleep();
+        }
         log("Out of instance");
         EnterInstanceZones();
     }
 };
-const InstanceExceptionCheck = function (shot)
+
+const InstanceCheck = function ()
 {
-    const errorPopup = images.findMultiColors(shot, "#393939", [[52, 6, "#c5c5c3"], [68, 15, "#aaaaa8"], [97, 9, "#2f2f2f"]], { region: [433, 594, 200, 62] });
-    if (errorPopup)
-    {
-        console.log("Instance Exception popup");
-        RandomPress([461, 614, 148, 24]);
-    }
-};
-const InstanceCheck = function (shot)
-{
-    HaltModeCheck(shot);
+    const shot = captureScreen();
     OutInstanceCheck(shot);
     AutoBattleCheck(shot);
     InstanceExceptionCheck(shot);
 };
+
 function EnterInstanceZones()
 {
-    Sleep();
+    Sleep(3000, 5000);
     GetInstanceQueue();
+    PressMenu();
+    Sleep(2000, 3000);
     RandomPress([958, 286, 27, 34]); //instance icon
     Sleep(3000, 6000);
     for (let i = 0; i < instanceQueue.length; i++)
@@ -154,6 +138,12 @@ function EnterInstanceZones()
             RandomPress([45, 101, 82, 25]); //normal zone page
             Sleep();
             curInstanceType = "normal";
+        }
+        else if (instanceQueue[i].type == "wild")
+        {
+            RandomPress([1188, 20, 83, 28]);
+            HangUpWild(instanceQueue[i].index);
+            break;
         }
         let hasEntered = images.findImage(captureScreen(), instanceImg.finish, { region: [168 + parseInt(instanceQueue[i].index) * 250, 540, 93, 40] });
         if (hasEntered) continue;
@@ -175,6 +165,18 @@ function EnterInstanceZones()
                 break;
         }
         Sleep();
+        const isInThisZone = images.findMultiColors(captureScreen(), "#4c4c4c", [[3, 7, "#4a4a4a"], [14, 4, "#96866d"], [30, 0, "#4c4c4c"], [26, 9, "#4a4a4a"]],
+            { region: [857, 124, 69, 52] });
+        if (isInThisZone)
+        {
+            RandomPress([876, 140, 34, 14]);
+            RandomPress([1178, 20, 90, 35]);
+            AutoBattleCheck();
+            Sleep();
+            Daily();
+            RandomPress([19, 449, 25, 14]); //省电按钮
+            return;
+        }
         RandomPress([680, 469, 142, 24]); // confirm
         console.log("Entering instance " + instanceQueue[i].type + " " + instanceQueue[i].index + " level " + instanceQueue[i].level);
         Sleep(5000, 20000);
@@ -184,11 +186,74 @@ function EnterInstanceZones()
 
     Sleep();
     Daily();
-
+    AbilityPointsFlow();
+    RandomPress([19, 449, 25, 14]);
 }
 
-// module.exports = { InstanceCheck };
+function HangUpWild(number)
+{
+    const mapName = WorldMap[number];
+    const hasMap = images.findMultiColors(captureScreen(), "#baa378", [[0, 11, "#a28858"], [20, -1, "#bba477"], [21, 4, "#8b7347"], [23, 16, "#3c311c"]],
+        { region: [179, 176, 48, 48] });
+    if (hasMap == null) return;
+    RandomPress([84, 121, 89, 80]);
+    Sleep(5000, 7000);
+    const map_numberImg = ReadImg(`map/${number}`);
+    let hasMapNumber = images.findImage(captureScreen(), map_numberImg, { region: [85, 136, 105, 567] });
+    if (hasMapNumber == null)
+    {
+        RandomPress([26, 228, 19, 21]);
+        Sleep();
+        hasMapNumber = images.findImage(captureScreen(), map_numberImg, { region: [85, 136, 105, 567] });
+        if (hasMapNumber == null)
+        {
+            RandomPress([22, 171, 23, 24]);
+            RandomPress([77, 91, 206, 13]);
+            setText(mapName);
+            RandomPress([1166, 641, 74, 35]); //keyboard confirm
+            RandomPress([89, 136, 242, 31]); //select
+            RandomPress([98, 149, 16, 13]); //收藏
+            RandomPress([971, 655, 192, 28]);//立即前往
+            RandomPress([678, 469, 143, 23]);
+            Sleep(8000, 16000);
+            RandomPress([1163, 552, 29, 28]);
+            RandomPress([19, 450, 24, 12]);
+        }
+    }
+    else
+    {
+        RandomPress([hasMapNumber.x + 10, hasMapNumber.y, 45, 15]);
+        RandomPress([967, 654, 201, 32]); //立即前往
+        RandomPress([678, 469, 143, 23]);
+        Sleep(8000, 16000);
+        RandomPress([1163, 552, 29, 28]);
+        RandomPress([19, 450, 24, 12]);
+    }
+    log("go to the wild: " + mapName);
+}
+function testMap(number)
+{
+    const map = ReadImg(`wild/${number}`);
+    const isInTheWild = images.findImage(captureScreen(), map, { region: [36, 64, 150, 62] });
+    log("is in the wild:" + isInTheWild);
+    if (isInTheWild == null)
+    {
+        RandomPress([92, 125, 80, 75]);
+        Sleep(3000, 5000);
+        const mapNumber = ReadImg(`map/${number}`);
+        const isInTheWild_2 = images.findImage(captureScreen(), mapNumber, { region: [60, 89, 271, 613] });
+        if (isInTheWild_2) return;
+        else
+        {
+            //HangupWild
+            console.log(" not in wild");
+        }
+    }
+}
+// testMap("07");
+// HangUpWild("08");
+module.exports = { InstanceCheck, EnterInstanceZones };
 // EnterInstanceZones();
 // AutoBattleCheck(captureScreen());
 // log(images.matchTemplate(captureScreen(), instanceImg.auto_gray, { region: [1132, 513, 98, 101] }));
-// HaltModeCheck(captureScreen());
+// HaltModeCheck(captureScreen());0.

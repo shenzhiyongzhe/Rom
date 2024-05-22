@@ -15,14 +15,7 @@ const BackPackPos = {
     equipmentSort: [1073, 507, 23, 23], //背包装备排序
     sortByLevel: [1030, 420, 100, 15], //背包装备按等级排序
 
-    decompose: [1006, 505, 30, 29], //背包分解按钮
-    decompose_normal: [921, 510, 63, 18], // 选择普通分解
-    decompose_btn: [1111, 505, 136, 25],
-    decompose_confirm: [687, 560, 147, 28],
-
     props: [1230, 286, 31, 30], //背包道具
-    props_confirm_small: [659, 511, 90, 28],
-    props_confirm_big: [704, 533, 158, 28],
     props_scroll_weaponPage: [1228, 205, 21, 24],
     props_scroll_defencePage: [1228, 286, 21, 22],
 
@@ -32,8 +25,6 @@ const BackPackPos = {
 };
 const BackPackCheckPos = {
     icon: [1064, 1, 79, 71],
-    props_confirm_small: [662, 498, 84, 55],
-    props_confirm_big: [746, 517, 74, 67],
     equipment_vanish: [117, 627, 276, 56],
 
 };
@@ -141,28 +132,7 @@ function WearEquipment(needOpen, needClose)
     Sleep();
 }
 
-const props = {
-    treasureBox_white_nomal_equipment_tied: ReadImg("props/treasureBox_white_nomal_equipment_tied"),
-    treasureBox_goldenRandom: ReadImg("props/treasureBox_goldenRandom"),
-    treasureBox_white_nomal_potion_tied: ReadImg("props/treasureBox_white_nomal_potion_tied"),
-    treasureBox_white_normal_optionalFood_tied: ReadImg("props/treasureBox_white_normal_optionalFood_tied"),
-    treasureBox_green_highLevel_equipment_mark: ReadImg("props/treasureBox_green_highLevel_equipment_mark"),
 
-    //scroll;
-    strengthenScroll_weapon_tied: ReadImg("props/strengthenScroll_weapon_tied"),
-    strengthenScroll_weapon_mark: ReadImg("props/strengthenScroll_weapon_mark"),
-    strengthenScroll_defence: ReadImg("props/strengthenScroll_defence"),
-    strengthenScroll_defence_tied: ReadImg("props/strengthenScroll_defence_tied"),
-    // slabstone;
-    slabstone_white_normal_guardian: ReadImg("props/slabstone_white_normal_guardian"),
-    slabstone_white_normal_suit: ReadImg("props/slabstone_white_normal_suit"),
-    slabstone_green_highLevel_guardian: ReadImg("props/slabstone_green_highLevel_guardian"),
-    slabstone_green_highQuality_guardian: ReadImg("props/slabstone_green_highQuality_guardian"),
-    slabstone_green_highLevel_suit: ReadImg("props/slabstone_green_highLevel_suit"),
-    slabstone_green_highQuality_suit: ReadImg("props/slabstone_green_highQuality_suit"),
-    slabstone_gray_middleLevel_suit: ReadImg("props/slabstone_gray_middleLevel_suit"),
-    slabstone_gray_middleLevel_monster: ReadImg("props/slabstone_gray_middleLevel_monster"),
-};
 
 function WearSlabStone(type)
 {
@@ -195,16 +165,6 @@ function WearSlabStone(type)
     }
 }
 // WearSlabStone("guardian");
-function RecognizeProps(shot, [x, y, w, h])
-{
-    for (let key in props)
-    {
-        let prop = props[key];
-        let propType = images.findImage(shot, prop, { region: [x, y, w, h], threshold: 0.8 });
-        if (propType) return key;
-    }
-};
-
 function GetWeaponColor(shot, [x, y, w, h])
 {
     const isPurple = images.findMultiColors(shot, "#31213c", [[4, 0, "#3d244b"], [27, 20, "#59326b"], [27, 26, "#4f2861"]], { region: [x, y, w, h] });
@@ -223,20 +183,21 @@ function IsLeadToVanish()
 };
 function OpenTreasureBox()
 {
-    const treasureBox_shot = captureScreen();
-    let hasConfirm_small = findImage(treasureBox_shot, BackPackImg.confirm, { region: BackPackCheckPos.props_confirm_small, threshold: 0.8 });
-
+    Sleep();
+    const shot = captureScreen();
+    const hasConfirm_small = images.findMultiColors(shot, "#fefefd", [[7, 7, "#f9f9f5"], [13, 87, "#3a4336"], [12, 104, "#343b2f"]], { region: [695, 374, 82, 182] });
+    const hasConfirm_big = images.findMultiColors(shot, "#3b3b3b", [[-3, 18, "#313131"], [25, 11, "#303032"], [440, 0, "#384034"], [450, 21, "#30372b"]],
+        { region: [370, 511, 561, 76] });
     if (hasConfirm_small)
     {
-        RandomPress(BackPackPos.props_confirm_small);
+        RandomPress([664, 512, 86, 25]);
         PressBlank();
         return;
     }
-    let hasConfirm_big = findImage(treasureBox_shot, BackPackImg.confirm, { region: BackPackCheckPos.props_confirm_big, threshold: 0.8 });
     if (hasConfirm_big)
     {
-        RandomPress([778, 454, 50, 31]);
-        RandomPress(BackPackPos.props_confirm_big);
+        RandomPress([782, 454, 41, 26]);
+        RandomPress([703, 539, 157, 22]);
         PressBlank();
         return;
     }
@@ -267,7 +228,7 @@ function UseStrengthenScroll(scrollType)
                     game_config.player.equipment.weapon.level = 7;
                     game_config.player.equipment.weapon.color = weaponColor;
                     log("weapon is strengthened to 7,lead to vanish;" + game_config.player.equipment.weapon.level);
-                    return false;
+                    continue;
                 }
                 else
                 {
@@ -277,9 +238,13 @@ function UseStrengthenScroll(scrollType)
                     if (canStrengthen)
                     {
                         RandomPress(BackPackPos.strengthenBtn);
-                        return false;
+
                     }
                 }
+            }
+            if (i == 4)
+            {
+                RandomPress(BackPackPos.pageBack);
             }
 
         }
@@ -351,6 +316,28 @@ function OpenSlabstone()
  */
 function UseProps(needOpen, needClose)
 {
+    const props = {
+        treasureBox_white_nomal_equipment_tied: ReadImg("props/treasureBox_white_nomal_equipment_tied"),
+        treasureBox_goldenRandom: ReadImg("props/treasureBox_goldenRandom"),
+        treasureBox_white_nomal_potion_tied: ReadImg("props/treasureBox_white_nomal_potion_tied"),
+        treasureBox_white_normal_optionalFood_tied: ReadImg("props/treasureBox_white_normal_optionalFood_tied"),
+        treasureBox_green_highLevel_equipment_mark: ReadImg("props/treasureBox_green_highLevel_equipment_mark"),
+
+        //scroll;
+        strengthenScroll_weapon_tied: ReadImg("props/strengthenScroll_weapon_tied"),
+        strengthenScroll_weapon_mark: ReadImg("props/strengthenScroll_weapon_mark"),
+        strengthenScroll_defence: ReadImg("props/strengthenScroll_defence"),
+        strengthenScroll_defence_tied: ReadImg("props/strengthenScroll_defence_tied"),
+        // slabstone;
+        slabstone_white_normal_guardian: ReadImg("props/slabstone_white_normal_guardian"),
+        slabstone_white_normal_suit: ReadImg("props/slabstone_white_normal_suit"),
+        slabstone_green_highLevel_guardian: ReadImg("props/slabstone_green_highLevel_guardian"),
+        slabstone_green_highQuality_guardian: ReadImg("props/slabstone_green_highQuality_guardian"),
+        slabstone_green_highLevel_suit: ReadImg("props/slabstone_green_highLevel_suit"),
+        slabstone_green_highQuality_suit: ReadImg("props/slabstone_green_highQuality_suit"),
+        slabstone_gray_middleLevel_suit: ReadImg("props/slabstone_gray_middleLevel_suit"),
+        slabstone_gray_middleLevel_monster: ReadImg("props/slabstone_gray_middleLevel_monster"),
+    };
     needOpen = needOpen || true;
     needClose = needClose || true;
     let hasOpenSlabstone = false;
@@ -363,11 +350,11 @@ function UseProps(needOpen, needClose)
         Sleep(3000, 4000);
     }
 
-
     RandomPress(BackPackPos.props);
     Sleep();
 
     let shot = captureScreen();
+    let type;
 
     for (let i = 0; i < 6; i++)
     {
@@ -375,10 +362,16 @@ function UseProps(needOpen, needClose)
         {
             Sleep(500, 1000);
             shot = captureScreen();
-            //判断是否在背包界面，如果不在，就退出
-            if (images.findImage(shot, BackPackImg.propIcon, { region: [1214, 268, 62, 69], threshold: 0.8 }) == null) return;
-
-            let type = RecognizeProps(shot, [870 + j * 65, 120 + i * 65, 70, 70]);
+            for (let key in props)
+            {
+                let prop = props[key];
+                let propType = images.findImage(shot, prop, { region: [870 + j * 65, 120 + i * 65, 70, 70] });
+                if (propType)
+                {
+                    type = key;
+                    break;
+                };
+            }
             type && log((i + 1) + " " + (j + 1) + " " + type);
             if (type == "treasureBox_white_nomal_equipment_tied"
                 || type == "treasureBox_goldenRandom"
@@ -406,10 +399,9 @@ function UseProps(needOpen, needClose)
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
                 Sleep(3000, 4000);
                 UseStrengthenScroll(type);
-                Sleep();
-                RandomPress(BackPackPos.pageBack);
-                RandomPress(BackPackPos.icon);
-                RandomPress(BackPackPos.props);
+                Sleep(2000, 3000);
+                RandomPress([1093, 23, 23, 30]); //backpack icon
+                RandomPress([1238, 291, 23, 21]); //props page
                 Sleep();
                 shot = captureScreen();
             }
@@ -459,48 +451,40 @@ function DecomposeProps()
     if (isBackPack == null) return;
 
     RandomPress(BackPackPos.icon);
-    Sleep(2000, 3000);
+    Sleep(3000, 5000);
 
-    const decompositionIcon = ReadImg("backPack_decompose");
-    const isDecompose = images.findImage(captureScreen(), decompositionIcon, { region: [991, 495, 62, 52], });
+    RandomPress([1009, 511, 23, 20]);
+    Sleep();
+    RandomPress([922, 512, 53, 16]); //normal
+    RandomPress([1120, 508, 122, 22]); //decompose
+    RandomPress([696, 563, 127, 23]); //popup confirm
+    Sleep();
+    const isNoMoney = images.findMultiColors(captureScreen(), "#383838", [[-1, 21, "#29292a"], [88, 0, "#333333"], [112, 21, "#2e2e2e"]], { region: [429, 537, 183, 71] });
+    if (isNoMoney)
+    {
+        RandomPress([455, 565, 132, 20]);
+        RandomPress(BackPackPos.icon);
 
-    if (isDecompose == null) return;
+    }
+    else
+    {
+        RandomPress([387, 213, 478, 268]);
+        RandomPress(BackPackPos.icon);
+    }
 
-    RandomPress(BackPackPos.decompose);
-    Sleep(2000, 2500);
-    RandomPress(BackPackPos.decompose_normal);
-    RandomPress(BackPackPos.decompose_btn);
-    RandomPress(BackPackPos.decompose_confirm);
-    PressBlank();
-    RandomPress(BackPackPos.close);
-    RandomPress(BackPackPos.close);
-
-    decompositionIcon.recycle();
 };
 
 function ReturnHome()
 {
-    // const gameMode = game_config.ui.gameMode;
-    const gameMode = "instance";
-    if (gameMode == "mainStory")
+    const quickItem_returnHome = ReadImg("quickItem_returnHome");
+    const hasQuickReturnHome = images.findImage(captureScreen(), quickItem_returnHome, { region: [647, 624, 71, 68] });
+    if (hasQuickReturnHome)
     {
-        console.log("mainStory is a little difficul to decide to return home");
+        RandomPress([670, 642, 30, 35]);
+        Sleep(10000, 15000);
     }
-    else if (gameMode == "instance")
+    else
     {
-        const autoBattle = ReadImg("instance_auto");
-        Sleep();
-        const hasAutoBattle = images.findImage(captureScreen(), autoBattle, { region: [1143, 520, 74, 82] });
-        if (hasAutoBattle)
-        {
-            RandomPress([1161, 553, 33, 25]);
-        }
-        Sleep(20000, 35000);
-        autoBattle.recycle();
-
-        const isBackPack = findImage(captureScreen(), BackPackImg.icon, { region: BackPackCheckPos.icon });
-        if (isBackPack == null) return;
-
         RandomPress(BackPackPos.icon);
         Sleep(3000, 4000);
 
@@ -510,13 +494,17 @@ function ReturnHome()
         const returnHomeIcon = ReadImg("return_home");
         const hasReturnHome = images.findImage(captureScreen(), returnHomeIcon, { region: [883, 104, 344, 401] });
         returnHomeIcon.recycle();
+
         if (hasReturnHome)
         {
             RandomPress([hasReturnHome.x - 10, hasReturnHome.y - 6, 30, 30]);
+            RandomPress([670, 642, 30, 35]); //添加到快捷栏
             RandomPress([hasReturnHome.x - 10, hasReturnHome.y - 6, 30, 30]);
-            log("return home");
         }
     }
+    quickItem_returnHome.recycle();
+    log("return home to purchase potion");
+
 }
 module.exports = {
     WearEquipment,
@@ -525,6 +513,7 @@ module.exports = {
     ReturnHome
 };
 // UseProps();
+// OpenTreasureBox();
 // WearSlabStone("guardian");
 // WearEquipment();
 // DecomposeProps();
@@ -542,3 +531,4 @@ module.exports = {
 // log(isWhite);
 // ReturnHome();
 // DecomposeProps();
+// ReturnHome();

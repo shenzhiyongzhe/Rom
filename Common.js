@@ -32,7 +32,18 @@ const AbilityPointsFlow = function ()
     Sleep();
     RandomPress([14, 14, 50, 44]);
     Sleep(2000, 3000);
-    RandomPress([312, 282, 25, 20]); //游侠 敏捷
+    const abilityPoint_65 = ReadImg("abilityPoint_65");
+    const abilityPoint_66 = ReadImg("abilityPoint_66");
+    const isMaxPoint65 = images.findImage(captureScreen(), abilityPoint_65, { region: [260, 273, 55, 43] });
+    const isMaxPoint66 = images.findImage(captureScreen(), abilityPoint_66, { region: [260, 273, 55, 43] });
+    if (isMaxPoint65 || isMaxPoint66)
+    {
+        RandomPress([319, 403, 13, 15]);
+    }
+    else
+    {
+        RandomPress([312, 282, 25, 20]); //游侠 敏捷
+    }
 
     Sleep();
     RandomPress([230, 510, 120, 20]);
@@ -48,6 +59,7 @@ const AbilityPointsFlow = function ()
     {
         RandomPress([22, 15, 44, 43]);
     }
+    abilityPoint_66.recycle();
 };
 
 module.exports = { AbilityPointsFlow, MissionAwardFlow };

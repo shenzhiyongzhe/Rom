@@ -119,7 +119,7 @@ const OnMissionFinish = function ()
     Sleep();
     if (curTime >= gapTime)
     {
-        const hasMenuTipPoint = images.findMultiColors(shot, "#b8200c", [[0, 3, "#d72a19"], [2, 3, "#b72215"], [1, 5, "#c22b1c"]], { region: [1237, 2, 32, 28] });
+        const hasMenuTipPoint = images.findMultiColors(captureScreen(), "#b8200c", [[0, 3, "#d72a19"], [2, 3, "#b72215"], [1, 5, "#c22b1c"]], { region: [1237, 2, 32, 28] });
         if (hasMenuTipPoint == null) return;
 
         Daily();

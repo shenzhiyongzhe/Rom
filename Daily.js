@@ -4,11 +4,10 @@ const DutyFlow = require("./Menu/Duty.js");
 
 const overMaxNumber = () =>
 {
-    const confirm = ReadImg("mainStory_confirm");
     Sleep();
-    const hasConfirm = images.findImage(captureScreen(), confirm, { region: [595, 426, 90, 63] });
+    const hasConfirm = images.findMultiColors(captureScreen(), "#3d4538", [[22, -1, "#3a4436"], [129, 1, "#373f33"], [126, 17, "#333a2e"], [15, 16, "#2f372b"]]
+        , { region: [543, 425, 201, 64] });
     if (hasConfirm) RandomPress([570, 443, 141, 26]);
-    confirm.recycle();
 };
 
 //每日签到检测
@@ -47,7 +46,7 @@ const EmailFlow = function ()
         Sleep();
         if (characterPage == null)
         {
-            GoBack();
+            RandomPress([1178, 20, 88, 26]);
             return;
         }
     }
@@ -59,7 +58,7 @@ const EmailFlow = function ()
         overMaxNumber();
         PressBlank();
         Sleep();
-        GoBack();
+        RandomPress([1178, 20, 88, 26]);
     }
 
 };
@@ -195,9 +194,10 @@ const ShopFlow = function ()
 function Daily()
 {
     PressMenu();
-    Sleep();
+    Sleep(3000, 5000);
     const shot = captureScreen();
     const hasGetSignIn = SignInCheck(shot);
+    const hasGetEmail = EmailCheck(shot);
 
     if (hasGetSignIn)
     {
@@ -205,17 +205,17 @@ function Daily()
         SignInFlow();
         Sleep();
         ShopFlow();
+        PressMenu();
         const hasDuty = DutyCheck(captureScreen());
         if (hasDuty != null)
         {
-            PressMenu();
             Sleep();
             DutyFlow();
         }
+        else PressMenu();
         return;
     }
 
-    const hasGetEmail = EmailCheck(shot);
     if (hasGetEmail) EmailFlow();
     else PressMenu();
 }

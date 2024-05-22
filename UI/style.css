@@ -119,13 +119,13 @@ input:focus {
 .selected {
     color: #00a8ff;
 }
-/* .option-list::-webkit-scrollbar {
+.option-list::-webkit-scrollbar {
     width: 4px;
     background-color: #eee;
 }
 .option-list::-webkit-scrollbar-thumb {
     background-color: #00a8ff;
-} */
+}
 .option-list.active {
     height: 250px;
 }
@@ -172,7 +172,9 @@ input:focus {
     width: 60%;
     position: relative;
 }
-
+#world-map{
+    width: 100%;
+}
 #startBtn {
   position: absolute;
     width: 50vw;
@@ -216,4 +218,7 @@ input:focus {
 .level-option{
     padding: 10px 0;
     border-bottom: 1px solid rgb(46, 81, 105);
+}
+#world-map .option-list{
+    overflow-y: auto;
 }

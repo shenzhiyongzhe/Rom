@@ -1,11 +1,4 @@
-const {
-    game_config,
-    Sleep,
-    RandomPress,
-    GoBack,
-    ReadImg,
-    PressBlank,
-} = require("./Global.js");
+const { game_config, Sleep, RandomPress, GoBack, ReadImg, PressBlank, } = require("./Global.js");
 
 const { WearEquipment, DecomposeProps } = require("./BackPack.js");
 const propCollectionPos = [1098, 121, 19, 27];
@@ -68,26 +61,37 @@ const LoginProgressAward = function ()
     }
 
 };
-let isFirstPropsLogin = game_config.setting.isFirstPropsLogin;
 
 function FirstLoginCheck()
 {
-    const propsLogin = ReadImg("propsCollection_warningConfirm");
-    if (isFirstPropsLogin == true)
+    const hasPropsCollection_loginConfirm = images.findMultiColors(captureScreen(), "#343434", [[-5, 12, "#313131"], [78, 5, "#2e3629"], [85, 18, "#2b3328"], [113, 5, "#2c3429"]],
+        { region: [444, 419, 412, 86] });
+    if (hasPropsCollection_loginConfirm)
     {
-        const hasPropsCollection_loginConfirm = images.findImage(shot, propsLogin, { region: [687, 416, 109, 86] });
-        if (hasPropsCollection_loginConfirm)
-        {
-            RandomPress([582, 397, 13, 13]); // 关闭不再提示
-            Sleep();
-            RandomPress([666, 444, 150, 28]); //点击登录
-            Sleep();
-            isFirstPropsLogin = false;
-            return false;
-        }
+        RandomPress([582, 397, 13, 13]); // 关闭不再提示
+        Sleep();
+        RandomPress([666, 444, 150, 28]); //点击登录
+        Sleep();
     }
 }
 
+const loginItem = function (points)
+{
+    for (let i = 0; i < points.length; i++)
+    {
+        let { x, y } = points[i];
+        x = x + random(-35, 0);
+        y = y + random(1, 35);
+        press(x, y, random(100, 300));
+        Sleep();
+        FirstLoginCheck();
+        if (canLogin())
+        {
+            RandomPress(propsLogin);
+            Sleep(2000, 3000);
+        }
+    }
+};
 const PropsCollectionFlow = function ()
 {
     Sleep();
@@ -98,37 +102,29 @@ const PropsCollectionFlow = function ()
     RandomPress(propCollectionPos);
     Sleep(4000, 5000);
     LoginProgressAward();
-    const points = FindAllTipPoint();
-    const warningConfirm = ReadImg("propsCollection_warningConfirm");
-    Sleep();
-    if (points.length > 0)
-    {
-        for (let i = 0; i < points.length; i++)
-        {
-            let { x, y } = points[i];
-            x = x + random(-35, 0);
-            y = y + random(1, 35);
-            press(x, y, random(100, 300));
-            Sleep();
-            if (canLogin())
-            {
-                RandomPress(propsLogin);
-                Sleep(2000, 3000);
-            }
-        }
+    let points = FindAllTipPoint();
+    loginItem(points);
 
-        GoBack();
-        Sleep();
-        DecomposeProps();
-        Sleep();
-    }
-    else
+    for (let i = 0; i < 10; i++)
     {
+
+        RandomPress([179, 97, 71, 26]);
+        RandomPress([54, 100, 68, 23]);
         Sleep();
-        GoBack();
+        points = FindAllTipPoint();
+        if (points.length == 0) break;
+        loginItem(points);
         Sleep();
     }
-    warningConfirm.recycle();
+
+    GoBack();
+    Sleep();
+    DecomposeProps();
+    Sleep();
+
 };
 // PropsCollectionFlow();
-module.exports = PropsCollectionFlow;
+// log(FindAllTipPoint());
+module.exports = { PropsCollectionFlow };
+
+

@@ -15,12 +15,8 @@
       <label>新手：<input type="checkbox" name="isBeginner" /></label>
       <label>选区：<input type="checkbox" name="isRandomServer" /></label>
 
-
-
       <label>主线<input type="radio" name="gameMode" value="mainStory" checked="true" /></label>
-
       <label>副本<input type="radio" name="gameMode" value="instance" /></label>
-
       <label>委托<input type="radio" name="gameMode" value="delegate" /></label>
 
 
@@ -110,7 +106,47 @@
         </div>
       </div>
       <div>
-        副本挂机总时间：<span id="time">0</span>小时
+        已运行时间：<span id="time">0</span>小时
+      </div>
+    </div>
+    <div id="world-map">
+      <div class="select-menu">
+        <div class="select">
+          <span>野外地图</span>
+          <div class="arrow-box">
+            <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
+            <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+          </div>
+        </div>
+        <div class="option-list">
+          <div class="option"><label><input type="checkbox" /><span>06</span>林斯特</label></div>
+          <div class="option"><label><input type="checkbox" /><span>07</span>地下墓穴B1</label></div>
+          <div class="option"><label><input type="checkbox" /><span>08</span>火之平原</label></div>
+          <div class="option"><label><input type="checkbox" /><span>09</span>塞巴绿洲</label></div>
+          <div class="option"><label><input type="checkbox" /><span>10</span>鳄鱼森林</label></div>
+          <div class="option"><label><input type="checkbox" /><span>11</span>林波特</label></div>
+          <div class="option"><label><input type="checkbox" /><span>12</span>迷雾之谷</label></div>
+          <div class="option"><label><input type="checkbox" /><span>13</span>远古迷宫B2</label></div>
+          <div class="option"><label><input type="checkbox" /><span>14</span>凯伦火山</label></div>
+          <div class="option"><label><input type="checkbox" /><span>15</span>地下墓穴B2</label></div>
+          <div class="option"><label><input type="checkbox" /><span>16</span>迪贝格</label></div>
+          <div class="option"><label><input type="checkbox" /><span>17</span>克雷默湖</label></div>
+          <div class="option"><label><input type="checkbox" /><span>18</span>雷恩湾</label></div>
+          <div class="option"><label><input type="checkbox" /><span>19</span>阿卡玛盐漠</label></div>
+          <div class="option"><label><input type="checkbox" /><span>20</span>远古迷宫B3</label></div>
+          <div class="option"><label><input type="checkbox" /><span>21</span>寒冰港口</label></div>
+          <div class="option"><label><input type="checkbox" /><span>22</span>地下墓穴B3</label></div>
+          <div class="option"><label><input type="checkbox" /><span>23</span>塞巴废墟</label></div>
+          <div class="option"><label><input type="checkbox" /><span>24</span>沙漠洞穴B1</label></div>
+          <div class="option"><label><input type="checkbox" /><span>25</span>迪贝格B1</label></div>
+          <div class="option"><label><input type="checkbox" /><span>26</span>无尽森林</label></div>
+          <div class="option"><label><input type="checkbox" /><span>27</span>埃斯克尔</label></div>
+          <div class="option"><label><input type="checkbox" /><span>28</span>利贝尔遗迹</label></div>
+          <div class="option"><label><input type="checkbox" /><span>29</span>地下神殿</label></div>
+          <div class="option"><label><input type="checkbox" /><span>30</span>迪贝格B2</label></div>
+
+        </div>
+
       </div>
     </div>
 
@@ -119,142 +155,9 @@
     <button id="updateBtn" class="neumorphism">更新脚本</button>
 
     <button id="startBtn" class="neumorphism">Start</button>
-    <div>版本：1.0.0518</div>
+    <div>版本：1.0.0522 19:04</div>
   </div>
-  <script>
-    const ui = {
-      gameMode: "mainStory",
-      isBeginner: false,
-      isRandomServer: false,
-      instanceQueue: [],
-    };
-    const selects = document.querySelectorAll(".select-menu");
-
-    const normalZone = document.querySelectorAll("#normal-instanceZone .option input[type=checkbox]");
-    const levelSelectMenu = document.querySelectorAll(".level-select-menu");
-    const specialZone = document.querySelectorAll("#special-instanceZone .option input[type=checkbox]");
-    const startBtn = document.querySelector("#startBtn");
-    const updateBtn = document.querySelector("#updateBtn");
-    const beginnerCheckBox = document.querySelector("input[name=isBeginner]");
-    const randomServerCheckBox = document.querySelector("input[name=isRandomServer]");
-    const time = document.querySelector("#time");
-
-    updateBtn.addEventListener("click", () =>
-    {
-      console.log("web update");
-      $autox.callHandler("updateScript", "update script", (callBackData) =>
-      {
-        console.log(callBackData);
-      });
-    });
-
-    levelSelectMenu.forEach((menu) =>
-    {
-      let levelSelect = menu.querySelector(".level-select");
-      let levelOptionList = menu.querySelector(".level-option-list");
-      levelSelect.addEventListener("click", () =>
-      {
-        levelOptionList.classList.toggle("level-selected");
-        levelOptionList.querySelectorAll(".level-option").forEach(option =>
-        {
-          option.addEventListener("click", () =>
-          {
-            levelSelect.innerHTML = option.innerHTML;
-            levelOptionList.classList.toggle("level-selected");
-          });
-        });
-        console.log("click");
-      });
-    });
-    //单选框点击事件
-    document.querySelectorAll("input[name= gameMode]").forEach((radio) =>
-    {
-      radio.addEventListener("click", () =>
-      {
-        ui.gameMode = radio.value;
-      });
-    });
-
-    //新手复选框
-    beginnerCheckBox.addEventListener("click", () =>
-    {
-      ui.isBeginner = beginnerCheckBox.checked;
-    });
-    randomServerCheckBox.addEventListener("click", () =>
-    {
-      ui.isRandomServer = randomServerCheckBox.checked;
-    });
-    //副本选项
-    normalZone.forEach((checkbox, index) =>
-    {
-      checkbox.addEventListener("click", () =>
-      {
-        if (checkbox.checked)
-        {
-          ui.instanceQueue.push({ type: "normal", index: index, level: "firstLevel" });
-        }
-        else
-        {
-          ui.instanceQueue = ui.instanceQueue.filter((obj) => obj.index != index);
-        }
-      });
-    });
-    specialZone.forEach((checkbox, index) =>
-    {
-      checkbox.addEventListener("click", () =>
-      {
-        if (checkbox.checked)
-        {
-          ui.instanceQueue.push({ type: "special", index: index, level: "firstLevel" });
-        }
-        else
-        {
-          ui.instanceQueue = ui.instanceQueue.filter((obj) => obj.index != index);
-        }
-      });
-    });
-    //下拉菜单显示与隐藏
-    selects.forEach((select) =>
-    {
-      select.querySelector(".select").addEventListener("click", () =>
-      {
-        select.querySelector(".option-list").classList.toggle("active");
-        select
-          .querySelectorAll(".arrow")
-          .forEach((arrow) => arrow.classList.toggle("arrow-hidden"));
-      });
-    });
-
-
-    //选项的点击事件
-
-    //开始按钮点击事件
-    startBtn.addEventListener("click", () =>
-    {
-      $autox.callHandler("WebToAndroid", JSON.stringify(ui), (callBackData) =>
-      {
-        startBtn.innerHTML = "Stop";
-        startBtn.style.cssText = "background: red";
-        console.log(callBackData);
-      });
-
-    });
-    // $autox.registerHandler("AndroidToWeb", (data, callBack) =>
-    // {
-    //   time.innerText = data;
-    //   console.log("time:" + JSON.parse(data));
-    //   setTimeout(() =>
-    //   {
-    //     //回调安卓
-    //     callBack("web回调数据");
-    //   }, 1000);
-    // });
-    document.addEventListener("AutoxJsBridgeReady", () =>
-    {
-      //$autox.
-      console.log("AutoxJsBridegReady");
-    });
-  </script>
+  <script src="./ui.js"></script>
 </body>
 
 </html>

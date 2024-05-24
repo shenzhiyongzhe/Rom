@@ -3,6 +3,6 @@
     "main": "main.js",
     "ignore": ["build", "_gsdata_", "tool.js", "test.js"],
     "packageName": "com.rom",
-    "versionName": "1.0.0522",
+    "versionName": "1.0.0524",
     "versionCode": 1
 }

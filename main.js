@@ -3,10 +3,11 @@ const UI = require("./UI.js");
 UI();
 
 
-const { game_config, RWFile, PressMenu, Sleep } = require("./Global.js");
+const { game_config, RWFile, PressMenu, Sleep, GoBack } = require("./Global.js");
 
 const Check = require("./Check.js");
 const BeginnerFlow = require("./Beginner.js");
+const { UnifyScreen, Exception } = require("./Exception.js");
 const { EnterInstanceZones } = require("./Instance.js");
 
 console.setGlobalLogConfig({
@@ -47,27 +48,17 @@ const Main = function (data)
     console.log("start main;  data:  " + game_config.ui.gameMode);
     game_config.ui.isBeginner == true && BeginnerFlow(data.isRandomServer);
     const gameMode = game_config.ui.gameMode;
+    Sleep(3000, 4000);
+    UnifyScreen();
+    const hasException = Exception();
+    Sleep(3000, 5000);
+    if (gameMode == "instance") EnterInstanceZones();
     threads.start(function ()
     {
         setInterval(() =>
         {
-            if (isRunning == true)
-            {
-                Check(gameMode);
-
-            }
-            else
-            {
-                console.log("脚本已暂停运行");
-            }
-
+            Check(gameMode);
         }, 4000);
-
-        if (gameMode == "instance")
-        {
-            Sleep(15000, 20000);
-            EnterInstanceZones();
-        }
     }
     );
 };

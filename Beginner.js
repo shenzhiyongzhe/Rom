@@ -96,7 +96,7 @@ function CreateCharacter()
 
     RandomPress(BeginnerPos.profession);
     Sleep(2000, 3000);
-    //tuo option skip or continue
+    //two option skip or continue
     if (random() > 0.4)
     {
         for (let i = 0; i < 20; i++)

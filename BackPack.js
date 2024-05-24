@@ -85,7 +85,7 @@ function WearEquipment(needOpen, needClose)
     let shot = captureScreen();
 
     const plus = ReadImg("plus");
-    for (let i = 0; i < 6; i++)
+    for (let i = 0; i < 5; i++)
     {
         for (let j = 0; j < 5; j++)
         {
@@ -198,6 +198,11 @@ function OpenTreasureBox()
     {
         RandomPress([782, 454, 41, 26]);
         RandomPress([703, 539, 157, 22]);
+        PressBlank();
+        return;
+    }
+    else
+    {
         PressBlank();
         return;
     }
@@ -356,7 +361,7 @@ function UseProps(needOpen, needClose)
     let shot = captureScreen();
     let type;
 
-    for (let i = 0; i < 6; i++)
+    itemLoop: for (let i = 0; i < 6; i++)
     {
         for (let j = 0; j < 5; j++)
         {
@@ -370,7 +375,11 @@ function UseProps(needOpen, needClose)
                 {
                     type = key;
                     break;
-                };
+                }
+                else
+                {
+                    type = null;
+                }
             }
             type && log((i + 1) + " " + (j + 1) + " " + type);
             if (type == "treasureBox_white_nomal_equipment_tied"
@@ -431,6 +440,7 @@ function UseProps(needOpen, needClose)
                 log("blank :" + (i + 1) + " " + (j + 1));
                 RandomPress(BackPackPos.close);
                 Sleep();
+                break itemLoop;
             };
         }
     }
@@ -453,25 +463,75 @@ function DecomposeProps()
     RandomPress(BackPackPos.icon);
     Sleep(3000, 5000);
 
+    RandomPress(BackPackPos.equipment);
     RandomPress([1009, 511, 23, 20]);
     Sleep();
     RandomPress([922, 512, 53, 16]); //normal
+    for (let i = 0; i < 3; i++)
+    {
+        RandomPress([1120, 508, 122, 22]); //decompose
+        let continueDecompose = images.findMultiColors(captureScreen(), "#363636", [[16, 0, "#343434"], [11, 8, "#333334"], [55, 6, "#262828"], [83, 3, "#262626"],
+        [121, 1, "#3e4638"], [128, 6, "#373e32"], [120, 18, "#2f372b"]], { region: [480, 538, 378, 70] });
+        if (continueDecompose == null) break;
+        RandomPress([696, 563, 127, 23]); //popup confirm
+        Sleep();
+        let isNoMoney = images.findMultiColors(captureScreen(), "#383838", [[-1, 21, "#29292a"], [88, 0, "#333333"], [112, 21, "#2e2e2e"]], { region: [429, 537, 183, 71] });
+        if (isNoMoney)
+        {
+            RandomPress([455, 565, 132, 20]);
+            break;
+        }
+        else
+        {
+            RandomPress([323, 95, 522, 217]);
+        }
+    }
+    //分解绿装
+
+    const greenList = {
+        highLevel_gloves: ReadImg("greenSuit/highLevel_gloves"),
+        highLevel_shirt: ReadImg("greenSuit/highLevel_shirt"),
+        highLevel_shoes: ReadImg("greenSuit/highLevel_shoes"),
+        highLevel_shoulderArmor: ReadImg("greenSuit/highLevel_shoulderArmor"),
+        highLevel_trousers: ReadImg("greenSuit/highLevel_trousers"),
+        noMagic_bow: ReadImg("greenSuit/noMagic_bow"),
+        noMagic_helmet: ReadImg("greenSuit/noMagic_helmet"),
+        noMagic_shoes: ReadImg("greenSuit/noMagic_shoes"),
+        noMagic_trousers: ReadImg("greenSuit/noMagic_trousers"),
+        staff_cultivator: ReadImg("greenSuit/staff_cultivator")
+    };
+    const shot = captureScreen();
+    for (let i = 0; i < 2; i++)
+    {
+        for (let j = 0; j < 5; j++)
+        {
+            for (let key in greenList)
+            {
+                let inList = images.findImage(shot, greenList[key], { region: [876 + j * 65, 118 + i * 65, 78, 76] });
+                if (inList)
+                {
+                    RandomPress([896 + j * 65, 136 + i * 65, 44, 40]);
+                    break;
+                }
+            };
+            let isEquiped = images.findMultiColors(shot, "#5e5d55", [[0, 5, "#606059"], [3, 4, "#0e0901"], [9, 4, "#636158"], [9, 1, "#605f57"]],
+                { region: [916 + j * 65, 118 + i * 65, 37, 40] });
+            if (isEquiped) break;
+        }
+    }
     RandomPress([1120, 508, 122, 22]); //decompose
     RandomPress([696, 563, 127, 23]); //popup confirm
     Sleep();
-    const isNoMoney = images.findMultiColors(captureScreen(), "#383838", [[-1, 21, "#29292a"], [88, 0, "#333333"], [112, 21, "#2e2e2e"]], { region: [429, 537, 183, 71] });
+    let isNoMoney = images.findMultiColors(captureScreen(), "#383838", [[-1, 21, "#29292a"], [88, 0, "#333333"], [112, 21, "#2e2e2e"]], { region: [429, 537, 183, 71] });
     if (isNoMoney)
     {
         RandomPress([455, 565, 132, 20]);
-        RandomPress(BackPackPos.icon);
-
     }
     else
     {
-        RandomPress([387, 213, 478, 268]);
-        RandomPress(BackPackPos.icon);
+        RandomPress([323, 95, 522, 217]);
     }
-
+    RandomPress(BackPackPos.icon);
 };
 
 function ReturnHome()

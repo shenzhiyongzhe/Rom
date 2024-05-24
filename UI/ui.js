@@ -11,6 +11,7 @@ const levelSelectMenu = document.querySelectorAll("#normal-instanceZone .level-s
 const specialZone = document.querySelectorAll("#special-instanceZone .option input[type=checkbox]");
 const startBtn = document.querySelector("#startBtn");
 const updateBtn = document.querySelector("#updateBtn");
+const updateGame = document.querySelector("#updateGame");
 const beginnerCheckBox = document.querySelector("input[name=isBeginner]");
 const randomServerCheckBox = document.querySelector("input[name=isRandomServer]");
 const time = document.querySelector("#time");
@@ -38,7 +39,13 @@ updateBtn.addEventListener("click", () =>
         console.log(callBackData);
     });
 });
-
+updateGame.addEventListener("click", () =>
+{
+    $autox.callHandler("updateGame", "Update Game Package", (callBackData) =>
+    {
+        console.log(callBackData);
+    });
+});
 levelSelectMenu.forEach((menu, selectMenuIndex) =>
 {
     let levelSelect = menu.querySelector(".level-select");

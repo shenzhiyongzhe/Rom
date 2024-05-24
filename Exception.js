@@ -1,11 +1,12 @@
 const { ReadImg, Sleep, RandomPress, game_config, PressMenu } = require("./Global.js");
 
-const { ReturnHome, DecomposeProps } = require("./BackPack.js");
+const { ReturnHome } = require("./BackPack.js");
 const { DeathFlow, GroceryFlow } = require("./Death.js");
 const { EnterInstanceZones } = require("./Instance.js");
 const { PropsCollectionFlow } = require("./PropsCollection.js");
 //断开连接
 const imgArr = {
+    pageBack: ReadImg("back"),
     potion_zero: ReadImg("potion_zero"),
     haltMode_outOfPotion: ReadImg("haltMode_outOfPotion"),
     exception_outOfPotion: ReadImg("exception_outOfPotion"),
@@ -33,6 +34,7 @@ function RestartApp(appName)
     home();
     sleep(5000);
     app.launch(appName);
+    Sleep(15000, 25000);
 }
 const ExitHaltMode = function ()
 {
@@ -42,15 +44,19 @@ const ExitHaltMode = function ()
     const y2 = 400 + random(-20, 100);
     gesture(1000, [x1, y1], [x2, y2]);
     log("Exiting Halt Mode");
-    Sleep(10000, 20000);
     Sleep();
     return true;
-
 };
 
 function Exception()
 {
     const shot = captureScreen();
+    const hasPageBack = images.findImage(shot, imgArr.pageBack, { region: [1197, 4, 80, 58] });
+    if (hasPageBack)
+    {
+        RandomPress([1162, 17, 106, 30]);
+        return false;
+    }
     const hasDisconnected = images.findMultiColors(shot, "#343434", [[0, 16, "#292929"], [32, 7, "#2c2c2c"], [129, 1, "#333333"], [123, 15, "#30302e"]], { region: [431, 426, 207, 65] });
     const hasDisconnected_2 = images.findMultiColors(shot, "#383838", [[-5, 18, "#2a2a2a"], [108, 0, "#313131"], [103, 16, "#313131"], [71, 4, "#383838"]], { region: [427, 424, 210, 68] });
     if (hasDisconnected || hasDisconnected_2)
@@ -215,8 +221,45 @@ function Exception()
     return true;
 
 }
-module.exports = { Exception };
-
+const UnifyScreen = function ()
+{
+    Sleep();
+    let shot = captureScreen();
+    const menuIcon = ReadImg("menu_icon");
+    const hasMenu = images.findImage(shot, menuIcon, { region: [1206, 6, 68, 64] });
+    if (hasMenu)
+    {
+        menuIcon.recycle();
+        return;
+    };
+    const back = ReadImg("back");
+    const hasBack = images.findImage(shot, back, { region: [1206, 3, 64, 63] });
+    if (hasBack)
+    {
+        GoBack();
+        back.recycle();
+        return;
+    }
+    const justStartGame_01 = images.findMultiColors(shot, "#231f20", [[8, 233, "#231f20"], [5, 619, "#231f20"], [536, -20, "#231f20"], [1215, -16, "#231f20"],
+    [1222, 303, "#231f20"], [1209, 656, "#231f20"]]);
+    const justStartGame_02 = images.findMultiColors(shot, "#000000", [[1, 195, "#000000"], [1, 439, "#000000"], [423, -29, "#000000"], [936, 7, "#000000"],
+    [924, 452, "#000000"], [511, 438, "#000000"]]);
+    if (justStartGame_01 || justStartGame_02)
+    {
+        Sleep(10000, 20000);
+        return;
+    }
+    const inSaveMode = images.findMultiColors(shot, "#454442", [[24, 1, "#373737"], [47, 4, "#535353"], [73, 1, "#515151"], [91, 1, "#494947"]], { region: [516, 172, 271, 250] });
+    if (inSaveMode)
+    {
+        Sleep();
+        ExitHaltMode();
+        return;
+    }
+};
+module.exports = { Exception, UnifyScreen };
+// UnifyScreen();
+// log(images.findMultiColors(captureScreen(), "#454442", [[24, 1, "#373737"], [47, 4, "#535353"], [73, 1, "#515151"], [91, 1, "#494947"]], { region: [516, 172, 271, 250] }));
 // console.time("exception");
 // Exception();
 // // const isBackpackOverLoad = images.findImage(captureScreen(), imgArr.backpack_overload, { region: [967, 16, 65, 65] });

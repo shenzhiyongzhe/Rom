@@ -18,7 +18,6 @@ function StartScript(data)
             images.requestScreenCapture(true);
             app.launch("com.kakaogames.rom");
             Main(data);
-
         }
         );
     }
@@ -56,10 +55,42 @@ const UpdateScript = function ()
             toastLog('下载失败');
         }
     });
-
-
 };
 
+const UpdateGame = function ()
+{
+    threads.start(function ()
+    {
+        console.log("start update game package:");
+        const url = "http://10.6.130.129:82/kakaogames.zip";
+        const packageUrl = "/sdcard/Android/kakaogames.zip";
+        let r = http.client().newCall(
+            http.buildRequest(url, {
+                method: "GET",
+            })
+        ).execute();
+        files.createWithDirs("/sdcard/Android/data/");
+        let fs = new java.io.FileOutputStream(packageUrl);
+
+        let is = r.body().byteStream();
+        const buffer = util.java.array("byte", 1024);
+        let byteRead; //每次读取的byte数
+
+        while ((byteRead = is.read(buffer)) != -1)
+        {
+            fs.write(buffer, 0, byteRead); //读取
+        }
+        if (files.exists(packageUrl))
+        {
+            zips.X(packageUrl, "/sdcard/Android/kakaogames");
+            sleep(1000);
+            click(580, 765);
+        } else
+        {
+            toastLog('下载失败');
+        }
+    });
+};
 const UI = () =>
 {
     ui.layout(`
@@ -82,6 +113,11 @@ const UI = () =>
     ui.web.jsBridge.registerHandler("updateScript", (data, callBack) =>
     {
         UpdateScript();
+        callBack("successful");
+    });
+    ui.web.jsBridge.registerHandler("updateGame", (data, callBack) =>
+    {
+        UpdateGame();
         callBack("successful");
     });
 

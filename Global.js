@@ -15,8 +15,8 @@ const RandomPress = ([startX, startY, w, h]) =>
 const ReadImg = (name) => images.read(`./img/${name}.png`);
 const GoBack = () => RandomPress([1149, 10, 125, 52]);
 const PressBlank = () => RandomPress([270, 96, 647, 502]);
-
 const PressMenu = () => RandomPress([1226, 19, 24, 27]);
+const PressBackpack = () => RandomPress([1094, 24, 22, 27]);
 let game_config = {
     "player": {
         "deathtime": 0,
@@ -113,6 +113,7 @@ module.exports = {
     RandomPress,
     PressBlank,
     PressMenu,
+    PressBackpack,
     RWFile,
     ReadImg,
     GoBack,

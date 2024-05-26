@@ -154,18 +154,5 @@ const MainStory = function ()
 
 };
 
-// for (let i = 0; i < 1000; i++)
-// {
-//     console.time("MainStory");
-//     MainStoryUpdate();
-//     // log(images.findMultiColors(captureScreen(), "#bd2712", [[-2, 1, "#cb3120"], [1, 2, "#c42617"], [1, 4, "#c92b1d"]], { region: [882, 103, 350, 413] }));
-//     console.timeEnd("MainStory");
-// }
-
-//制造小红点检查
-
-
-//菜单小红点检查
-
 
 module.exports = { MainStory };

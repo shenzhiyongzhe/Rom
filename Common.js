@@ -3,12 +3,12 @@ const { game_config, ReadImg, Sleep, RandomPress, PressBlank } = require("./Glob
 
 const MissionAwardFlow = function ()
 {
-    const hasAwards = images.findMultiColors(captureScreen(), "#b22915", [[-1, 2, "#c72713"], [2, 2, "#d52b1b"], [1, 4, "#b52214"]], { region: [1165, 2, 37, 26] });
+    const hasAwards = images.findMultiColors(captureScreen(), "#b51f0d", [[-2, 2, "#c52314"], [2, 2, "#bc2416"], [0, 5, "#bd2a1b"]], { region: [1174, 2, 28, 28] });
     if (hasAwards == null) return;
 
     RandomPress([1154, 19, 37, 34]);
     Sleep(3000, 5000);
-    RandomPress([411, 93, 96, 32]); //award page
+    RandomPress([539, 99, 84, 24]); //award page
     Sleep(2000, 3000);
     for (let i = 0; i < 5; i++)
     {

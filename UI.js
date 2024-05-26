@@ -59,37 +59,38 @@ const UpdateScript = function ()
 
 const UpdateGame = function ()
 {
-    threads.start(function ()
-    {
-        console.log("start update game package:");
-        const url = "http://10.6.130.129:82/kakaogames.zip";
-        const packageUrl = "/sdcard/Android/kakaogames.zip";
-        let r = http.client().newCall(
-            http.buildRequest(url, {
-                method: "GET",
-            })
-        ).execute();
-        files.createWithDirs("/sdcard/Android/data/");
-        let fs = new java.io.FileOutputStream(packageUrl);
+    // threads.start(function ()
+    // {
+    //     console.log("start update game package:");
+    //     const url = "http://10.6.130.129:82/kakaogames.zip";
+    //     const packageUrl = "/sdcard/Android/kakaogames.zip";
+    //     let r = http.client().newCall(
+    //         http.buildRequest(url, {
+    //             method: "GET",
+    //         })
+    //     ).execute();
+    //     files.createWithDirs("/sdcard/Android/data/");
+    //     let fs = new java.io.FileOutputStream(packageUrl);
 
-        let is = r.body().byteStream();
-        const buffer = util.java.array("byte", 1024);
-        let byteRead; //每次读取的byte数
+    //     let is = r.body().byteStream();
+    //     const buffer = util.java.array("byte", 1024);
+    //     let byteRead; //每次读取的byte数
 
-        while ((byteRead = is.read(buffer)) != -1)
-        {
-            fs.write(buffer, 0, byteRead); //读取
-        }
-        if (files.exists(packageUrl))
-        {
-            zips.X(packageUrl, "/sdcard/Android/kakaogames");
-            sleep(1000);
-            click(580, 765);
-        } else
-        {
-            toastLog('下载失败');
-        }
-    });
+    //     while ((byteRead = is.read(buffer)) != -1)
+    //     {
+    //         fs.write(buffer, 0, byteRead); //读取
+    //     }
+    //     if (files.exists(packageUrl))
+    //     {
+    //         zips.X(packageUrl, "/sdcard/Android/kakaogames");
+    //         sleep(1000);
+    //         click(580, 765);
+    //     } else
+    //     {
+    //         toastLog('下载失败');
+    //     }
+    // });
+
 };
 const UI = () =>
 {
@@ -99,7 +100,7 @@ const UI = () =>
     </vertical>`);
 
     ui.web.loadUrl("file://" + files.path("./UI/ui.html"));
-
+    ui.web.addJavascriptInterface(Calculator.this, "main");
     ui.web.jsBridge.registerHandler("WebToAndroid", (data, callBack) =>
     {
         StartScript(data);

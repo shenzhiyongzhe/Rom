@@ -1,7 +1,7 @@
 const { game_config, ReadImg, Sleep, RandomPress, GoBack, PressMenu, PressBackpack } = require("./Global.js");
 const { Daily } = require("./Daily.js");
 const { GroceryFlow } = require("./Death.js");
-const { AbilityPointsFlow } = require("./Common.js");
+const { AbilityPointsFlow, MissionAwardFlow } = require("./Common.js");
 
 const WorldMap = {
     "06": "림스트", //林斯特
@@ -63,8 +63,21 @@ const GetInstanceQueue = function ()
     game_config.ui.instanceQueue.forEach((item) => { if (item.type == "wild") instanceQueue.push(item); });
 
 };
-
-
+//no money
+const NoMoneyCheck = function ()
+{
+    Sleep();
+    const noMoneyTransform = images.findMultiColors(captureScreen(), "#893c00", [[1, 12, "#e05604"], [1, 20, "#cf4701"]], { region: [656, 641, 78, 72] });
+    if (noMoneyTransform)
+    {
+        console.log("no money to transform wild/instance");
+        GoBack();
+        MissionAwardFlow();
+        Daily();
+        return true;
+    }
+    return false;
+};
 function InstanceExceptionCheck(shot)
 {
     const errorPopup = images.findMultiColors(shot, "#393939", [[52, 6, "#c5c5c3"], [68, 15, "#aaaaa8"], [97, 9, "#2f2f2f"]], { region: [433, 594, 200, 62] });
@@ -235,55 +248,78 @@ const GoOutOfCity = function ()
 };
 function HangUpWild(number)
 {
+    const CollectedCheck = function (shot)
+    {
+        const needCollected = images.findMultiColors(shot, "#d2a858", [[-4, 4, "#d0ac57"], [-4, 11, "#cba653"], [3, 10, "#c5a24f"]], { region: [958, 78, 54, 64] });
+        if (needCollected == null) RandomPress([977, 100, 20, 21]);
+    };
     const mapName = WorldMap[number];
     const hasMap = images.findMultiColors(captureScreen(), "#baa378", [[0, 11, "#a28858"], [20, -1, "#bba477"], [21, 4, "#8b7347"], [23, 16, "#3c311c"]],
         { region: [179, 176, 48, 48] });
     if (hasMap == null) return;
+
     RandomPress([84, 121, 89, 80]);
     Sleep(5000, 7000);
     const map_numberImg = ReadImg(`map/${number}`);
     let hasMapNumber = images.findImage(captureScreen(), map_numberImg, { region: [85, 136, 105, 567] });
     if (hasMapNumber == null)
     {
-        RandomPress([26, 228, 19, 21]);
+        RandomPress([26, 228, 19, 21]); //collection page
         Sleep();
         hasMapNumber = images.findImage(captureScreen(), map_numberImg, { region: [85, 136, 105, 567] });
         if (hasMapNumber == null)
         {
-            RandomPress([22, 171, 23, 24]);
+            RandomPress([21, 167, 24, 28]);
             RandomPress([77, 91, 206, 13]);
             setText(mapName);
             RandomPress([1166, 641, 74, 35]); //keyboard confirm
             RandomPress([89, 136, 242, 31]); //select
-            const isAlreadyCollected = images.findMultiColors(captureScreen(), "#d1a758", [[-7, 2, "#cfae5f"], [0, 3, "#cba954"], [6, 3, "#c5a455"],
-            [-4, 7, "#cba655"], [1, 7, "#c4a14f"]], { region: [75, 133, 58, 48] });
-            if (isAlreadyCollected == null)
-                RandomPress([98, 149, 16, 13]); //收藏
+            hasMapNumber = images.findImage(captureScreen(), map_numberImg, { region: [85, 136, 105, 567] });
+            RandomPress([hasMapNumber.x + 10, hasMapNumber.y, 45, 15]);
+            CollectedCheck(captureScreen());
         }
+        else
+        {
+            RandomPress([hasMapNumber.x + 10, hasMapNumber.y, 45, 15]);
+        }
+        RandomPress([967, 654, 201, 32]); //立即前往
+        RandomPress([678, 469, 143, 23]); //confrim
+        const isNoMoney_1 = NoMoneyCheck();
+        if (isNoMoney_1) return;
+        Sleep(8000, 16000);
+        RandomPress([1163, 552, 29, 28]); //auto battle
+        RandomPress([19, 450, 24, 12]); // save mode
+        log("go to the wild: " + mapName);
     }
     else
     {
+        RandomPress([hasMapNumber.x + 10, hasMapNumber.y, 45, 15]);
         const mapShot = captureScreen();
-        const hasAlreadyInThere = images.findMultiColors(mapShot, "#9d4a0b", [[0, 6, "#d05500"], [0, 12, "#9f5503"], [5, 14, "#bfa481"], [-4, 14, "#b19f80"]],
-            { region: [hasMapNumber.x - 50, hasMapNumber.y - 30, 50, 50] });
+        const hasAlreadyInThere = images.findMultiColors(mapShot, "#1d221b", [[45, 1, "#65502f"], [60, 3, "#6c5733"], [137, 5, "#777a76"], [176, 6, "#191e16"], [196, 6, "#1c2119"]],
+            { region: [930, 637, 282, 67] });
         if (hasAlreadyInThere)
         {
             RandomPress([1164, 24, 106, 23]); //press back
             AutoBattleCheck();
+            AbilityPointsFlow();
             RandomPress([19, 450, 24, 12]); //save mode
-            return;
         }
-        const hasCollected = images.findMultiColors(mapShot, "#d1a758", [[-7, 2, "#cfae5f"], [0, 3, "#cba954"], [6, 3, "#c5a455"],
-        [-4, 7, "#cba655"], [1, 7, "#c4a14f"]], { region: [hasMapNumber.x - 80, hasMapNumber.y - 30, 50, 50] });
-        if (hasCollected == null) RandomPress([98, 149, 16, 13]); //收藏
-        RandomPress([hasMapNumber.x + 10, hasMapNumber.y, 45, 15]);
+        else
+        {
+            CollectedCheck(mapShot);
+            RandomPress([967, 654, 201, 32]); //立即前往
+            RandomPress([678, 469, 143, 23]); //confirm
+            //no money check
+            const isNoMoney_2 = NoMoneyCheck();
+            if (isNoMoney_2) return;
+            Sleep(8000, 16000);
+            RandomPress([1163, 552, 29, 28]); //auto battle
+            RandomPress([19, 450, 24, 12]); // save mode
+            log("go to the wild: " + mapName);
+        }
+
     }
-    RandomPress([967, 654, 201, 32]); //立即前往
-    RandomPress([678, 469, 143, 23]);
-    Sleep(8000, 16000);
-    RandomPress([1163, 552, 29, 28]); //auto battle
-    RandomPress([19, 450, 24, 12]); // save mode
-    log("go to the wild: " + mapName);
+    map_numberImg.recycle();
 }
 
 function testMap(number)
@@ -294,8 +330,8 @@ function testMap(number)
     RandomPress([1166, 641, 74, 35]); //keyboard confirm
     RandomPress([89, 136, 242, 31]); //select
 }
-// testMap("12");
-// HangUpWild("12");
+// testMap("27");
+// HangUpWild("27");
 // GoOutOfCity();
 module.exports = { InstanceCheck, EnterInstanceZones };
 // EnterInstanceZones();

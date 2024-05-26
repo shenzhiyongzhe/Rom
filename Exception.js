@@ -150,11 +150,6 @@ function Exception()
         {
             GroceryFlow();
         }
-        if (game_config.ui.gameMode == "instance")
-        {
-            Sleep(20000, 30000);
-            EnterInstanceZones();
-        }
         return false;
     }
     const hasLongTimeTip = images.findMultiColors(shot, "#384033", [[3, 19, "#2c3729"], [40, 8, "#2e3629"], [139, 1, "#353d30"], [114, 13, "#333b2e"]], { region: [534, 419, 208, 77] });

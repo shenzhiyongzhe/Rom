@@ -49,8 +49,12 @@ const Main = function (data)
     game_config.ui.isBeginner == true && BeginnerFlow(data.isRandomServer);
     const gameMode = game_config.ui.gameMode;
     Sleep(3000, 4000);
-    UnifyScreen();
-    const hasException = Exception();
+    for (let i = 0; i < 5; i++)
+    {
+        UnifyScreen();
+        Exception();
+    }
+
     Sleep(3000, 5000);
     if (gameMode == "instance") EnterInstanceZones();
     threads.start(function ()

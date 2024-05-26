@@ -108,13 +108,7 @@ function DeathFlow()
     gameMode = game_config.ui.gameMode;
     Sleep();
     console.log("Character Dead!!!");
-    const needToEquip = CrucifixFlow();
-    Sleep();
-    if (needToEquip)
-    {
-        WearEquipment();
-    }
-
+    CrucifixFlow();
     Sleep(2000, 3000);
     Daily();
     Sleep();

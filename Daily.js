@@ -1,6 +1,13 @@
-const { ReadImg, Sleep, RandomPress, GoBack, PressBlank, PressMenu, game_config } = require("./Global.js");
-const DutyFlow = require("./Menu/Duty.js");
+const { Sleep, RandomPress, GoBack, PressBlank, PressMenu } = require("./Global.js");
 
+function MenuTipCheck()
+{
+    const hasMenuTipPoint = images.findMultiColors(captureScreen(), "#b52110", [[0, 3, "#c22516"], [0, 5, "#c32b1c"]], { region: [1236, 3, 32, 25] });
+    if (hasMenuTipPoint == null) return false;
+    PressMenu();
+    Sleep(3000, 5000);
+    return true;
+}
 
 const overMaxNumber = () =>
 {
@@ -15,38 +22,12 @@ const overMaxNumber = () =>
     return false;
 };
 
-//每日签到检测
-const SignInCheck = (shot) => images.findMultiColors(shot, "#ad2514", [[0, 2, "#c32513"], [0, 5, "#c32719"]], { region: [969, 527, 36, 43] });
-
-//邮箱检测
-const EmailCheck = (shot) => images.findMultiColors(shot, "#ad210f", [[0, 2, "#c42312"], [0, 5, "#c82818"]], { region: [1036, 529, 44, 43] });
-
-//使命检查
-const DutyCheck = (shot) => images.findMultiColors(shot, "#b72313", [[0, 2, "#bd2515"], [0, 4, "#be2417"]], { region: [1172, 175, 41, 45] });
-const NoMoneyCheck = function ()
+const GetSignIn = function ()
 {
-    Sleep();
-    const isNoMoney = images.findMultiColors(captureScreen(), "#3d4538", [[121, 1, "#384033"], [143, 11, "#333b2f"], [4, 17, "#2b3428"]], { region: [658, 556, 209, 66] });
-    if (isNoMoney == null) return false;
-    else
-    {
-        console.log("No Money");
-        if (random() > 0.5)
-        {
-            RandomPress([447, 580, 157, 21]);
-        }
-        else
-        {
-            RandomPress([958, 78, 32, 14]);
-        }
-        return true;
-    }
-};
-/** 
-*每日登录奖励领取
-*/
-const SignInFlow = function ()
-{
+    const hasMenu = MenuTipCheck();
+    if (hasMenu == false) return;
+    const canSignIn = images.findMultiColors(captureScreen(), "#ad2514", [[0, 2, "#c32513"], [0, 5, "#c32719"]], { region: [969, 527, 36, 43] });
+    if (canSignIn == null) return false;
     RandomPress([961, 555, 26, 30]);
     Sleep(2000, 4000);
     const shot = captureScreen();
@@ -74,14 +55,19 @@ const SignInFlow = function ()
         }
     }
     GoBack();
+    console.log("get sign in award");
+    return true;
 };
-
-/**
- * 邮件奖励领取
-*/
-const EmailFlow = function ()
+const GetEmail = function (needPressMenu)
 {
-    RandomPress([1024, 556, 31, 22]);
+    if (needPressMenu)
+    {
+        PressMenu();
+        Sleep(3000, 5000);
+    }
+    const hasEmail = images.findMultiColors(captureScreen(), "#ad210f", [[0, 2, "#c42312"], [0, 5, "#c82818"]], { region: [1036, 529, 44, 43] });
+    if (!hasEmail) return false;
+    RandomPress([1024, 556, 31, 22]); //email icon;
     Sleep(2000, 4000);
     const shot = captureScreen();
     let hasTipPoint, canGetAward, isCurPage;
@@ -105,16 +91,119 @@ const EmailFlow = function ()
                 Sleep(2000, 3000);
                 let isOverMax = overMaxNumber();
                 if (isOverMax == false) PressBlank();
-                log("get award");
             }
         }
         else break;
 
     }
     GoBack();
+    console.log("get email award");
+    return true;
 };
 
 
+const NoMoneyCheck = function ()
+{
+    Sleep();
+    const isNoMoney = images.findMultiColors(captureScreen(), "#3d4538", [[121, 1, "#384033"], [143, 11, "#333b2f"], [4, 17, "#2b3428"]], { region: [658, 556, 209, 66] });
+    if (isNoMoney == null) return false;
+    else
+    {
+        console.log("No Money");
+        if (random() > 0.5)
+        {
+            RandomPress([447, 580, 157, 21]);
+        }
+        else
+        {
+            RandomPress([958, 78, 32, 14]);
+        }
+        return true;
+    }
+};
+
+
+const GetDuty = function ()
+{
+    //寻找满进度条
+    const FindMaxProgressBar = function (shot)
+    {
+        let maxArr = [];
+        for (let i = 0; i < 3; i++)
+        {
+            for (let j = 0; j < 2; j++)
+            {
+                let isProgressBarMax = images.findMultiColors(shot,
+                    "#222222", [[175, 0, "#8f4c1c"], [307, 0, "#8f4c1b"], [388, 0, "#8f4a1b"], [389, 4, "#59361f"], [391, 0, "#222222"],],
+                    { region: [140 + j * 500, 440 + i * 76, 110, 20], threshold: 16, });
+                if (isProgressBarMax)
+                {
+                    maxArr.push(isProgressBarMax);
+                }
+            }
+        }
+        return maxArr;
+    };
+    //寻找没有领取的奖励的点
+    const CanPickUpPoints = function (shot)
+    {
+        let points = [];
+        const maxArr = FindMaxProgressBar(shot);
+        if (maxArr.length == 0) return false;
+        maxArr.forEach((element) =>
+        {
+            let isPickable = images.findMultiColors(shot, "#ff4a3d", [[3, 2, "#ff4335"], [4, 4, "#ff5549"], [9, -5, "#ff4a3d"], [12, -11, "#ff4c3c"]],
+                { region: [element.x + 400, element.y - 40, 80, 100] });
+            let isPickable_2 = images.findMultiColors(shot, "#ff836b", [[8, 9, "#ff3b3a"], [12, 0, "#ff8365"], [18, -10, "#ff412a"]],
+                { region: [element.x + 400, element.y - 40, 80, 100] });
+            if (isPickable == null && isPickable_2 == null)
+            {
+                let x = element.x + 417;
+                let y = element.y - 37;
+                points.push([x, y, 40, 40]);
+            }
+        });
+
+        return points;
+    };
+    //领取奖励
+    const DutyPickUp = function (shot)
+    {
+        const canPickArr = CanPickUpPoints(shot);
+        if (canPickArr.length == 0) return false;
+        canPickArr.forEach((element) =>
+        {
+            RandomPress(element);
+            Sleep(1000, 2000);
+        });
+    };
+    PressMenu();
+    Sleep(2000, 4000);
+    const hasDutyTip = images.findMultiColors(captureScreen(), "#b72313", [[0, 2, "#bd2515"], [0, 4, "#be2417"]], { region: [1172, 175, 41, 45] });
+    if (!hasDutyTip) return;
+
+    RandomPress([1161, 203, 24, 25]); //duty icon;
+    Sleep(2000, 4000);
+    let shot = captureScreen();
+    for (let i = 0; i < 3; i++)
+    {
+        let hasTip = images.findMultiColors(shot, "#b52211", [[-1, 2, "#d02919"], [1, 2, "#c02515"], [1, 4, "#c72a1c"]], { region: [272 + i * 176, 56, 73, 45] });
+        let hasTip_2 = images.findMultiColors(shot, "#aa2111", [[-2, 2, "#c62717"], [1, 2, "#c32617"], [-1, 3, "#c22618"]], { region: [272 + i * 176, 56, 73, 45] });
+        if (hasTip == null && hasTip_2 == null) continue;
+        let isCurPage = images.findMultiColors(shot, "#ca9653", [[4, -1, "#a67032"], [11, -1, "#af7533"]], { region: [183 + i * 176, 99, 92, 28] });
+        if (!isCurPage) 
+        {
+            RandomPress([173 + i * 176, 82, 124, 26]);
+            Sleep();
+            shot = captureScreen();
+        }
+        //pick award
+        DutyPickUp(shot);
+    }
+    RandomPress([1112, 69, 38, 16]); //close 
+    console.log("get duty award, finished pick up");
+};
+// GetDuty();
 /**
  *---------------------------------商城购买----------------------------
  *
@@ -156,7 +245,7 @@ const ShopFlow = function ()
 {
     let isNoMoney = false;
     RandomPress([955, 19, 35, 30]); // 商城
-    Sleep();
+    Sleep(3000, 5000);
     RandomPress([296, 98, 72, 28]); //第三页 普通页
     RandomPress([17, 211, 173, 37]); // 强化卷轴页
     // 购买防御卷轴
@@ -202,46 +291,18 @@ const ShopFlow = function ()
 };
 function Daily()
 {
-    const menuIcon = ReadImg("menu_icon");
-    let shot = captureScreen();
-
-    const hasMenu = images.findImage(shot, menuIcon, { region: [1203, 1, 70, 65] });
-    if (hasMenu == null) return;
-    const hasMenuTipPoint = images.findMultiColors(shot, "#b52110", [[0, 3, "#c22516"], [0, 5, "#c32b1c"]], { region: [1236, 3, 32, 25] });
-    if (hasMenuTipPoint == null) return;
-    PressMenu();
-    Sleep(3000, 5000);
-    shot = captureScreen();
-    const hasGetSignIn = SignInCheck(shot);
-    const hasGetEmail = EmailCheck(shot);
-
+    const hasGetSignIn = GetSignIn();
     if (hasGetSignIn)
     {
-        Sleep();
-        SignInFlow();
-        Sleep();
+        GetDuty();
         ShopFlow();
-        PressMenu();
-        const hasDuty = DutyCheck(captureScreen());
-        if (hasDuty != null)
-        {
-            Sleep();
-            DutyFlow();
-        }
-        else PressMenu();
-        return;
     }
-
-    if (hasGetEmail) EmailFlow();
-    else PressMenu();
+    else
+    {
+        const hasGetEmail = GetEmail(false);
+        if (!hasGetEmail) PressMenu();
+    }
 }
 
-
-module.exports = { Daily };
-// SignInFlow();
-// EmailFlow();
-// ShopFlow();
-// MenuCheck(captureScreen()) && console.log("Menu Check");
 // Daily();
-// DaliyCall();
-// log(EmailCheck(captureScreen()));
+module.exports = { Daily };

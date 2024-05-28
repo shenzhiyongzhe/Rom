@@ -34,15 +34,18 @@ let game_config = {
         "gameMode": "mainStory"
     },
     "setting": {
-
-        "isFirstPropsLogin": false,
         "time": "2024-05-09T12:00:00.000Z"
     }
 };
+const configUrl = "/sdcard/Rom/game_config.json";
 function RWFile(type, obj)
 {
-    let file = files.read("./game_config.json");
-    let data = JSON.parse(file);
+    const isCreate = files.createWithDirs(configUrl);
+    if (isCreate)
+    {
+        files.write(configUrl, JSON.stringify(game_config));
+    }
+    let data = JSON.parse(files.read(configUrl));
     if (type == null || obj == null)
     {
         return data;
@@ -62,14 +65,14 @@ function RWFile(type, obj)
 
     try
     {
-        files.write("./game_config.json", JSON.stringify(data));
+        files.write(configUrl, JSON.stringify(data));
     } catch (e)
     {
         log(e);
     }
 }
 game_config = RWFile();
-game_config.setting.time = new Date().getTime();
+game_config.setting.time = GetLocalTime();
 
 
 

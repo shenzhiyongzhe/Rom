@@ -4,7 +4,7 @@
     box-sizing: border-box;
 }
 body {
-    background-color: #90dbdb;
+    background-color: #ecf0f3;
     width: 100vw;
     display: flex;
     row-gap: 10px;
@@ -12,14 +12,14 @@ body {
     justify-content: center;
     flex-wrap: wrap;
     flex-direction: column;
-    font-size: 12px;
+    font-size: 10px;
 }
 .neumorphism{
-    background-color: #acf1f1;
-    box-shadow: 15px 15px 30px #7ac4c4,
-               -15px -15px 30px #b2ffff,
-               inset 15px 15px 15px #b6f1f1,
-               inset -10px -10px 15px #91cece;
+    background-color: #ecf0f3;
+    box-shadow: 14px 14px 20px #cbced1,
+                 -14px -14px 20px white,
+               inset -6px -6px 10px #f7f9fc,
+               inset -6px -6px 10px rgb(216, 215, 215);
 }
 .card-box {
     width: 100vw;
@@ -30,72 +30,83 @@ body {
     row-gap: 16px;
     padding: 10px;
 }
-
-input[type="radio"] {
-    cursor: pointer;
-    transition: all 250ms ease;
-}
-#gameMode{
+.flex{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    font-size: 14px;
     gap: 10px;
 }
-#gameMode label{
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.center-align{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
 }
-#gameMode label input{
-  margin-left: 2px;
+input{
+    cursor: pointer;
+    transition: all 250ms ease;
 }
+
 input:focus {
     border-color: #66afe9;
     -webkit-box-shadow: 0 1px 1px rgba(214, 44, 44, 0.075), 0 0 8px rgba(108, 202, 246, 0.6);
     box-shadow: 0 5px 5px rgba(170, 204, 18, 0.075), 0 0 8px rgba(71, 232, 238, 0.6);
 }
 
-.select-menu {
+.select-menu, .second-select-menu {
     cursor: pointer;
     position: relative;
 }
-.select {
-    padding: 10px;
+.second-select-menu{
+    margin-right: 10%;
+    border-radius: 10px;
+
+    background-color: #eee;
+}
+.select,.second-select {
+    padding: 4px;
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
-
+.second-select{
+    width: 100px;
+}
 .option-list {
     position: absolute;
     width: 100%;
     border-radius: 6px;
-    margin-top: 14px;
+    top: 60px;
     padding: 0 10px;
     max-height: 250px;
     overflow-y: hidden;
     transition: .2s linear .1s;
     z-index: 99;
     height: 0;
-    background-color: #6ca5a5;
+    background-color: #5c7db9;
+    font-size: 10px;
+}
+.second-option-list{
+    position: absolute;
+    height: 0;
+    width: 100px;
+    top: 0;
+    left: 60px;
+    overflow-y: hidden;
+    z-index: 999;
+    background-color: #1d7be6;
+
 }
 .option label{
-    width: 100%;
     display: flex;
     align-items: center;
     gap: 10px;
 }
-.option {
-    display: flex;
-    align-items: center;
+.option, .second-option {
     gap: 5px;
     height: 40px;
     padding: 8px 0;
-    font-weight: 500;
-    font-size: 14px;
     transition: 0.2s ease-in-out;
 }
 
@@ -104,21 +115,14 @@ input:focus {
     border: 1px solid #add3f0;
     border-radius: 6px;
     padding: 6px;
-    font-family: "Microsoft soft";
 }
 
-.option .select-menu{
-    width: 100px;
-    background-color: green;
-}
-.option .select-menu .select{
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-}
+
 .selected {
     color: #00a8ff;
 }
+
+
 .option-list::-webkit-scrollbar {
     width: 4px;
     background-color: #eee;
@@ -128,6 +132,9 @@ input:focus {
 }
 .option-list.active {
     height: 250px;
+}
+.second-active{
+    height: 140px;
 }
 .arrow-box {
     width: 16px;
@@ -140,85 +147,21 @@ input:focus {
 .arrow-hidden {
     visibility: hidden;
 }
-#normal-instanceZone{
+button{
+    border: none;
+}
+.temp{
     width: 100%;
-}
-#normal-instanceZone .option{
     display: flex;
+    justify-content: center;
     align-items: center;
-}
-#normal-instanceZone .option label:first-of-type{
-    width: 40%;
-    display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 10px;
 }
-
-
-#normal-instanceZone button{
-    width: 30px;
-    padding: 3px;
-    border: none;
-    font-weight: 700;
-    border-radius: 12px;
-}
-#special-instanceZone{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-#special-instanceZone .select-menu{
-    width: 60%;
-    position: relative;
-}
-#world-map{
-    width: 100%;
-}
-#startBtn {
-  position: absolute;
-    width: 50vw;
-    height: 50px;
-    left: 25%;
-    bottom: 20%;
-    font-size: 20px;
-    text-align: center;
-    border: none;
-    border-radius: 40px;
-}
-.level-select-menu{
-    width: 30%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    position: relative;
-    font-size: 12px;
-}
-.level-select{
-    width: 60%;
-    display: flex;
-    padding: 3px;
+#startScript{
+    width: 200px;
+    padding: 10px;
     border-radius: 20px;
-    justify-content: space-between;
-}
-.level-option-list{
-    width: 80%;
-    position: absolute;
-    background-color: rgb(62, 123, 134);
-    border-radius: 10px;
-    top: 120%;
-    height: 0;
-    overflow-y: hidden;
-    z-index: 100;
-}
-.level-selected{
-    height: 120px;
-}
-.level-option{
-    padding: 10px 0;
-    border-bottom: 1px solid rgb(46, 81, 105);
-}
-#world-map .option-list{
-    overflow-y: auto;
+    background-color: rgb(124, 224, 219);
+    box-shadow: 10px 10px 20px rgb(145, 219, 216);
 }

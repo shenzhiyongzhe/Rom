@@ -1,4 +1,4 @@
-
+const { game_config } = require("./Global");
 let isRunning = false;
 function StartScript(data)
 {
@@ -17,6 +17,7 @@ function StartScript(data)
             auto();
             images.requestScreenCapture(true);
             app.launch("com.kakaogames.rom");
+            console.log(data);
             Main(data);
         }
         );
@@ -48,8 +49,10 @@ const UpdateScript = function ()
         if (files.exists(apkUrl))
         {
             app.viewFile(apkUrl);
-            sleep(1000);
+            sleep(400);
             click(580, 765);
+            // sleep(2000);
+            // click(580, 765);
         } else
         {
             toastLog('下载失败');
@@ -100,7 +103,6 @@ const UI = () =>
     </vertical>`);
 
     ui.web.loadUrl("file://" + files.path("./UI/ui.html"));
-    ui.web.addJavascriptInterface(Calculator.this, "main");
     ui.web.jsBridge.registerHandler("WebToAndroid", (data, callBack) =>
     {
         StartScript(data);
@@ -131,7 +133,14 @@ const UI = () =>
     //     });
     // }, 1000);
 
-
+    //定时器中等待web加载完成
+    setTimeout(() =>
+    {
+        ui.web.jsBridge.callHandler('InitUIData', JSON.stringify(game_config), (data) =>
+        {
+            toastLog('web回调,data:' + data);
+        });
+    }, 3000);
 };
 module.exports = UI;
 // UI();

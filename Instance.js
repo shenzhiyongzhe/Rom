@@ -60,7 +60,15 @@ const GetInstanceQueue = function ()
     instanceQueue = [];
     game_config.ui.instanceQueue.forEach((item) => { if (item.type == "special") instanceQueue.push(item); });
     game_config.ui.instanceQueue.forEach((item) => { if (item.type == "normal") instanceQueue.push(item); });
-    game_config.ui.instanceQueue.forEach((item) => { if (item.type == "wild") instanceQueue.push(item); });
+    game_config.ui.instanceQueue.forEach((item) => 
+    {
+        if (item.type == "wild")
+        {
+            let obj = JSON.parse(JSON.stringify(item));
+            obj.index = obj.index + 6;
+            instanceQueue.push(obj);
+        }
+    });
 
 };
 //no money
@@ -134,6 +142,7 @@ const InstanceCheck = function ()
 function EnterInstanceZones()
 {
     Sleep(3000, 5000);
+    Daily();
     GetInstanceQueue();
     PressMenu();
     Sleep(2000, 3000);
@@ -165,13 +174,13 @@ function EnterInstanceZones()
         RandomPress(instancePos[instanceQueue[i].index]);
         switch (instanceQueue[i].level)
         {
-            case "firstLevel":
+            case 0:
                 RandomPress(instanceLevel[0]);
                 break;
-            case "secondLevel":
+            case 1:
                 RandomPress(instanceLevel[1]);
                 break;
-            case "thirdLevel":
+            case 2:
                 RandomPress(instanceLevel[2]);
                 break;
             default:
@@ -199,7 +208,6 @@ function EnterInstanceZones()
     }
 
     Sleep();
-    Daily();
     AbilityPointsFlow();
     AutoBattleCheck();
     RandomPress([19, 449, 25, 14]);
@@ -248,6 +256,7 @@ const GoOutOfCity = function ()
 };
 function HangUpWild(number)
 {
+    number = number.toString().padStart(2, "0");
     const CollectedCheck = function (shot)
     {
         const needCollected = images.findMultiColors(shot, "#d2a858", [[-4, 4, "#d0ac57"], [-4, 11, "#cba653"], [3, 10, "#c5a24f"]], { region: [958, 78, 54, 64] });
@@ -324,13 +333,15 @@ function HangUpWild(number)
 
 function testMap(number)
 {
+    number = number.toString().padStart(2, "0");
     const mapName = WorldMap[number];
-    RandomPress([77, 91, 206, 13]);
-    setText(mapName);
-    RandomPress([1166, 641, 74, 35]); //keyboard confirm
-    RandomPress([89, 136, 242, 31]); //select
+    // RandomPress([77, 91, 206, 13]);
+    // setText(mapName);
+    // RandomPress([1166, 641, 74, 35]); //keyboard confirm
+    // RandomPress([89, 136, 242, 31]); //select
+    log(mapName);
 }
-// testMap("27");
+// testMap(12);
 // HangUpWild("27");
 // GoOutOfCity();
 module.exports = { InstanceCheck, EnterInstanceZones };

@@ -59,7 +59,8 @@ function Exception()
     }
     const hasDisconnected = images.findMultiColors(shot, "#343434", [[0, 16, "#292929"], [32, 7, "#2c2c2c"], [129, 1, "#333333"], [123, 15, "#30302e"]], { region: [431, 426, 207, 65] });
     const hasDisconnected_2 = images.findMultiColors(shot, "#383838", [[-5, 18, "#2a2a2a"], [108, 0, "#313131"], [103, 16, "#313131"], [71, 4, "#383838"]], { region: [427, 424, 210, 68] });
-    if (hasDisconnected || hasDisconnected_2)
+    const hasDisconnected_3 = images.findMultiColors(shot, "#363636", [[3, 18, "#2f2f2f"], [36, 7, "#252525"], [70, 0, "#3e4639"], [72, 17, "#2c362b"]], { region: [527, 421, 207, 70] });
+    if (hasDisconnected || hasDisconnected_2 || hasDisconnected_3)
     {
         log("connetion lost! :);Exit Game and Restart");
         RandomPress([462, 449, 146, 18]);

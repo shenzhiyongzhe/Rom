@@ -2,7 +2,7 @@
     "name": "Rom",
     "main": "main.js",
     "ignore": ["build", "_gsdata_", "tool.js", "test.js"],
-    "packageName": "com.rom",
-    "versionName": "1.0.0524",
+    "packageName": "com.autojs.rom",
+    "versionName": "1.0.0527",
     "versionCode": 1
 }

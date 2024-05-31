@@ -10,13 +10,34 @@
 </head>
 
 <body>
+  <div id="appbar">Rom</div>
+  <div class="info-box">
+    <div class="avatar"></div>
+    <div class="info">
+      <div class="character-level">
+        <div>角色等级：<span>57</span></div>
+        <div>今日交易：<span>0</span></div>
+      </div>
+      <div class="account">
+        <input type="text" placeholder="账号" />
+        <input type="text" placeholder="密码" />
+        <input type="text" placeholder="辅助邮箱" />
+        <div id="time">钻石：<span>00</span></div>
+      </div>
+    </div>
+  </div>
   <div class="card-box neumorphism" style="width: 100%;">
-    <label class="center-align">创建角色:<input type="checkbox" name="isBeginner" /></label>
-    <label class="center-align">选区:<input type="checkbox" name="isRandomServer" /></label>
+    <label class="cyberpunk-checkbox-label"><input type="checkbox" class="cyberpunk-checkbox"
+        name="isBeginner" />创建角色</label>
+    <label class="cyberpunk-checkbox-label"><input type="checkbox" class="cyberpunk-checkbox"
+        name="isRandomServer" />选区</label>
 
-    <label class="center-align"><input type="radio" name="gameMode" value="mainStory" checked="true" />推主线</label>
-    <label class="center-align"><input type="radio" name="gameMode" value="instance" />挂副本</label>
-    <label class="center-align"><input type="radio" name="gameMode" value="delegate" />接委托</label>
+    <label class="cyberpunk-checkbox-label"><input type="radio" class="cyberpunk-radio" name="gameMode"
+        value="mainStory" />推主线</label>
+    <label class="cyberpunk-checkbox-label"><input type="radio" class="cyberpunk-radio" name="gameMode"
+        value="instance" />挂副本</label>
+    <label class="cyberpunk-checkbox-label"><input type="radio" class="cyberpunk-radio" name="gameMode"
+        value="delegate" />接委托</label>
   </div>
   <div class="card-box select-menu neumorphism">
     <div class="select" style="width: 100%;">
@@ -28,7 +49,7 @@
     </div>
     <div class="option-list">
       <div class="option flex">
-        <label><input type="checkbox" />远古迷宫</label>
+        <label class="cyberpunk-checkbox-label"><input type="checkbox" class="cyberpunk-checkbox" />远古迷宫</label>
         <div class="second-select-menu">
           <div class="second-select">等级</div>
           <div class="second-option-list ">
@@ -199,10 +220,10 @@
     <label class="center-align"><input type="checkbox" name="shop" />商城购买</label>
   </div>
   <div class="temp">
-    <button id="startScript">Start</button>
-    <button id="updateScript">更新脚本</button>
+    <button id="startScript" class="neumorphism">Start</button>
+    <button id="updateScript" class="neumorphism">更新脚本</button>
 
-    <div>版本：1.0.0527 17:36</div>
+    <div id="version">版本：1.0.0531 17:09</div>
     <!-- <button id="updateGame" class="neumorphism">更新游戏包</button> -->
   </div>
   <script src="./ui.js"></script>

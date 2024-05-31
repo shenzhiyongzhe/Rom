@@ -138,9 +138,9 @@ const UI = () =>
     {
         ui.web.jsBridge.callHandler('InitUIData', JSON.stringify(game_config), (data) =>
         {
-            toastLog('web回调,data:' + data);
+            toastLog("更新数据成功");
         });
-    }, 3000);
+    }, 2000);
 };
 module.exports = UI;
 // UI();

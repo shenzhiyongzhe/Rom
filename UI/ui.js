@@ -17,6 +17,7 @@ const menuList = document.querySelectorAll(".select-menu");
 const startScript = document.querySelector("#startScript");
 const updateScript = document.querySelector("#updateScript");
 const shopCheckBox = document.querySelector("input[name=shop]");
+const version = document.querySelector("#version");
 //复选框
 beginnerCheckBox.addEventListener("click", () =>
 {
@@ -77,6 +78,10 @@ function InitUIData(data)
     {
         gameModeRadio[2].checked = true;
     }
+    beginnerCheckBox.checked = ui.isBeginner;
+    randomServerCheckBox.checked = ui.isRandomServer;
+    shopCheckBox.checked = ui.exception.shop;
+    // version.innerHTML = `版本：${game_config.setting.time}`;
     ui.instanceQueue.forEach((queue) =>
     {
         if (queue.type == "normal")

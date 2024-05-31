@@ -30,11 +30,19 @@ let game_config = {
         }
     },
     "ui": {
+        "gameMode": "mainStory",
         "isBeginner": false,
-        "gameMode": "mainStory"
+        "isRandomServer": false,
+        "instanceQueue": [],
+        "exception": {
+            "shop": false
+        }
     },
     "setting": {
-        "time": "2024-05-09T12:00:00.000Z"
+        "time": "2024-05-09T12:00:00.000Z",
+        "decompose": false,
+        "propLogin": false,
+        "storeMax": false
     }
 };
 const configUrl = "/sdcard/Rom/game_config.json";
@@ -62,7 +70,6 @@ function RWFile(type, obj)
     {
         data.setting = obj;
     }
-
     try
     {
         files.write(configUrl, JSON.stringify(data));

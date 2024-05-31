@@ -11,30 +11,41 @@ const { UnifyScreen, Exception } = require("./Exception.js");
 const { EnterInstanceZones } = require("./Instance.js");
 
 console.setGlobalLogConfig({
-    "file": "/sdcard/脚本/log/rom-log.txt",
+    "file": "/sdcard/Rom/rom-log.txt",
     "filePattern": "%d{dd日}%m%n"
 });
-
+const bird = "file://img/bird.png";
 const floaty_window = floaty.window(
     <frame gravity="center">
-        <button id="menuBtn" w="15" h="15" bg="#90dbdb"></button>
+        <frame gravity="center">
+            <img id="switch" src="{{bird}}" w="24" h="24" alpha="1" />
+        </frame>
     </frame>
 );
 
 floaty_window.setPosition(0, 60);
-let isRunning = true;
-floaty_window.menuBtn.click(function ()
+let mainThread;
+floaty_window.switch.click(function ()
 {
-    let color = floaty_window.menuBtn.attr("bg");
-    if (color == "#90dbdb")
+    let alpha = floaty_window.switch.attr("alpha");
+    if (alpha == "1")
     {
-        floaty_window.menuBtn.attr("bg", "#ff0000");
-        isRunning = false;
+        floaty_window.switch.attr("alpha", "0.5");
+        threads.shutDownAll();
+        console.log("main thread is stoped ");
     }
     else
     {
-        floaty_window.menuBtn.attr("bg", "#90dbdb");
-        isRunning = true;
+        floaty_window.switch.attr("alpha", "1");
+        mainThread = threads.start(function ()
+        {
+            setInterval(() =>
+            {
+                Check(game_config.ui.gameMode);
+            }, 4000);
+            console.log("start new main thread");
+        }
+        );
     }
 });
 
@@ -57,7 +68,7 @@ const Main = function (data)
 
     Sleep(3000, 5000);
     if (gameMode == "instance") EnterInstanceZones();
-    threads.start(function ()
+    mainThread = threads.start(function ()
     {
         setInterval(() =>
         {

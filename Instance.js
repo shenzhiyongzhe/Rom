@@ -2,6 +2,7 @@ const { game_config, ReadImg, Sleep, RandomPress, GoBack, PressMenu, PressBackpa
 const { Daily } = require("./Daily.js");
 const { GroceryFlow } = require("./Death.js");
 const { AbilityPointsFlow, MissionAwardFlow } = require("./Common.js");
+const { UseProps } = require("./BackPack.js");
 
 const WorldMap = {
     "06": "림스트", //林斯特
@@ -57,18 +58,27 @@ let curInstanceType = "normal";
 
 const GetInstanceQueue = function ()
 {
-    instanceQueue = [];
-    game_config.ui.instanceQueue.forEach((item) => { if (item.type == "special") instanceQueue.push(item); });
-    game_config.ui.instanceQueue.forEach((item) => { if (item.type == "normal") instanceQueue.push(item); });
-    game_config.ui.instanceQueue.forEach((item) => 
+    try
     {
-        if (item.type == "wild")
+        instanceQueue = [];
+        console.log("get instance queue:" + game_config.ui.instanceQueue);
+        game_config.ui.instanceQueue.forEach((item) => { if (item.type == "special") instanceQueue.push(item); });
+        game_config.ui.instanceQueue.forEach((item) => { if (item.type == "normal") instanceQueue.push(item); });
+        game_config.ui.instanceQueue.forEach((item) => 
         {
-            let obj = JSON.parse(JSON.stringify(item));
-            obj.index = obj.index + 6;
-            instanceQueue.push(obj);
-        }
-    });
+            if (item.type == "wild")
+            {
+                let obj = JSON.parse(JSON.stringify(item));
+                obj.index = obj.index + 6;
+                instanceQueue.push(obj);
+            }
+        });
+    } catch (error)
+    {
+        alert("出现错误~", error);
+        java.lang.System.exit(0);
+    }
+
 
 };
 //no money
@@ -143,6 +153,7 @@ function EnterInstanceZones()
 {
     Sleep(3000, 5000);
     Daily();
+    UseProps();
     GetInstanceQueue();
     PressMenu();
     Sleep(2000, 3000);
@@ -284,7 +295,7 @@ function HangUpWild(number)
             RandomPress([1166, 641, 74, 35]); //keyboard confirm
             RandomPress([89, 136, 242, 31]); //select
             hasMapNumber = images.findImage(captureScreen(), map_numberImg, { region: [85, 136, 105, 567] });
-            RandomPress([hasMapNumber.x + 10, hasMapNumber.y, 45, 15]);
+            // RandomPress([hasMapNumber.x + 10, hasMapNumber.y, 45, 15]);
             CollectedCheck(captureScreen());
         }
         else

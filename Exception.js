@@ -1,6 +1,6 @@
-const { ReadImg, Sleep, RandomPress, game_config, PressMenu } = require("./Global.js");
+const { ReadImg, Sleep, RandomPress, game_config, PressMenu, RWFile } = require("./Global.js");
 
-const { ReturnHome } = require("./BackPack.js");
+const { ReturnHome, StoreEquipment } = require("./BackPack.js");
 const { DeathFlow, GroceryFlow } = require("./Death.js");
 const { EnterInstanceZones } = require("./Instance.js");
 const { PropsCollectionFlow } = require("./PropsCollection.js");
@@ -70,12 +70,23 @@ function Exception()
         return false;
     }
     //背包满了
-    const isBackpackOverLoad = images.findImage(shot, imgArr.backpack_overload, { region: [967, 16, 65, 65] });
+    // const isBackpackOverLoad = images.findImage(shot, imgArr.backpack_overload, { region: [967, 16, 65, 65] });
     const isBackpackOverLoad100 = images.findImage(shot, imgArr.backpack_overload100, { region: [967, 16, 65, 65] });
-    if (isBackpackOverLoad || isBackpackOverLoad100)
+    if (isBackpackOverLoad100)
     {
         console.log("背包已满，需要清理背包");
         ExitHaltMode();
+        let setting = game_config.setting;
+        if (game_config.setting.storeMax == false || setting.storeMax == undefined)
+        {
+            ReturnHome();
+            StoreEquipment();
+            if (setting.storeMax == undefined)
+            {
+                game_config.setting.storeMax = false;
+                RWFile("setting", game_config.setting);
+            }
+        }
         PropsCollectionFlow();
         Sleep();
         return false;
@@ -139,9 +150,10 @@ function Exception()
         }
         return false;
     }
-    const hasStartGame = images.findMultiColors(shot, "#3e4638", [[21, -1, "#3b4437"], [133, -1, "#384034"], [131, 19, "#2f382b"], [6, 19, "#2b3227"]],
-        { region: [1073, 636, 192, 61] });
-    const hasStartGame_2 = images.findMultiColors(shot, "#393939", [[0, 15, "#2b2b29"], [105, 5, "#323232"], [102, 17, "#303030"]], { region: [25, 635, 180, 68] },);
+    const hasStartGame = images.findMultiColors(shot, "#373735", [[-1, 9, "#2f2f2f"], [-3, 18, "#2b2b2b"], [83, 2, "#353535"], [100, 2, "#353535"], [92, 21, "#2f2f2f"]],
+        { region: [17, 638, 192, 64] });
+    const hasStartGame_2 = images.findMultiColors(shot, "#394134", [[18, 2, "#384033"], [3, 15, "#2b3326"], [30, 15, "#2d3528"], [126, -1, "#373f32"], [127, 17, "#2f372a"]],
+        { region: [17, 638, 192, 64] },);
     if (hasStartGame || hasStartGame_2)
     {
         console.log("角色界面，点击开始游戏");
@@ -156,8 +168,11 @@ function Exception()
     const hasLongTimeTip = images.findMultiColors(shot, "#384033", [[3, 19, "#2c3729"], [40, 8, "#2e3629"], [139, 1, "#353d30"], [114, 13, "#333b2e"]], { region: [534, 419, 208, 77] });
     if (hasLongTimeTip)
     {
-        console.log("长时间未操作，自动点击");
-        RandomPress([571, 447, 140, 21]); return false;
+        console.log("长时间未操作，自动点击关闭游戏");
+        RandomPress([571, 447, 140, 21]);
+        Sleep(4000, 6000);
+        alert("暂时无法解决", "需手动处理");
+        return false;
     }
 
     const hasDead_1 = images.findMultiColors(shot, "#766c61", [[0, 32, "#7a7166"], [0, 76, "#8c847a"], [-22, 34, "#8c8987"], [31, 32, "#857b71"]],
@@ -188,7 +203,6 @@ function Exception()
     }
 
     const hasNoExp = images.findImage(shot, imgArr.no_exp, { region: [43, 528, 212, 67] });
-
     if (hasNoExp)
     {
         for (let i = 0; i < 10; i++)
@@ -213,6 +227,19 @@ function Exception()
             }
         }
 
+    }
+    let hasBlackScreen = images.findMultiColors(shot, "#000000", [[0, 618, "#000000"], [1167, 629, "#000000"], [1186, 13, "#000000"], [541, 307, "#000000"]]);
+    if (hasBlackScreen)
+    {
+        for (let i = 0; i < 5; i++)
+        {
+            Sleep(6000, 10000);
+            hasBlackScreen = images.findMultiColors(shot, "#000000", [[0, 618, "#000000"], [1167, 629, "#000000"], [1186, 13, "#000000"], [541, 307, "#000000"]]);
+            if (!hasBlackScreen) return false;
+        }
+
+        RestartApp(appName);
+        return false;
     }
     return true;
 
@@ -254,10 +281,11 @@ const UnifyScreen = function ()
     }
 };
 module.exports = { Exception, UnifyScreen };
+
 // UnifyScreen();
 // log(images.findMultiColors(captureScreen(), "#454442", [[24, 1, "#373737"], [47, 4, "#535353"], [73, 1, "#515151"], [91, 1, "#494947"]], { region: [516, 172, 271, 250] }));
 // console.time("exception");
 // Exception();
-// // const isBackpackOverLoad = images.findImage(captureScreen(), imgArr.backpack_overload, { region: [967, 16, 65, 65] });
-// // log(isBackpackOverLoad);
+// const isBackpackOverLoad = images.findImage(captureScreen(), imgArr.backpack_overload100, { region: [967, 16, 65, 65] });
+// log(isBackpackOverLoad);
 // console.timeEnd("exception");

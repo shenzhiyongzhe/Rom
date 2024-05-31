@@ -4,22 +4,22 @@
     box-sizing: border-box;
 }
 body {
-    background-color: #ecf0f3;
+    background-color: #B4F8C8;
     width: 100vw;
     display: flex;
-    row-gap: 10px;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
     flex-direction: column;
-    font-size: 10px;
+    font-size: 11px;
+    color:#170435
 }
 .neumorphism{
-    background-color: #ecf0f3;
-    box-shadow: 14px 14px 20px #cbced1,
-                 -14px -14px 20px white,
-               inset -6px -6px 10px #f7f9fc,
-               inset -6px -6px 10px rgb(216, 215, 215);
+    background-color: #B4F8C8;
+    box-shadow: 3px 3px 8px #d0f8dd,
+                 -3px -3px 8px #96dbab;
+               /* inset 3px 3px 3px #70a07e, */
+               /* inset -6px -6px 10px #a2ebb8; */
 }
 .card-box {
     width: 100vw;
@@ -27,8 +27,8 @@ body {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    row-gap: 16px;
-    padding: 10px;
+    padding: 8px;
+    margin-bottom: 12px;
 }
 .flex{
     display: flex;
@@ -78,13 +78,13 @@ input:focus {
     width: 100%;
     border-radius: 6px;
     top: 60px;
-    padding: 0 10px;
+    padding: 0 8px;
     max-height: 250px;
     overflow-y: hidden;
     transition: .2s linear .1s;
     z-index: 99;
     height: 0;
-    background-color: #5c7db9;
+    background-color: #89CFF0;
     font-size: 10px;
 }
 .second-option-list{
@@ -94,8 +94,8 @@ input:focus {
     top: 0;
     left: 60px;
     overflow-y: hidden;
+    background-color: #92A8D1;
     z-index: 999;
-    background-color: #1d7be6;
 
 }
 .option label{
@@ -106,18 +106,71 @@ input:focus {
 .option, .second-option {
     gap: 5px;
     height: 40px;
-    padding: 8px 0;
+    padding: 6px 0;
     transition: 0.2s ease-in-out;
 }
-
-.option input[type=checkbox]{
-    outline-style: none;
-    border: 1px solid #add3f0;
-    border-radius: 6px;
-    padding: 6px;
+.cyberpunk-checkbox {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #30cfd0;
+  border-radius: 5px;
+  background-color: transparent;
+  display: inline-block;
+  position: relative;
+  margin-right: 4px;
+  cursor: pointer;
 }
-
-
+.cyberpunk-checkbox:before {
+  content: "";
+  background-color: #30cfd0;
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  transition: all 0.3s ease-in-out;
+}
+.cyberpunk-checkbox:checked:before {
+  transform: translate(-50%, -50%) scale(1);
+}
+.cyberpunk-checkbox-label {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+}
+.cyberpunk-radio{
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #30cfd0;
+  border-radius: 50%;
+  background-color: transparent;
+  display: inline-block;
+  position: relative;
+  margin-right: 4px;
+  cursor: pointer;
+}
+.cyberpunk-radio:before {
+  content: "";
+  background-color: #30cfd0;
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transition: all 0.3s ease-in-out;
+}
+.cyberpunk-radio:checked:before {
+  transform: translate(-50%, -50%) scale(1);
+}
 .selected {
     color: #00a8ff;
 }
@@ -161,7 +214,67 @@ button{
 #startScript{
     width: 200px;
     padding: 10px;
-    border-radius: 20px;
-    background-color: rgb(124, 224, 219);
-    box-shadow: 10px 10px 20px rgb(145, 219, 216);
+    border-radius: 10px;
+}
+#updateScript{
+    width: 160px;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+#appbar{
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    background-color: #99f3b4;
+    font-size: 14px;
+    color: white;
+    border-bottom: 1px solid white;
+}
+.info-box{
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    padding: 10px 0 0 10px;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+.avatar{
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: url("../img/avatar.png");
+}
+.info{
+    width: calc(100vw - 84px);
+}
+.character-level{
+    display: flex;
+    margin-left:17px;
+    gap: 74px;
+    padding-bottom: 6px;
+}
+.info-box .account{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.info-box .account input{
+    width: 120px;
+    height: 22px;
+    font-size: 10px;
+    outline: none;
+    border-radius: 10px;
+    padding-left: 10px;
+    border: 1px solid white;
+}
+#time{
+    width: 120px;
 }

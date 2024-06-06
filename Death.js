@@ -1,5 +1,5 @@
 
-const { ReadImg, Sleep, RandomPress, GoBack, game_config } = require("./Global.js");
+const { ReadImg, Sleep, RandomPress, GoBack, game_config, RWFile } = require("./Global.js");
 
 const { WearEquipment } = require("./BackPack.js");
 const { Daily } = require("./Daily.js");
@@ -72,36 +72,60 @@ const CrucifixFlow = function ()
     return needToEquip;
 };
 
+const RandomSwipe = function ([x1, y1, w1, h1], [x2, y2, w2, h2])
+{
+    let x1 = random() * w1 + x1;
+    let y1 = random() * h1 + y1;
+    let x2 = random() * w2 + x2;
+    let y2 = random() * h2 + y2;
+    const duration = random() * 100 + 400;
+    swipe(x1, y1, x2, y2, duration);
+    Sleep(2000, 3000);
+};
+// RandomSwipe([168, 507, 213, 41], [167, 143, 211, 35]);
+// RandomSwipe([168, 507, 213, 41], [167, 143, 211, 35]);
 //购买药水
 const GroceryFlow = function ()
 {
     RandomPress([77, 275, 97, 28]);
-    const potion = ReadImg("grocery_potion");
-    for (let i = 0; i < 30; i++)
+    const potion = ReadImg("grocery_bigPotion");
+    for (let i = 0; i < 10; i++)
     {
         let hasPotion = images.findImage(captureScreen(), potion, { region: [69, 112, 91, 91] });
         if (hasPotion) break;
         Sleep(3000, 5000);
     }
+    log("start grocery");
     potion.recycle();
     Sleep();
-    RandomPress([158, 139, 222, 51]); //potion
-    Sleep();
-    RandomPress([821, 370, 51, 23]); // max
-    RandomPress([684, 527, 167, 23]);// confirm
-    Sleep(3000, 5000);
-    const isNoMoney = images.findMultiColors(captureScreen(), "#3e4638", [[21, 2, "#363e32"], [139, 1, "#383f34"], [141, 18, "#32392d"], [19, 16, "#30382b"]],
-        { region: [653, 504, 218, 68] });
-    if (isNoMoney)
+    let setting = game_config.setting;
+    if (setting.autoGrocery == false || setting.autoGrocery == undefined)
     {
-        console.log("No money to buy potion");
-        if (random() > 0.5) RandomPress([439, 528, 161, 21]);
-        else RandomPress([883, 139, 29, 14]);
+        // set auto purchase;
+        RandomPress([65, 662, 295, 25]); //set auot btn;
+        Sleep();
+        RandomPress([281, 214, 33, 14]); // max big potion
+        RandomSwipe([168, 507, 213, 41], [167, 143, 211, 35]);
+        Sleep();
+        RandomSwipe([168, 507, 213, 41], [167, 143, 211, 35]);
+        Sleep(2000, 3000);
+        const returnHome = ReadImg("grocery_returnHome");
+        const hasReturnHome = images.findImage(captureScreen(), returnHome, { region: [86, 352, 64, 64] });
+        if (hasReturnHome)
+        {
+            RandomPress([156, 437, 37, 14]); // 10 per return home
+            RandomPress([156, 313, 38, 17]); // randomPostion 10 per
+        }
+        RandomPress([231, 660, 152, 31]); // save setting
+        setting.autoGrocery = true;
+        RWFile("setting", setting);
     }
-    RandomPress([1138, 16, 133, 32]); //go back
-
+    // auto purchase
+    RandomPress([930, 658, 302, 30]); // purchase 
+    GoBack();
 };
-
+// GroceryFlow();
+// log(images.findImage(captureScreen(), ReadImg("grocery_returnHome"), { region: [86, 352, 64, 64] }));
 //死亡流程 点击确认按钮，购买药水
 function DeathFlow()
 {
@@ -129,3 +153,4 @@ module.exports = { DeathFlow, GroceryFlow };
 // CrucifixFlow();
 // MissionAwardFlow();
 // GroceryFlow();
+// log(images.findImage(captureScreen(), ReadImg("grocery_returnHome"), { region: [47, 108, 358, 493] }));

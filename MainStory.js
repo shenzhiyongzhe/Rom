@@ -1,5 +1,5 @@
 const { ReadImg, Sleep, RandomPress, GoBack, PressMenu, } = require("./Global.js");
-const { UseProps, WearEquipment } = require("./BackPack.js");
+const { WearEquipment, OpenEquipmentBox, StrengthenEquipment } = require("./BackPack.js");
 const { AbilityPointsFlow, MissionAwardFlow } = require("./Common.js");
 const { Daily } = require("./Daily.js");
 const CraftFlow = require("./Craft.js");
@@ -39,16 +39,17 @@ const MissionFinishCheck = function (shot)
 const TraceOnMission = function (shot)
 {
     const isHighLight = images.findMultiColors(shot, "#67472e", [[10, 0, "#67472d"], [25, 0, "#68482d"], [35, 0, "#68462d"]],
-        { region: [1084, 110, 92, 20] });
+        { region: [1084, 170, 92, 20] });
     if (isHighLight) return;
 
-    const hasMissionScrollIcon = images.findMultiColors(shot, "#a3905f", [[-4, 10, "#4a3c18"], [-13, 14, "#806d2b"], [297, -15, "#b7a78d"], [288, 3, "#9f9d91"], [282, 14, "#6b7b95"], [289, 17, "#4c5661"]],
-        { region: [920, 59, 356, 81] });
+    const hasMissionScrollIcon = images.findMultiColors(shot, "#caba9a", [[0, 4, "#d1c4a2"], [-5, 6, "#89785b"], [-9, 16, "#a6a5a0"],
+    [-8, 27, "#57626d"], [-13, 32, "#5d6b80"], [-5, 32, "#48535b"], [-296, 72, "#a89969"], [-294, 78, "#8f7c42"], [-299, 83, "#483814"], [-304, 85, "#97813b"], [-307, 90, "#8b792e"]],
+        { region: [927, 57, 341, 137] });
     const isNotSkip = images.findMultiColors(shot, "#afa17a", [[17, 0, "#9b8e64"], [-1, 11, "#9b8d62"], [14, 12, "#3b362b"]],
         { region: [1213, 10, 50, 46] });
     if (hasMissionScrollIcon && isHighLight == null)
     {
-        RandomPress([986, 89, 210, 36]);
+        RandomPress([977, 150, 220, 32]);
         console.log("start new mission");
         const hasTransformPopup = images.findMultiColors(captureScreen(), "#363637", [[108, -1, "#343434"], [133, -3, "#353536"], [207, -3, "#3e4638"], [345, -1, "#353c2f"]],
             { region: [419, 448, 432, 70] });
@@ -82,17 +83,17 @@ const GetNewProps = function (shot)
     if (hasEquipPoint)
     {
         WearEquipment(false);
-        Sleep();
-        return;
     }
     else
     {
-        UseProps(false);
+        RandomPress([1087, 20, 36, 32]);
+        OpenEquipmentBox();
         Sleep();
-        if (random() > 0.5) RandomPress([1094, 25, 22, 26]);
-        else RandomPress([1244, 69, 30, 14]);
+        StrengthenEquipment("weapon");
+        Sleep();
+        StrengthenEquipment("armor");
+        Sleep();
     }
-
 };
 
 const gapTime = 10;
@@ -155,4 +156,5 @@ const MainStory = function ()
 };
 
 
-module.exports = { MainStory };
+// module.exports = { MainStory };
+MainStory();

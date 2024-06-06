@@ -57,7 +57,7 @@ const AbilityPointsFlow = function ()
     }
     else
     {
-        RandomPress([22, 15, 44, 43]);
+        RandomPress([18, 15, 53, 20]);
     }
     abilityPoint_66.recycle();
 };

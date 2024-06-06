@@ -119,8 +119,8 @@ const PropsCollectionFlow = function ()
 
     GoBack();
     Sleep();
-    DecomposeProps();
-    Sleep();
+    // DecomposeProps();
+    // Sleep();
 
 };
 // PropsCollectionFlow();

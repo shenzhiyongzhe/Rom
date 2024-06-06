@@ -2,7 +2,7 @@ const { game_config, ReadImg, Sleep, RandomPress, GoBack, PressMenu, PressBackpa
 const { Daily } = require("./Daily.js");
 const { GroceryFlow } = require("./Death.js");
 const { AbilityPointsFlow, MissionAwardFlow } = require("./Common.js");
-const { UseProps } = require("./BackPack.js");
+const { OpenEquipmentBox, WearEquipment, StrengthenEquipment } = require("./BackPack.js");
 
 const WorldMap = {
     "06": "림스트", //林斯特
@@ -151,9 +151,20 @@ const InstanceCheck = function ()
 
 function EnterInstanceZones()
 {
+    const menuIcon = ReadImg("menu_icon");
+    const hasMenuIcon = images.findImage(captureScreen(), menuIcon, { region: [1213, 4, 51, 53] });
+    menuIcon.recycle();
+    if (!hasMenuIcon) return;
     Sleep(3000, 5000);
     Daily();
-    UseProps();
+    OpenEquipmentBox();
+    Sleep();
+    WearEquipment();
+    Sleep();
+    StrengthenEquipment("weapon");
+    Sleep();
+    StrengthenEquipment("armor");
+    Sleep();
     GetInstanceQueue();
     PressMenu();
     Sleep(2000, 3000);
@@ -207,14 +218,11 @@ function EnterInstanceZones()
             RandomPress([1178, 20, 90, 35]);
             AutoBattleCheck();
             Sleep();
-            Daily();
-            RandomPress([19, 449, 25, 14]); //省电按钮
-            return;
+            break;
         }
         RandomPress([680, 469, 142, 24]); // confirm
         console.log("Entering instance " + instanceQueue[i].type + " " + instanceQueue[i].index + " level " + instanceQueue[i].level);
         Sleep(5000, 20000);
-        RandomPress([1165, 552, 26, 24]); // auto battle
         break;
     }
 

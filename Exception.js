@@ -14,8 +14,8 @@ const imgArr = {
     backpack_overload100: ReadImg("exception_backpackOverload100"),
     no_exp: ReadImg("exception_noExp")
 };
-const appName = "com.kakaogames.rom";
-function RestartApp(appName)
+const romApp = "com.kakaogames.rom";
+const RestartApp = function (appName)
 {
     app.openAppSetting(appName);
     text(app.getAppName(appName)).waitFor();
@@ -34,8 +34,13 @@ function RestartApp(appName)
     home();
     sleep(5000);
     app.launch(appName);
-    Sleep(15000, 25000);
-}
+    Sleep(60000, 120000);
+};
+const LaunchApp = function (appName)
+{
+    app.launch(appName);
+    Sleep(60000, 120000);
+};
 const ExitHaltMode = function ()
 {
     const x1 = 630 + random(-20, 20);
@@ -66,7 +71,7 @@ function Exception()
         RandomPress([462, 449, 146, 18]);
         Sleep(3000, 5000);
         app.launch("com.kakaogames.rom");
-        Sleep(20000, 30000);
+        LaunchApp(romApp);
         return false;
     }
     //背包满了
@@ -98,8 +103,7 @@ function Exception()
         console.log("检测到游戏不正常运行，游戏终止");
         RandomPress([568, 444, 148, 24]);
         Sleep(10000, 15000);
-        app.launch("com.kakaogames.rom");
-        Sleep(20000, 30000);
+        LaunchApp(romApp);
         return false;
     }
 
@@ -143,7 +147,7 @@ function Exception()
                 if (i == 9)
                 {
                     //restart game
-                    RestartApp(appName);
+                    RestartApp(romApp);
                 }
             }
             else break;
@@ -158,7 +162,7 @@ function Exception()
     {
         console.log("角色界面，点击开始游戏");
         RandomPress([1106, 660, 132, 21]);
-        Sleep(15000, 20000);
+        Sleep(30000, 60000);
         if (images.findImage(captureScreen(), imgArr.potion_zero, { region: [941, 618, 77, 78] }))
         {
             GroceryFlow();
@@ -179,11 +183,15 @@ function Exception()
         { region: [576, 49, 131, 135] });
     const hasDead_2 = images.findMultiColors(shot, "#3b4336", [[35, 0, "#394134"], [132, -1, "#393f33"], [135, 21, "#333b2e"], [13, 17, "#2b3326"]],
         { region: [522, 531, 245, 66] });
+    const hasDead_3 = images.findMultiColors(shot, "#96938a", [[10, 0, "#8d8680"], [55, -1, "#83776b"], [21, 35, "#8a8379"], [22, 56, "#7a7064"]],
+        { region: [575, 89, 131, 96] });
     const hasRevive = findMultiColors(shot, "#401b06", [[25, -3, "#3c1906"], [143, -2, "#381706"], [153, 22, "#321504"], [4, 21, "#2d1204"]],
         { region: [528, 542, 229, 66] });
 
     const hasDeadConfirm = images.findMultiColors(shot, "#3e4638", [[24, 2, "#384134"], [154, 2, "#373f33"], [154, 25, "#32392d"], [11, 25, "#2a3226"]],
         { region: [530, 529, 224, 67] });
+    const hasDeadConfirm_2 = images.findMultiColors(shot, "#3e4637", [[26, -1, "#3a4235"], [10, 21, "#2c3427"], [157, 2, "#373f32"], [158, 25, "#2f372a"]],
+        { region: [530, 529, 212, 63] });
     if ((hasDead_1 || hasDead_2) && hasRevive)
     {
         Sleep(1000, 5000);
@@ -194,7 +202,7 @@ function Exception()
         DeathFlow();
         return false;
     }
-    else if ((hasDead_1 || hasDead_2) && hasDeadConfirm)
+    else if ((hasDead_1 || hasDead_2 || hasDead_3) && (hasDeadConfirm || hasDeadConfirm_2))
     {
         RandomPress([555, 547, 168, 32]);
         Sleep(5000, 8000);
@@ -250,17 +258,17 @@ const UnifyScreen = function ()
     let shot = captureScreen();
     const menuIcon = ReadImg("menu_icon");
     const hasMenu = images.findImage(shot, menuIcon, { region: [1206, 6, 68, 64] });
+    menuIcon.recycle();
     if (hasMenu)
     {
-        menuIcon.recycle();
         return;
     };
     const back = ReadImg("back");
     const hasBack = images.findImage(shot, back, { region: [1206, 3, 64, 63] });
+    back.recycle();
     if (hasBack)
     {
         GoBack();
-        back.recycle();
         return;
     }
     const justStartGame_01 = images.findMultiColors(shot, "#231f20", [[8, 233, "#231f20"], [5, 619, "#231f20"], [536, -20, "#231f20"], [1215, -16, "#231f20"],
@@ -269,7 +277,7 @@ const UnifyScreen = function ()
     [924, 452, "#000000"], [511, 438, "#000000"]]);
     if (justStartGame_01 || justStartGame_02)
     {
-        Sleep(10000, 20000);
+        Sleep(60000, 120000);
         return;
     }
     const inSaveMode = images.findMultiColors(shot, "#454442", [[24, 1, "#373737"], [47, 4, "#535353"], [73, 1, "#515151"], [91, 1, "#494947"]], { region: [516, 172, 271, 250] });

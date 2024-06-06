@@ -62,6 +62,7 @@ const Main = function (data)
     Sleep(3000, 4000);
     for (let i = 0; i < 5; i++)
     {
+        Sleep();
         UnifyScreen();
         Exception();
     }

@@ -3,6 +3,6 @@
     "main": "main.js",
     "ignore": ["build", "_gsdata_", "tool.js", "test.js"],
     "packageName": "com.autojs.rom",
-    "versionName": "1.0.0531",
+    "versionName": "1.0.0603",
     "versionCode": 1
 }

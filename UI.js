@@ -140,7 +140,7 @@ const UI = () =>
         {
             toastLog("更新数据成功");
         });
-    }, 2000);
+    }, 1000);
 };
 module.exports = UI;
 // UI();

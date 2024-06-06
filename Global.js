@@ -42,7 +42,9 @@ let game_config = {
         "time": "2024-05-09T12:00:00.000Z",
         "decompose": false,
         "propLogin": false,
-        "storeMax": false
+        "storeMax": false,
+        "autoGrocery": false,
+        "autoShop": false
     }
 };
 const configUrl = "/sdcard/Rom/game_config.json";

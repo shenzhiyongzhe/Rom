@@ -1,5 +1,5 @@
 const { game_config, ReadImg, Sleep, RandomPress, GoBack, PressBlank, RWFile, } = require("./Global.js");
-
+const { NumberRecognition } = require("./utils.js");
 const BackPackImg = {
     E: ReadImg("E"),
     confirm: ReadImg("backPack_confirm"),
@@ -8,94 +8,166 @@ const BackPackImg = {
     equipmentVanish: ReadImg("backPack_equipmentVanish"),
     blank: ReadImg("backPack_blank")
 };
-const BackPackPos = {
-    icon: [1090, 20, 25, 15],
-    close: [1240, 70, 23, 10],
-    equipment: [1237, 210, 10, 20], //背包装备
-    equipmentSort: [1073, 507, 23, 23], //背包装备排序
-    sortByLevel: [1030, 420, 100, 15], //背包装备按等级排序
-
-    props: [1230, 286, 31, 30], //背包道具
-    props_scroll_weaponPage: [1228, 205, 21, 24],
-    props_scroll_defencePage: [1228, 286, 21, 22],
-
-    strengthenBtn: [931, 660, 286, 37],
-
-    pageBack: [1181, 23, 69, 22]
-};
-const BackPackCheckPos = {
-    icon: [1064, 1, 79, 71],
-    equipment_vanish: [117, 627, 276, 56],
-
-};
-/*@description：穿戴背包中的装备
+/**
+ * 
+ * @param {*} page "equipment" or "props"
+ * @returns 
  */
-const IsQualityBetter = function ()
+const OpenBackpack = function (page)
 {
+    let openSuccess = false;
+    log("open backpack");
     Sleep();
-    const shot = captureScreen();
-    let curEquipColor = null;
-    let equipColor = null;
-    let isWhite = images.findMultiColors(shot, "#2a2b2b", [[23, -2, "#2e2f2f"], [56, 26, "#494a4a"], [57, 46, "#414242"]], { region: [51, 55, 114, 109] });
-    let isGreen = images.findMultiColors(shot, "#233222", [[21, 0, "#233c20"], [61, 31, "#425a23"], [60, 59, "#385527"]], { region: [51, 55, 114, 109] });
-    let isBlue = images.findMultiColors(shot, "#1e2b34", [[29, 0, "#1d3442"], [59, 20, "#295e75"], [58, 35, "#214d62"]], { region: [51, 55, 114, 109] });
-    if (isWhite) curEquipColor = "white";
-    else if (isGreen) curEquipColor = "green";
-    else if (isBlue) curEquipColor = "blue";
+    const menuIcon = ReadImg("menu_icon");
+    const isBackPack = findImage(captureScreen(), menuIcon, { region: [1211, 2, 58, 57] });
+    menuIcon.recycle();
+    if (isBackPack == null)
+    {
+        openSuccess = false;
+        return openSuccess;
+    }
 
-    isWhite = images.findMultiColors(shot, "#2a2b2b", [[23, -2, "#2e2f2f"], [56, 26, "#494a4a"], [57, 46, "#414242"]], { region: [566, 59, 95, 97] });
-    isGreen = images.findMultiColors(shot, "#233222", [[21, 0, "#233c20"], [61, 31, "#425a23"], [60, 59, "#385527"]], { region: [566, 59, 95, 97] });
-    isBlue = images.findMultiColors(shot, "#1e2b34", [[29, 0, "#1d3442"], [59, 20, "#295e75"], [58, 35, "#214d62"]], { region: [566, 59, 95, 97] });
-    if (isWhite) equipColor = "white";
-    else if (isGreen) equipColor = "green";
-    else if (isBlue) equipColor = "blue";
-
-
-    if (curEquipColor == null || equipColor == null) return false;
-    else if (curEquipColor == "white" && equipColor == "green") return true;
-    else if (curEquipColor == "white" && equipColor == "blue") return true;
-    else if (curEquipColor == "green" && equipColor == "blue") return true;
-    else return false;
-    // return [curEquipColor, equipColor];
+    RandomPress([1091, 21, 29, 28]);
+    Sleep(3000, 4000);
+    if (page == "equipment")
+    {
+        RandomPress([1237, 207, 19, 29]);
+    }
+    else if (page == "props")
+    {
+        RandomPress([1235, 285, 28, 28]);
+    }
+    Sleep();
+    openSuccess = true;
+    return openSuccess;
 };
-function WearEquipment(needOpen, needClose)
+
+const IsEquiped = function (shot, region)
 {
+    const E_colorArr = [
+        ["#aeada1", [[0, 3, "#b8b8a9"], [0, 7, "#b7b7a8"], [10, 2, "#bdbcb0"], [10, 5, "#bebdb0"]]],
+        ["#aaa99c", [[0, 2, "#b8b8a9"], [0, 6, "#b7b7a8"], [10, 2, "#bdbbae"], [10, 4, "#bebbae"]]],
+        ["#b3b2a4", [[0, 4, "#b5b5a8"], [0, 6, "#babaab"], [10, 1, "#bdb9aa"], [10, 3, "#bdbaaa"]]],
+        ["#bdbdae", [[0, 3, "#bbbbb2"], [0, 5, "#bfbfae"], [10, 0, "#bcb7a8"], [10, 2, "#bcb8a9"]]],
+
+    ];
+    for (let i = 0; i < E_colorArr.length; i++)
+    {
+        let hasE = images.findMultiColors(shot, E_colorArr[i][0], E_colorArr[i][1], { region: region });
+        if (hasE) return true;
+    }
+    return false;
+};
+const GetWeaponColor = function (shot, region)
+{
+    const ColorObj = {
+        "purple": [
+            ["#31213c", [[4, 0, "#3d244b"], [27, 20, "#59326b"], [27, 26, "#4f2861"]]],
+        ],
+        "blue": [
+            ["#1c465c", [[14, 15, "#265e75"], [14, 20, "#20576e"], [15, 23, "#1f566d"], [15, 32, "#204b60"]]],
+            ["#235e75", [[0, 3, "#2d6278"], [0, 9, "#215971"], [0, 19, "#204e64"], [-15, -14, "#1c4257"]]],
+            ["#1c3b4e", [[15, 15, "#246078"], [15, 18, "#296077"], [15, 22, "#235b72"], [15, 27, "#22546a"]]],
+            ["#1e2f3b", [[7, 0, "#1d3441"], [12, 0, "#1b4255"], [33, 18, "#225870"], [33, 30, "#214c60"]]]
+        ],
+        "green": [
+            ["#233b20", [[6, 0, "#273d21"], [15, 0, "#2d4520"], [32, 21, "#435b25"], [32, 31, "#3a5526"]]],
+            ["#223a20", [[9, 0, "#283e21"], [19, 1, "#374d20"], [33, 20, "#425a26"], [33, 38, "#365421"]]],
+            ["#273d21", [[13, 2, "#30481f"], [25, 18, "#4b642b"], [25, 24, "#475c23"], [25, 33, "#3a5425"]]],
+            ["#293f21", [[10, 3, "#374e20"], [24, 16, "#4b6226"], [24, 26, "#465b23"], [24, 35, "#385423"]]],
+            ["#233a21", [[8, 0, "#253b21"], [11, 0, "#283e21"], [18, 0, "#2e451f"], [36, 16, "#4a6228"]]],
+            ["#4a6226", [[0, 4, "#455e26"], [1, 9, "#485d24"], [-1, 13, "#3d5422"], [0, 18, "#395426"]]]
+        ],
+        "white": [
+            ["#2e2f2f", [[13, 0, "#3c3c3c"], [27, 14, "#4e4f4f"], [26, 21, "#494a4a"], [29, 45, "#434444"]]],
+            ["#303131", [[7, -1, "#393a3a"], [27, 13, "#4e4f4f"], [27, 19, "#484949"], [27, 36, "#414242"]]],
+            ["#2e3030", [[7, 0, "#2f3030"], [19, 0, "#3c3e3e"], [32, 14, "#4d4e4e"], [33, 22, "#484949"]]],
+            ["#343535", [[8, 0, "#3c3e3e"], [22, 13, "#4c4e4e"], [22, 19, "#474848"], [22, 24, "#484949"]]]
+        ]
+    };
+    for (let key in ColorObj)
+    {
+        for (let color in ColorObj[key])
+        {
+            let hasColor = images.findMultiColors(shot, ColorObj[key][color][0], ColorObj[key][color][1], { region: region });
+            if (hasColor) return key;
+        }
+    }
+    return "unknown color";
+};
+// log(IsEquiped(captureScreen(), [1178, 99, 33, 27]));
+// log(GetWeaponColor(captureScreen(), [879, 116, 95, 90]));
+/**
+ * 
+ * @param {*} shot 
+ * @param {*} region 
+ * @returns 
+ */
+const BlankCheck = function (shot, region)
+{
+    const isBlank = images.findMultiColors(shot, "#191919", [[25, 1, "#1e1e1f"], [51, 2, "#1e1f1f"], [51, 23, "#1f1f20"], [50, 48, "#1b1c1d"], [26, 49, "#181819"],
+    [2, 49, "#181919"], [-1, 26, "#19191a"], [14, 14, "#1b1b1b"], [36, 16, "#1f1f1f"], [24, 31, "#1b1b1d"]], { region: region });
+    if (isBlank) return true;
+    return false;
+};
+const WearEquipment = function (needOpen, needClose)
+{
+    const IsQualityBetter = function ()
+    {
+        Sleep();
+        const shot = captureScreen();
+        let curEquipColor = null;
+        let equipColor = null;
+        let isWhite = images.findMultiColors(shot, "#2a2b2b", [[23, -2, "#2e2f2f"], [56, 26, "#494a4a"], [57, 46, "#414242"]], { region: [51, 55, 114, 109] });
+        let isGreen = images.findMultiColors(shot, "#233222", [[21, 0, "#233c20"], [61, 31, "#425a23"], [60, 59, "#385527"]], { region: [51, 55, 114, 109] });
+        let isBlue = images.findMultiColors(shot, "#1e2b34", [[29, 0, "#1d3442"], [59, 20, "#295e75"], [58, 35, "#214d62"]], { region: [51, 55, 114, 109] });
+        if (isWhite) curEquipColor = "white";
+        else if (isGreen) curEquipColor = "green";
+        else if (isBlue) curEquipColor = "blue";
+
+        isWhite = images.findMultiColors(shot, "#2a2b2b", [[23, -2, "#2e2f2f"], [56, 26, "#494a4a"], [57, 46, "#414242"]], { region: [566, 59, 95, 97] });
+        isGreen = images.findMultiColors(shot, "#233222", [[21, 0, "#233c20"], [61, 31, "#425a23"], [60, 59, "#385527"]], { region: [566, 59, 95, 97] });
+        isBlue = images.findMultiColors(shot, "#1e2b34", [[29, 0, "#1d3442"], [59, 20, "#295e75"], [58, 35, "#214d62"]], { region: [566, 59, 95, 97] });
+        if (isWhite) equipColor = "white";
+        else if (isGreen) equipColor = "green";
+        else if (isBlue) equipColor = "blue";
+
+
+        if (curEquipColor == null || equipColor == null) return false;
+        else if (curEquipColor == "white" && equipColor == "green") return true;
+        else if (curEquipColor == "white" && equipColor == "blue") return true;
+        else if (curEquipColor == "green" && equipColor == "blue") return true;
+        else return false;
+        // return [curEquipColor, equipColor];
+    };
     log("开始穿戴装备");
     needOpen = needOpen || true;
     needClose = needClose || true;
-    if (needOpen == true)
-    {
-        const isBackPack = findImage(captureScreen(), BackPackImg.icon, { region: BackPackCheckPos.icon });
-        if (isBackPack == null) return;
-
-        RandomPress(BackPackPos.icon);
-        Sleep(3000, 4000);
-    }
-
-    RandomPress([1238, 211, 25, 25]);
-    const isfewEquip = images.findImage(captureScreen(), BackPackImg.blank, { region: [1137, 254, 85, 70] });
-    if (isfewEquip == null)
-    {
-        RandomPress(BackPackPos.equipmentSort);
-        Sleep();
-        RandomPress(BackPackPos.sortByLevel);
-        Sleep();
-    }
+    needOpen && OpenBackpack("equipment");
 
     let shot = captureScreen();
+    const isfewEquip = BlankCheck(shot, [1145, 253, 64, 67]);
+    if (!isfewEquip)
+    {
+        RandomPress([1076, 508, 21, 22]);
+        Sleep();
+        RandomPress([1041, 422, 97, 18]);
+        Sleep();
+        shot = captureScreen();
+    }
 
     const plus = ReadImg("plus");
-    for (let i = 0; i < 5; i++)
+    const E = ReadImg("E");
+    out: for (let i = 0; i < 5; i++)
     {
         for (let j = 0; j < 5; j++)
         {
-            let isEquip = images.findImage(shot, BackPackImg.E, { region: [920 + j * 65, 110 + i * 65, 40, 40], threshold: 0.8, });
-            let isBlank = images.findImage(shot, BackPackImg.blank, { region: [890 + j * 65, 125 + i * 65, 50, 50] });
+            let isEquip = images.findImage(shot, E, { region: [920 + j * 65, 110 + i * 65, 40, 40], threshold: 0.8, });
+            let isBlank = BlankCheck(shot, [890 + j * 65, 125 + i * 65, 50, 50]);
             if (isBlank)
             {
-                RandomPress(BackPackPos.close);
                 Sleep();
-                return;
+                break out;
             }
             if (isEquip) continue;
             if (i > 2)
@@ -121,341 +193,202 @@ function WearEquipment(needOpen, needClose)
             }
         }
         Sleep();
-
     }
     plus.recycle();
-    if (needClose)
-    {
+    E.recycle();
+    needClose && OpenBackpack();
+    Sleep();
+    log("穿戴装备完成");
+};
+// WearEquipment();
 
-        RandomPress(BackPackPos.close);
+const OpenEquipmentBox = function ()
+{
+    log("打开装备箱");
+    OpenBackpack("props");
+    const equipmentImg = ReadImg("props/treasureBox_white_nomal_equipment_tied");
+    const hasEquipmentBox = images.findImage(captureScreen(), equipmentImg, { region: [885, 111, 327, 341] });
+    if (hasEquipmentBox)
+    {
+        RandomPress([hasEquipmentBox.x, hasEquipmentBox.y, 40, 30]);
+        RandomPress([hasEquipmentBox.x, hasEquipmentBox.y, 40, 30]);
+        const hasPopup = images.findMultiColors(captureScreen(), "#3c4538", [[0, 11, "#2b3327"], [80, -1, "#383f33"], [78, 12, "#333a2e"], [92, 10, "#2f362b"]],
+            { region: [646, 502, 120, 49] });
+        if (hasPopup)
+        {
+            RandomPress([655, 509, 99, 30]);
+        }
+        RandomPress([327, 400, 921, 198]); //blank
+        for (let i = 0; i < 5; i++)
+        {
+            Sleep();
+            let hasNextPage = images.findMultiColors(captureScreen(), "#695837", [[9, 0, "#665535"], [17, 0, "#4a3f26"], [25, 0, "#5f4f33"], [34, 2, "#73603c"], [45, 2, "#705f3b"]],
+                { region: [595, 163, 89, 44] });
+            if (hasNextPage)
+            {
+                RandomPress([327, 400, 921, 198]); //blank
+            }
+            else break;
+        }
     }
     Sleep();
-}
 
-
-
-function WearSlabStone(type)
-{
-    RandomPress([1225, 20, 26, 24]);
-    if (type == "suit")
-    {
-        RandomPress([961, 125, 22, 44]);
-    }
-    else if (type == "guardian")
-    {
-        RandomPress([1029, 116, 20, 53]);
-    }
-    Sleep(5000, 6000);
-    const ifFirstWear = images.findMultiColors(captureScreen(), "#394235", [[2, 14, "#2c3428"], [1, 27, "#2b3427"], [100, 0, "#394235"], [100, 24, "#31392d"]], { region: [992, 476, 203, 88] });
-    if (ifFirstWear)
-    {
-        RandomPress([1043, 512, 117, 27]);
-        return;
-    }
-    else
-    {
-        RandomPress([224, 575, 68, 105]);
-        RandomPress([1043, 512, 117, 27]);
-    }
-    const suitCollectionTipPoint = images.findMultiColors(captureScreen(), "#c7321f", [[3, 0, "#cb2f20"], [-1, 3, "#ca2a19"], [2, 3, "#bb2316"]], { region: [356, 75, 60, 48] });
-    if (suitCollectionTipPoint)
-    {
-        RandomPress([306, 102, 62, 19]);
-        RandomPress([1175, 12, 98, 33]);
-    }
-}
-// WearSlabStone("guardian");
-function GetWeaponColor(shot, [x, y, w, h])
-{
-    const isPurple = images.findMultiColors(shot, "#31213c", [[4, 0, "#3d244b"], [27, 20, "#59326b"], [27, 26, "#4f2861"]], { region: [x, y, w, h] });
-    const isBlue = images.findMultiColors(shot, "#1c3340", [[11, 0, "#1d3c4f"], [26, 28, "#214f65"], [26, 35, "#204b61"]], { region: [x, y, w, h] });
-    const isGreen = images.findMultiColors(shot, "#4b6329", [[0, 6, "#445b25"], [0, 9, "#465a22"], [0, 15, "#3a5325"]], { region: [x, y, w, h] });
-    if (isPurple) return "purple";
-    else if (isBlue) return "blue";
-    else if (isGreen) return "green";
-    else return false;
+    OpenBackpack();
+    equipmentImg.recycle();
+    log("装备箱打开完成");
 };
-function IsLeadToVanish()
+// OpenEquipmentBox();
+// ------------------------------strenghten weapon----------------------------------
+
+// log(GetWeaponColor(captureScreen(), [884, 105, 61, 60]));
+const IsLeadToVanish = function ()
 {
-    const isVanish = images.findImage(images.captureScreen(), BackPackImg.equipmentVanish, { region: BackPackCheckPos.equipment_vanish, threshold: 0.8 });
+    const isVanish = images.findImage(images.captureScreen(), BackPackImg.equipmentVanish, { region: [75, 616, 340, 76], threshold: 0.8 });
     if (isVanish != null) return true;
     else return false;
 };
-function OpenTreasureBox()
+/**
+ * 
+ * @param {*} type "weapon" or "armor"
+ */
+const getScroll = function (type)
 {
-    Sleep();
+    let scroll;
+    if (type == "weapon") scroll = ReadImg("props/strengthenScroll_weapon_tied");
+    else if (type == "armor") scroll = ReadImg("props/strengthenScroll_armor_tied");
     const shot = captureScreen();
-    const hasConfirm_small = images.findMultiColors(shot, "#fefefd", [[7, 7, "#f9f9f5"], [13, 87, "#3a4336"], [12, 104, "#343b2f"]], { region: [695, 374, 82, 182] });
-    const hasConfirm_big = images.findMultiColors(shot, "#3b3b3b", [[-3, 18, "#313131"], [25, 11, "#303032"], [440, 0, "#384034"], [450, 21, "#30372b"]],
-        { region: [370, 511, 561, 76] });
-    if (hasConfirm_small)
+    for (let i = 0; i < 5; i++)
     {
-        RandomPress([664, 512, 86, 25]);
-        PressBlank();
-        return;
-    }
-    if (hasConfirm_big)
-    {
-        RandomPress([782, 454, 41, 26]);
-        RandomPress([703, 539, 157, 22]);
-        PressBlank();
-        return;
-    }
-    else
-    {
-        PressBlank();
-        return;
-    }
-}
-function UseStrengthenScroll(scrollType)
-{
-    if (scrollType.indexOf("weapon") != -1)
-    {
-        RandomPress(BackPackPos.props_scroll_weaponPage);
-        const weaponStrengthen_shot = captureScreen();
-        for (let i = 0; i < 5; i++)
+        for (let j = 0; j < 5; j++)
         {
-            let weaponColor = GetWeaponColor(weaponStrengthen_shot, [870 + i * 65, 100, 80, 65]);
-            let isBlank = images.findImage(weaponStrengthen_shot, BackPackImg.blank, { region: [870 + i * 65, 100, 70, 70] });
-            if (isBlank)
+            let hasScroll = images.findImage(shot, scroll, { region: [885 + j * 65, 125 + i * 65, 60, 60] });
+            if (hasScroll)
             {
-                log("强化完毕，退出");
-                RandomPress(BackPackPos.pageBack);
-                return false;
+                RandomPress([hasScroll.x - 5, hasScroll.y, 35, 30]);
+                Sleep();
+                let isNormalScroll = images.findMultiColors(captureScreen(), "#282829", [[2, -3, "#8d8d7f"], [5, -3, "#a2a28e"],
+                [4, 10, "#a5a594"], [16, -7, "#85857e"], [16, -2, "#9e9e88"], [16, 5, "#8e8e7c"], [16, 10, "#8d8d79"],
+                [12, 17, "#97977f"], [20, 17, "#64644d"], [28, -2, "#77776f"], [25, 10, "#aaaa9f"], [30, 10, "#898a75"]], { region: [639, 452, 47, 43] });
+                if (!isNormalScroll)
+                {
+                    scroll.recycle();
+                    return hasScroll;
+                };
             }
-            if (weaponColor == "blue" || weaponColor == "green")
+        }
+    }
+    scroll.recycle();
+    return false;
+};
+const StrengthenItem = function ()
+{
+    const shot = captureScreen();
+
+    const level_10 = ReadImg("strengthenedLevel_10");
+
+    out: for (let i = 0; i < 5; i++)
+    {
+        for (let j = 0; j < 5; j++)
+        {
+            let isBlank = BlankCheck(shot, [882 + j * 65, 104 + i * 65, 60, 60]);
+            if (isBlank == true)
             {
-                log("need strengthen:" + " " + weaponColor);
-                RandomPress([895 + i * 65, 115, 35, 35]);
+                log("强化完毕，退出 isBlank" + isBlank);
+                break out;
+            }
+            let weaponColor = GetWeaponColor(shot, [882 + j * 65, 104 + i * 65, 60, 60]);
+            if (weaponColor == "purple" || weaponColor == "blue" || weaponColor == "green")
+            {
+                RandomPress([895 + j * 65, 115 + i * 65, 35, 35]);
                 let isVanish = IsLeadToVanish();
                 if (isVanish)
                 {
-                    game_config.player.equipment.weapon.level = 7;
-                    game_config.player.equipment.weapon.color = weaponColor;
-                    log("weapon is strengthened to 7,lead to vanish;" + game_config.player.equipment.weapon.level);
+                    // let player = game_config.player;
+                    // player.equipment.weapon.level = 7;
+                    // player.equipment.weapon.color = weaponColor;
+                    console.log("强化完毕，退出 isVanish" + isVanish);
                     continue;
                 }
                 else
                 {
-                    let canStrengthen = images.findMultiColors(captureScreen(),
-                        "#3f4739", [[12, 0, "#3e4638"], [32, -2, "#394234"], [-1, 14, "#343b2f"], [18, 14, "#30382b"], [32, 15, "#2e3429"]],
-                        { region: [903, 650, 132, 69], threshold: 12 });
+                    let canStrengthen_shot = captureScreen();
+                    let canStrengthen = images.findMultiColors(canStrengthen_shot, "#3f4739", [[12, 0, "#3e4638"], [32, -2, "#394234"],
+                    [-1, 14, "#343b2f"], [18, 14, "#30382b"], [32, 15, "#2e3429"]], { region: [903, 650, 132, 69], threshold: 12 });
+                    let isUseOut = images.findMultiColors(canStrengthen_shot, "#191a1a", [[26, -1, "#1b1d1d"], [59, -1, "#1f1f20"],
+                    [61, 24, "#1f1f20"], [61, 54, "#1d1d1e"], [31, 59, "#171718"], [1, 59, "#191919"], [-2, 28, "#191919"], [26, 13, "#2e2f2c"],
+                    [41, 18, "#40403b"], [27, 26, "#2d2e29"], [17, 35, "#3d3d3a"], [32, 44, "#393a37"]], { region: [350, 206, 74, 76] });
+                    if (isUseOut) break out;
                     if (canStrengthen)
                     {
-                        RandomPress(BackPackPos.strengthenBtn);
-
+                        RandomPress([937, 674, 277, 28]);
                     }
                 }
             }
-            if (i == 4)
+            else if (weaponColor == "white")
             {
-                RandomPress(BackPackPos.pageBack);
-            }
-
-        }
-    }
-    else if (scrollType.indexOf("defence") != -1)
-    {
-        RandomPress(BackPackPos.props_scroll_defencePage);
-        Sleep();
-        const defenceStrengthen_shot = captureScreen();
-        for (let i = 0; i < 3; i++)
-        {
-            for (let j = 0; j < 5; j++)
-            {
-                let defenceColor = GetWeaponColor(defenceStrengthen_shot, [870 + j * 65, 100 + i * 65, 80, 65]);
-                if (defenceColor == "blue" || defenceColor == "green")
+                let isEquip = images.findMultiColors(shot, "#b0afa3", [[7, 0, "#484132"], [3, 5, "#291f09"], [8, 5, "#b1b0a0"], [3, 8, "#3b3222"], [9, 8, "#8c8172"],
+                [0, 8, "#b8b8a8"]], { region: [925 + j * 65, 106 + i * 65, 20, 18] });
+                if (isEquip) continue;
+                RandomPress([895 + j * 65, 115 + i * 65, 35, 35]);
+                let isUpToLevel_10 = images.findImage(captureScreen(), level_10, { region: [263, 140, 50, 36] });
+                if (isUpToLevel_10) continue;
+                for (let n = 0; n < 4; n++)
                 {
-                    log("need strengthen:" + " " + defenceColor);
-                    RandomPress([895 + j * 65, 115 + i * 65, 35, 35]);
-                    Sleep();
-                    let isVanish = IsLeadToVanish();
-                    if (isVanish)
-                    {
-                        log("lead to vanish");
-                        continue;
-                    }
-                    else
-                    {
-                        let canStrengthen = images.findMultiColors(captureScreen(),
-                            "#3f4739", [[12, 0, "#3e4638"], [32, -2, "#394234"], [-1, 14, "#343b2f"], [18, 14, "#30382b"], [32, 15, "#2e3429"]],
-                            { region: [903, 650, 132, 69], threshold: 12 });
-                        if (canStrengthen)
-                        {
-                            RandomPress(BackPackPos.strengthenBtn);
-                            Sleep();
-                        }
-                    }
+                    let strenghten_shot = captureScreen();
+                    isUpToLevel_10 = images.findImage(strenghten_shot, level_10, { region: [263, 140, 50, 36] });
+                    if (isUpToLevel_10) break;
+                    let hasFailed = images.findMultiColors(strenghten_shot, "#1d1d1f", [[13, 1, "#202020"], [29, 0, "#1e1e1f"], [29, 20, "#202021"],
+                    [28, 43, "#1e1f20"], [-7, 53, "#1a1a1b"], [-31, 54, "#19191b"], [-35, 32, "#19191b"]], { region: [85, 203, 78, 81] });
+                    if (hasFailed) break;
+                    let isUseOut_2 = images.findMultiColors(strenghten_shot, "#191a1a", [[26, -1, "#1b1d1d"], [59, -1, "#1f1f20"],
+                    [61, 24, "#1f1f20"], [61, 54, "#1d1d1e"], [31, 59, "#171718"], [1, 59, "#191919"], [-2, 28, "#191919"], [26, 13, "#2e2f2c"],
+                    [41, 18, "#40403b"], [27, 26, "#2d2e29"], [17, 35, "#3d3d3a"], [32, 44, "#393a37"]], { region: [350, 206, 74, 76] });
+                    if (isUseOut_2) break out;
+                    RandomPress([933, 672, 284, 28]);
+                    Sleep(3000, 5000);
+                    RandomPress([933, 672, 284, 28]);
+                    Sleep(2000, 3000);
+                    RandomPress([230, 157, 740, 428]);
+                    Sleep(2000, 3000);
                 }
-                let isBlank = images.findImage(defenceStrengthen_shot, BackPackImg.blank, { region: [870 + j * 65, 100 + i * 65, 70, 70] });
-                if (isBlank)
-                {
-                    log("强化完毕，退出" + (i + 1) + " " + (j + 1));
-                    RandomPress(BackPackPos.pageBack);
-                    Sleep();
-                    return true;
-                }
-                Sleep();
             }
         }
-    }
-}
 
-function OpenSlabstone()
-{
-    let hasConfirm_small = findImage(captureScreen(), BackPackImg.confirm, { region: BackPackCheckPos.props_confirm_small, threshold: 0.8 });
-
-    if (hasConfirm_small)
-    {
-        RandomPress(BackPackPos.props_confirm_small);
-        Sleep();
     }
-    RandomPress([548, 635, 185, 33]);
-    Sleep(6000, 8000);
-    RandomPress([548, 635, 185, 33]);
-    Sleep();
-    return true;
-}
+    level_10.recycle();
+};
 /**
- * @description使用背包道具
+ * 
+ * @param {*} type "weapon or armor" 
  */
-function UseProps(needOpen, needClose)
+const StrengthenEquipment = function (type)
 {
-    const props = {
-        treasureBox_white_nomal_equipment_tied: ReadImg("props/treasureBox_white_nomal_equipment_tied"),
-        treasureBox_goldenRandom: ReadImg("props/treasureBox_goldenRandom"),
-        treasureBox_white_nomal_potion_tied: ReadImg("props/treasureBox_white_nomal_potion_tied"),
-        treasureBox_white_normal_optionalFood_tied: ReadImg("props/treasureBox_white_normal_optionalFood_tied"),
-        treasureBox_green_highLevel_equipment_mark: ReadImg("props/treasureBox_green_highLevel_equipment_mark"),
-
-        //scroll;
-        strengthenScroll_weapon_tied: ReadImg("props/strengthenScroll_weapon_tied"),
-        strengthenScroll_weapon_mark: ReadImg("props/strengthenScroll_weapon_mark"),
-        strengthenScroll_defence: ReadImg("props/strengthenScroll_defence"),
-        strengthenScroll_defence_tied: ReadImg("props/strengthenScroll_defence_tied"),
-        // slabstone;
-        slabstone_white_normal_guardian: ReadImg("props/slabstone_white_normal_guardian"),
-        slabstone_white_normal_suit: ReadImg("props/slabstone_white_normal_suit"),
-        slabstone_green_highLevel_guardian: ReadImg("props/slabstone_green_highLevel_guardian"),
-        slabstone_green_highQuality_guardian: ReadImg("props/slabstone_green_highQuality_guardian"),
-        slabstone_green_highLevel_suit: ReadImg("props/slabstone_green_highLevel_suit"),
-        slabstone_green_highQuality_suit: ReadImg("props/slabstone_green_highQuality_suit"),
-        slabstone_gray_middleLevel_suit: ReadImg("props/slabstone_gray_middleLevel_suit"),
-        slabstone_gray_middleLevel_monster: ReadImg("props/slabstone_gray_middleLevel_monster"),
-    };
-    needOpen = needOpen || true;
-    needClose = needClose || true;
-    let hasOpenSlabstone = false;
-    if (needOpen)
-    {
-        const isBackPack = findImage(captureScreen(), BackPackImg.icon, { region: BackPackCheckPos.icon });
-        if (isBackPack == null) return;
-
-        RandomPress(BackPackPos.icon);
-        Sleep(3000, 4000);
-    }
-
-    RandomPress(BackPackPos.props);
+    log("开始强化装备");
+    OpenBackpack("props");
+    //search tied scroll
+    const scroll_tied = getScroll(type);
     Sleep();
-
-    let shot = captureScreen();
-    let type;
-
-    itemLoop: for (let i = 0; i < 6; i++)
+    if (scroll_tied)
     {
-        for (let j = 0; j < 5; j++)
-        {
-            Sleep(500, 1000);
-            shot = captureScreen();
-            for (let key in props)
-            {
-                let prop = props[key];
-                let propType = images.findImage(shot, prop, { region: [870 + j * 65, 120 + i * 65, 70, 70] });
-                if (propType)
-                {
-                    type = key;
-                    break;
-                }
-                else
-                {
-                    type = null;
-                }
-            }
-            type && log((i + 1) + " " + (j + 1) + " " + type);
-            if (type == "treasureBox_white_nomal_equipment_tied"
-                || type == "treasureBox_goldenRandom"
-                || type == "treasureBox_white_nomal_potion_tied"
-                || type == "treasureBox_white_normal_optionalFood_tied"
-                || type == "treasureBox_green_highLevel_equipment_mark")
-            {
-                log("open treasureBox");
-                RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
-                Sleep();
-                RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
-                Sleep();
-                OpenTreasureBox();
-                Sleep();
-                shot = captureScreen();
-            }
-            else if (type == "strengthenScroll_weapon_tied"
-                || type == "strengthenScroll_weapon_mark"
-                || type == "strengthenScroll_defence_tied"
-                || type == "strengthenScroll_defence")
-            {
-                if (type.indexOf("weapon") != -1 && game_config.player.equipment.weapon.level == 7) continue;
-                RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
-                Sleep();
-                RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
-                Sleep(3000, 4000);
-                UseStrengthenScroll(type);
-                Sleep(2000, 3000);
-                RandomPress([1093, 23, 23, 30]); //backpack icon
-                RandomPress([1238, 291, 23, 21]); //props page
-                Sleep();
-                shot = captureScreen();
-            }
+        RandomPress([scroll_tied.x - 5, scroll_tied.y, 35, 30]);
+        Sleep(3000, 5000);
+        if (type == "weapon") RandomPress([1225, 199, 29, 33]); // weapon page
+        else if (type == "armor") RandomPress([1228, 283, 26, 28]); // armor page
+        RandomPress([1027, 497, 65, 13]); // not binding
+        StrengthenItem();
+    }
+    Sleep();
+    GoBack();// backpack
+    Sleep();
+};
+// StrengthenEquipment("armor");
+// log(GetWeaponColor(captureScreen(), [882 + 1 * 65, 104 + 0 * 65, 60, 60]));
+// log(GetWeaponColor(captureScreen(), [945, 104, 63, 62]));
 
-            else if (type == "slabstone_white_normal_guardian"
-                || type == "slabstone_white_normal_suit"
-                || type == "slabstone_green_highLevel_guardian"
-                || type == "slabstone_green_highQuality_guardian"
-                || type == "slabstone_green_highLevel_suit"
-                || type == "slabstone_green_highQuality_suit"
-                || type == "slabstone_gray_middleLevel_suit"
-                || type == "slabstone_gray_middleLevel_monster")
-            {
-                log("use slabstone" + type);
-                RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
-                Sleep();
-                RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
-                Sleep(6000, 8000);
-                OpenSlabstone();
-                Sleep();
-                shot = captureScreen();
-                hasOpenSlabstone = type;
-            }
-            let isBlank = images.findImage(shot, BackPackImg.blank, { region: [870 + j * 65, 115 + i * 65, 80, 80] });
-            if (isBlank)
-            {
-                log("blank :" + (i + 1) + " " + (j + 1));
-                RandomPress(BackPackPos.close);
-                Sleep();
-                break itemLoop;
-            };
-        }
-    }
-    if (hasOpenSlabstone == false) return;
-    else if (hasOpenSlabstone.indexOf("suit"))
-    {
-        WearSlabStone("suit");
-    }
-    else if (hasOpenSlabstone.indexOf("guardian"))
-    {
-        WearSlabStone("guardian");
-    }
-}
-//分解道具
-function DecomposeProps()
+
+// log(images.matchTemplate(captureScreen(), ReadImg("props/strengthenScroll_armor_tied"), { region: [884, 96, 343, 417] }));
+// log(BlankCheck(captureScreen(), [1141, 104, 67, 63]));
+const DecomposeProps = function ()
 {
     const popupCheck = function ()
     {
@@ -471,14 +404,8 @@ function DecomposeProps()
             RandomPress([702, 455, 125, 24]);
         }
     };
-    const isBackPack = findImage(captureScreen(), BackPackImg.icon, { region: BackPackCheckPos.icon });
-    if (isBackPack == null) return;
-
-    RandomPress(BackPackPos.icon);
-    Sleep(3000, 5000);
-
-    RandomPress(BackPackPos.equipment);
-    RandomPress([1009, 511, 23, 20]);
+    OpenBackpack("equipment");
+    RandomPress([1009, 511, 23, 20]); //decompose
     Sleep();
     RandomPress([922, 512, 53, 16]); //normal
     for (let i = 0; i < 3; i++)
@@ -502,8 +429,7 @@ function DecomposeProps()
     }
     Sleep();
     //分解绿装
-    RandomPress([1018, 512, 50, 15]); //green equipment;
-    Sleep();
+    // RandomPress([1018, 512, 50, 15]); //green equipment;
     const shot = captureScreen();
     for (let i = 0; i < 2; i++)
     {
@@ -542,10 +468,10 @@ function DecomposeProps()
     {
         RandomPress([323, 95, 522, 217]);
     }
-    RandomPress(BackPackPos.icon);
+    OpenBackpack();
 };
 
-function ReturnHome()
+const ReturnHome = function ()
 {
     const quickItem_returnHome = ReadImg("quickItem_returnHome");
     const hasQuickReturnHome = images.findImage(captureScreen(), quickItem_returnHome, { region: [647, 624, 71, 68] });
@@ -588,10 +514,14 @@ function ReturnHome()
     }
     quickItem_returnHome.recycle();
     log("return home to purchase potion");
-}
-function StoreEquipment()
+};
+// DecomposeProps();
+// log(images.matchTemplate(captureScreen(), ReadImg("E"), { region: [883, 105, 374, 435], threshold: 0.8 }));
+
+const StoreEquipment = function ()
 {
     Sleep();
+    let success = false;
     const groceryIcon = ReadImg("grocery");
     const hasGrocery = images.findImage(captureScreen(), groceryIcon, { region: [52, 251, 113, 74] });
     if (hasGrocery == null) return;
@@ -658,6 +588,8 @@ function StoreEquipment()
         RandomPress([1098, 657, 156, 34]); // put into store;
         Sleep();
 
+        success = true;
+
         const maxShot = captureScreen();
         backpackShot = maxShot;
         const isMax_1 = images.findMultiColors(maxShot, "#878785", [[-3, 2, "#a8a6a6"], [-3, 4, "#b2b2b2"], [1, 6, "#969694"], [-1, 10, "#9d9d9b"], [-4, 9, "#959592"]],
@@ -665,151 +597,154 @@ function StoreEquipment()
         const isMax_2 = images.findMultiColors(maxShot, "#8e8c87", [[-3, 0, "#aeada8"], [-3, 2, "#a8a7a5"], [-3, 4, "#b1afad"], [-1, 4, "#9e9b98"], [1, 4, "#96948f"],
         [1, 7, "#918e87"], [1, 8, "#98958f"], [-1, 10, "#9f9c97"], [-4, 9, "#94918b"]],
             { region: [316, 660, 24, 25] });
-        if (isMax_1 || isMax_2)
+        const isMax_3 = images.findMultiColors(maxShot, "#9d9c98", [[-2, 0, "#a09d99"], [-4, 0, "#9f9c99"], [-4, 1, "#b2b1af"], [-1, 5, "#a4a3a2"], [0, 8, "#989693"],
+        [-2, 11, "#969594"], [-5, 11, "#8f8d8a"], [4, 5, "#a09e9b"], [4, 6, "#9a9998"], [10, 6, "#9e9d9c"], [10, 5, "#9f9e9d"], [7, 11, "#999999"], [7, 0, "#a8a8a7"]],
+            { region: [316, 660, 24, 25] }); // map 21
+        if (isMax_1 || isMax_2 || isMax_3)
         {
             let setting = game_config.setting;
             setting.storeMax = true;
             RWFile("setting", setting);
+            console.log("store is max capacity");
             break;
         }
 
         count = 0;
     }
     GoBack();
-}
-
-function OpenEquipmentBox()
-{
-    const equipmentImg = ReadImg("props/treasureBox_white_nomal_equipment_tied");
-    RandomPress(BackPackPos.icon);// backpack
-    Sleep(3000, 4000);
-    RandomPress(BackPackPos.props);
-    Sleep();
-    const hasEquipmentBox = images.findImage(captureScreen(), equipmentImg, { region: [885, 111, 327, 341] });
-    if (hasEquipmentBox)
-    {
-        // RandomPress([hasEquipmentBox.x, hasEquipmentBox.y, 10])
-        log(hasEquipmentBox);
-    }
-    Sleep();
-
-    RandomPress(BackPackPos.icon);// backpack
-}
-const StrengthenWeapon = function ()
-{
-    RandomPress(BackPackPos.icon);// backpack
-    Sleep(3000, 4000);
-    RandomPress(BackPackPos.props);
-    Sleep();
-    const weaponScroll_mark = ReadImg("props/strengthenScroll_weapon_mark");
-    const weaponScroll_tie = ReadImg("props/strengthenScroll_weapon_tied");
-    const shot = captureScreen();
-    const hasMark = images.findImage(shot, weaponScroll_mark, { region: [885, 111, 327, 341] });
-    const hasTie = images.findImage(shot, weaponScroll_tie, { region: [885, 111, 327, 341] });
-    if (hasMark || hasTie)
-    {
-        log(hasMark, hasTie);
-        if (hasMark)
-        {
-            RandomPress([hasMark.x - 5, hasMark.y, 35, 30]);
-            RandomPress([hasMark.x - 5, hasMark.y, 35, 30]);
-        }
-        else    
-        {
-            RandomPress([hasTie.x - 5, hasTie.y, 35, 30]);
-            RandomPress([hasTie.x - 5, hasTie.y, 35, 30]);
-        }
-        Sleep(3000, 5000);
-        RandomPress(BackPackPos.props_scroll_weaponPage);
-        const weaponStrengthen_shot = captureScreen();
-        for (let i = 0; i < 5; i++)
-        {
-            let weaponColor = GetWeaponColor(weaponStrengthen_shot, [870 + i * 65, 100, 80, 65]);
-            let isBlank = images.findImage(weaponStrengthen_shot, BackPackImg.blank, { region: [870 + i * 65, 100, 70, 70] });
-            if (isBlank)
-            {
-                log("强化完毕，退出");
-                RandomPress(BackPackPos.pageBack);
-                return false;
-            }
-            if (weaponColor == "blue" || weaponColor == "green")
-            {
-                log("need strengthen:" + " " + weaponColor);
-                RandomPress([895 + i * 65, 115, 35, 35]);
-                let isVanish = IsLeadToVanish();
-                if (isVanish)
-                {
-                    game_config.player.equipment.weapon.level = 7;
-                    game_config.player.equipment.weapon.color = weaponColor;
-                    log("weapon is strengthened to 7,lead to vanish;" + game_config.player.equipment.weapon.level);
-                    continue;
-                }
-                else
-                {
-                    let canStrengthen = images.findMultiColors(captureScreen(),
-                        "#3f4739", [[12, 0, "#3e4638"], [32, -2, "#394234"], [-1, 14, "#343b2f"], [18, 14, "#30382b"], [32, 15, "#2e3429"]],
-                        { region: [903, 650, 132, 69], threshold: 12 });
-                    if (canStrengthen)
-                    {
-                        RandomPress(BackPackPos.strengthenBtn);
-
-                    }
-                }
-            }
-            if (i == 4)
-            {
-                RandomPress(BackPackPos.pageBack);
-            }
-
-        }
-    }
-    Sleep();
-    RandomPress(BackPackPos.icon);// backpack
 };
-// StrengthenWeapon();
-function StrengthenEquipment()
+
+// -----------------------------------sell backpack items---------------------------------------------
+const DecomposeGreenSuit = function ()
 {
-    StrenghtenWeapon();
-    StrengthenArmor();
-}
-// log(images.findMultiColors(captureScreen(), "#878785", [[-3, 2, "#a8a6a6"], [-3, 4, "#b2b2b2"], [1, 6, "#969694"], [-1, 10, "#9d9d9b"], [-4, 9, "#959592"]],
-//     { region: [317, 660, 19, 24] }));
-// log(images.findMultiColors(captureScreen(), "#8e8c87", [[-3, 0, "#aeada8"], [-3, 2, "#a8a7a5"], [-3, 4, "#b1afad"], [-1, 4, "#9e9b98"], [1, 4, "#96948f"],
-// [1, 7, "#918e87"], [1, 8, "#98958f"], [-1, 10, "#9f9c97"], [-4, 9, "#94918b"]],
-//     { region: [316, 660, 24, 25] }));
-// StoreEquipment();
+    let deCount = 0;
+    //分解绿装
+    const reservedList = [];
+    for (let i = 0; i < 15; i++)
+    {
+        reservedList.push(ReadImg(`reservedList/${(i + 1).toString().padStart(2, "0")}`));
+    }
+    const shot = captureScreen();
+    for (let i = 0; i < 4; i++)
+    {
+        for (let j = 0; j < 5; j++)
+        {
+            let itemColor = GetWeaponColor(shot, [885 + j * 65, 125 + i * 65, 60, 60]);
+            if (itemColor != "green") continue;
+            for (let k = 0; k < reservedList.length; k++)
+            {
+                let needReserved = images.findImage(shot, reservedList[k], { region: [885 + j * 65, 125 + i * 65, 60, 60] });
+                if (!needReserved)
+                {
+                    RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
+                    deCount++;
+                }
+                break;
+            }
+        }
+    }
+    reservedList.forEach(item => item.recycle());
+
+    if (deCount > 0)
+    {
+        Sleep();
+        RandomPress([1119, 506, 126, 24]); //decompose 
+        Sleep();
+        RandomPress([696, 561, 132, 24]); // confirm
+        Sleep();
+        RandomPress([204, 431, 880, 163]); // blank 
+        return true;
+    }
+    else return false;
+};
+const DecomposeAllGreenSuit = function ()
+{
+    let decomposeSuccess = false;
+    const hadOpen = OpenBackpack("equipment");
+    if (hadOpen == false)
+    {
+        return decomposeSuccess = false;;
+    }
+    RandomPress([1005, 506, 33, 28]); //decompose btn;   
+    decomposeSuccess = DecomposeGreenSuit();
+    if (decomposeSuccess)
+    {
+        console.log("decompose green suit success");
+        DecomposeGreenSuit();
+    }
+    Sleep();
+    RandomPress([1243, 68, 31, 16]); //close decompose window;
+    return decomposeSuccess;
+};
+const Decompose = function ()
+{
+    let decomposeSuccess = false;
+    const hadOpen = OpenBackpack("equipment");
+    if (hadOpen == false)
+    {
+        return decomposeSuccess = false;;
+    }
+    RandomPress([1005, 506, 33, 28]);
+};
+const SortEquipment = function ()
+{
+    Sleep();
+    RandomPress([1075, 509, 22, 22]);
+    RandomPress([1041, 423, 90, 21]);
+    Sleep();
+};
+// log(DecomposeAllGreenSuit());
+const ViewPrice = function (row, col)
+{
+    let amount, price = 0;
+    RandomPress([895 + col * 65, 135 + row * 65, 40, 40]);
+    Sleep();
+    RandomPress([653, 461, 24, 23]); //trade btn
+    Sleep(2000, 3000);
+    amount = NumberRecognition("amount", [929, 177, 98, 40]);
+    if (amount > 200)
+    {
+        return [amount, 10];
+    }
+    RandomPress([277, 181, 958, 31]); // item detail
+    Sleep();
+    const level_10 = ReadImg("flag/trade_goods_level_10");
+    const hasLevel10 = images.findImage(captureScreen(), level_10, { region: [232, 171, 103, 472] });
+    if (hasLevel10)
+    {
+        amount = NumberRecognition("amount", [905, hasLevel10.y, 145, 30]);
+        price = NumberRecognition("amount", [1075, hasLevel10.y, 125, 30]);
+    }
+    return [amount, price];
+};
+// ViewPrice(4, 0);
+log(ViewPrice(3, 2));
+/*
+1、触发条件：背包物品超过90%
+2、操作：
+    a、打开背包 删除绿装
+    c、遍历白装强化价格，大于60则标记
+    d、挑选最大价格的白装强化
+    e、上架强化的白装
+3、
+
+
+*/
+const PutOnSale = function ()
+{
+    let hadSold = false;
+    console.log("start put on sale");
+    OpenBackpack("equipment");
+
+};
+// log(DecomposeGreenSuit());
 // module.exports = {
+//     OpenEquipmentBox,
 //     WearEquipment,
-//     UseProps,
+//     StrengthenEquipment,
 //     DecomposeProps,
 //     ReturnHome,
-//     StoreEquipment
+//     StoreEquipment,
+//     BlankCheck,
+//     PutOnSale
 // };
-// UseProps();
-// OpenTreasureBox();
-// WearSlabStone("guardian");
-// WearEquipment();
-// DecomposeProps();
-// log(game_config.setting);
-// for (let i = 0; i < 3; i++)
-// {
-//     let u = UseProps();
-//     log(u);
-
-// }
-// OpenTreasureBox();
-// let isWhite = images.findImage(captureScreen(), BackPackImg.blank,
-//     // { region: [870 + 3 * 65, 115 + 2 * 65, 80, 80], threshold: 0.8, });
-//     { region: [870 + 1 * 65, 100, 70, 70] }
-// );
-// log(isWhite);
-// ReturnHome();
-// DecomposeProps();
-// ReturnHome();
-// const shot = captureScreen();
-// const region = [881, 313, 72, 78];
-// log("isGreen:" + images.findMultiColors(shot, "#233322", [[25, -1, "#273d21"], [53, -1, "#37551f"], [54, 27, "#394922"], [52, 53, "#355525"], [23, 53, "#32362b"]],
-//     { region: region }));
-// log("isWhite:" + images.findMultiColors(shot, "#2a2a2a", [[52, 0, "#414242"], [52, 49, "#434444"], [2, 49, "#2e2f2f"], [53, 26, "#474848"]],
-//     { region: region }));
-// log(images.findImage(captureScreen(), ReadImg("E"), { region: [1049, 251, 36, 29] }));

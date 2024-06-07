@@ -676,16 +676,7 @@ const DecomposeAllGreenSuit = function ()
     RandomPress([1243, 68, 31, 16]); //close decompose window;
     return decomposeSuccess;
 };
-const Decompose = function ()
-{
-    let decomposeSuccess = false;
-    const hadOpen = OpenBackpack("equipment");
-    if (hadOpen == false)
-    {
-        return decomposeSuccess = false;;
-    }
-    RandomPress([1005, 506, 33, 28]);
-};
+
 const SortEquipment = function ()
 {
     Sleep();
@@ -694,20 +685,17 @@ const SortEquipment = function ()
     Sleep();
 };
 // log(DecomposeAllGreenSuit());
-const ViewPrice = function (row, col)
+const ViewPrice = function ()
 {
     let amount, price = 0;
-    RandomPress([895 + col * 65, 135 + row * 65, 40, 40]);
-    Sleep();
-    RandomPress([653, 461, 24, 23]); //trade btn
-    Sleep(2000, 3000);
+
     amount = NumberRecognition("amount", [929, 177, 98, 40]);
     if (amount > 200)
     {
         return [amount, 10];
     }
     RandomPress([277, 181, 958, 31]); // item detail
-    Sleep();
+    Sleep(2000, 4000);
     const level_10 = ReadImg("flag/trade_goods_level_10");
     const hasLevel10 = images.findImage(captureScreen(), level_10, { region: [232, 171, 103, 472] });
     if (hasLevel10)
@@ -715,29 +703,70 @@ const ViewPrice = function (row, col)
         amount = NumberRecognition("amount", [905, hasLevel10.y, 145, 30]);
         price = NumberRecognition("amount", [1075, hasLevel10.y, 125, 30]);
     }
+    GoBack();
+    Sleep();
     return [amount, price];
 };
 // ViewPrice(4, 0);
-log(ViewPrice(3, 2));
-/*
-1、触发条件：背包物品超过90%
-2、操作：
-    a、打开背包 删除绿装
-    c、遍历白装强化价格，大于60则标记
-    d、挑选最大价格的白装强化
-    e、上架强化的白装
-3、
+// log(ViewPrice(3, 2));
+const GetAllEquipmentPrice = function ()
+{
+    const priceList = [];
+    const shot = captureScreen();
+    let lastClip = ReadImg("menu_icon");
+    for (let i = 2; i < 5; i++)
+    {
+        for (let j = 0; j < 5; j++)
+        {
+            let curClip = images.findImage(shot, lastClip, { region: [885 + j * 65, 125 + i * 65, 60, 60] });
+            if (curClip == null)
+            {
+                lastClip = images.clip(shot, 895 + j * 65, 135 + i * 65, 40, 40);
+            }
+            else continue;
+            let equipmentColor = GetWeaponColor(shot, [885 + j * 65, 125 + i * 65, 60, 60]);
+            log("equipment color: " + equipmentColor);
+            if (equipmentColor == "white")
+            {
+                RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
+                Sleep();
+                let canSell = images.findMultiColors(captureScreen(), "#9e9e88", [[0, 7, "#8e8e7c"], [-3, 9, "#282829"], [4, 12, "#282929"], [11, 12, "#9d9d91"], [-11, 12, "#a0a08f"]],
+                    { region: [647, 453, 38, 43] });
+                if (canSell)
+                {
+                    RandomPress([654, 460, 24, 26]); // enter trade market;
+                    Sleep(3000, 5000);
+                    let [amount, price] = ViewPrice();
+                    let item = { row: i, col: j, amount: amount, price: price };
+                    priceList.push(item);
+                    Sleep();
+                    OpenBackpack("equipment");
+                }
+            }
+        }
+    }
+    return priceList;
+};
+log(GetAllEquipmentPrice());
 
+// strengthen equipment
+const StrengthenTheEquipment = function (arr)
+{
+    let strengthenSuccess = false;
 
-*/
+};
 const PutOnSale = function ()
 {
     let hadSold = false;
     console.log("start put on sale");
-    OpenBackpack("equipment");
+    // DecomposeAllGreenSuit();
+    // Sleep();
+    // SortEquipment();
+    const priceList = GetAllEquipmentPrice();
+    log(priceList);
 
 };
-// log(DecomposeGreenSuit());
+// PutOnSale();
 // module.exports = {
 //     OpenEquipmentBox,
 //     WearEquipment,

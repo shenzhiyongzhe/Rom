@@ -56,7 +56,7 @@ const NumberRecognition = function (directory, region)
 
     }
     // //recycle
-    // numberArr.forEach(arr => arr.forEach(img => img.recycle()));
+    numberArr.forEach(arr => arr.forEach(img => img.recycle()));
     //sort
     const sequence = [];
     settleAccount.forEach(item =>

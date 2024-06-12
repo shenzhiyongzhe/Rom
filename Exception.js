@@ -1,9 +1,8 @@
-const { ReadImg, Sleep, RandomPress, game_config, PressMenu, RWFile } = require("./Global.js");
-
-const { ReturnHome, StoreEquipment } = require("./BackPack.js");
+const { game_config } = require("./Global.js");
+const { ReadImg, Sleep, RandomPress, } = require("./Utils.js");
+const { ReturnHome, StoreEquipment, PutOnSale } = require("./BackPack.js");
 const { DeathFlow, GroceryFlow } = require("./Death.js");
 const { EnterInstanceZones } = require("./Instance.js");
-const { PropsCollectionFlow } = require("./PropsCollection.js");
 //断开连接
 const imgArr = {
     pageBack: ReadImg("back"),
@@ -65,7 +64,8 @@ function Exception()
     const hasDisconnected = images.findMultiColors(shot, "#343434", [[0, 16, "#292929"], [32, 7, "#2c2c2c"], [129, 1, "#333333"], [123, 15, "#30302e"]], { region: [431, 426, 207, 65] });
     const hasDisconnected_2 = images.findMultiColors(shot, "#383838", [[-5, 18, "#2a2a2a"], [108, 0, "#313131"], [103, 16, "#313131"], [71, 4, "#383838"]], { region: [427, 424, 210, 68] });
     const hasDisconnected_3 = images.findMultiColors(shot, "#363636", [[3, 18, "#2f2f2f"], [36, 7, "#252525"], [70, 0, "#3e4639"], [72, 17, "#2c362b"]], { region: [527, 421, 207, 70] });
-    if (hasDisconnected || hasDisconnected_2 || hasDisconnected_3)
+    const hasDisconnected_4 = images.findMultiColors(shot, "#3a3a3a", [[39, 0, "#373737"], [116, 1, "#373737"], [127, 18, "#303030"], [14, 18, "#2c2c2d"], [45, 12, "#2c2c2c"]], { region: [429, 424, 204, 60] });
+    if (hasDisconnected || hasDisconnected_2 || hasDisconnected_3 || hasDisconnected_4)
     {
         log("connetion lost! :);Exit Game and Restart");
         RandomPress([462, 449, 146, 18]);
@@ -81,18 +81,19 @@ function Exception()
     {
         console.log("背包已满，需要清理背包");
         ExitHaltMode();
-        let setting = game_config.setting;
-        if (game_config.setting.storeMax == false || setting.storeMax == undefined)
-        {
-            ReturnHome();
-            StoreEquipment();
-            if (setting.storeMax == undefined)
-            {
-                game_config.setting.storeMax = false;
-                RWFile("setting", game_config.setting);
-            }
-        }
-        PropsCollectionFlow();
+        // let setting = game_config.setting;
+        // if (game_config.setting.storeMax == false || setting.storeMax == undefined)
+        // {
+        //     ReturnHome();
+        //     StoreEquipment();
+        //     if (setting.storeMax == undefined)
+        //     {
+        //         game_config.setting.storeMax = false;
+        //         RWFile("setting", game_config.setting);
+        //     }
+        // }
+        // PropsCollectionFlow();
+        PutOnSale();
         Sleep();
         return false;
     }
@@ -120,6 +121,7 @@ function Exception()
     }
     if (saveMode_outOfPotion)
     {
+        console.log("处于省电模式，药水用完了，回城购买");
         ExitHaltMode();
         ReturnHome();
         Sleep(10000, 15000);
@@ -154,6 +156,39 @@ function Exception()
         }
         return false;
     }
+    const hasDead_1 = images.findMultiColors(shot, "#766c61", [[0, 32, "#7a7166"], [0, 76, "#8c847a"], [-22, 34, "#8c8987"], [31, 32, "#857b71"]],
+        { region: [576, 49, 131, 135] });
+    const hasDead_2 = images.findMultiColors(shot, "#3b4336", [[35, 0, "#394134"], [132, -1, "#393f33"], [135, 21, "#333b2e"], [13, 17, "#2b3326"]],
+        { region: [522, 531, 245, 66] });
+    const hasDead_3 = images.findMultiColors(shot, "#96938a", [[10, 0, "#8d8680"], [55, -1, "#83776b"], [21, 35, "#8a8379"], [22, 56, "#7a7064"]],
+        { region: [575, 89, 131, 96] });
+    const hasRevive = findMultiColors(shot, "#401b06", [[25, -3, "#3c1906"], [143, -2, "#381706"], [153, 22, "#321504"], [4, 21, "#2d1204"]],
+        { region: [528, 542, 229, 66] });
+
+    const hasDeadConfirm = images.findMultiColors(shot, "#3e4638", [[24, 2, "#384134"], [154, 2, "#373f33"], [154, 25, "#32392d"], [11, 25, "#2a3226"]],
+        { region: [530, 529, 224, 67] });
+    const hasDeadConfirm_2 = images.findMultiColors(shot, "#3e4637", [[26, -1, "#3a4235"], [10, 21, "#2c3427"], [157, 2, "#373f32"], [158, 25, "#2f372a"]],
+        { region: [530, 529, 212, 63] });
+    if ((hasDead_1 || hasDead_2) && hasRevive)
+    {
+        console.log("检测到死亡");
+        Sleep(1000, 5000);
+        RandomPress([574, 565, 140, 25]);
+        Sleep(15000, 20000);
+        RandomPress([563, 546, 160, 34]);
+        Sleep(3000, 5000);
+        DeathFlow();
+        return false;
+    }
+    else if ((hasDead_1 || hasDead_2 || hasDead_3) && (hasDeadConfirm || hasDeadConfirm_2))
+    {
+        console.log("检测到死亡");
+        RandomPress([555, 547, 168, 32]);
+        Sleep(5000, 8000);
+        DeathFlow();
+        return false;
+    }
+
     const hasStartGame = images.findMultiColors(shot, "#373735", [[-1, 9, "#2f2f2f"], [-3, 18, "#2b2b2b"], [83, 2, "#353535"], [100, 2, "#353535"], [92, 21, "#2f2f2f"]],
         { region: [17, 638, 192, 64] });
     const hasStartGame_2 = images.findMultiColors(shot, "#394134", [[18, 2, "#384033"], [3, 15, "#2b3326"], [30, 15, "#2d3528"], [126, -1, "#373f32"], [127, 17, "#2f372a"]],
@@ -175,40 +210,10 @@ function Exception()
         console.log("长时间未操作，自动点击关闭游戏");
         RandomPress([571, 447, 140, 21]);
         Sleep(4000, 6000);
-        alert("暂时无法解决", "需手动处理");
+        alert("卡点", "未知问题，需手动处理");
         return false;
     }
 
-    const hasDead_1 = images.findMultiColors(shot, "#766c61", [[0, 32, "#7a7166"], [0, 76, "#8c847a"], [-22, 34, "#8c8987"], [31, 32, "#857b71"]],
-        { region: [576, 49, 131, 135] });
-    const hasDead_2 = images.findMultiColors(shot, "#3b4336", [[35, 0, "#394134"], [132, -1, "#393f33"], [135, 21, "#333b2e"], [13, 17, "#2b3326"]],
-        { region: [522, 531, 245, 66] });
-    const hasDead_3 = images.findMultiColors(shot, "#96938a", [[10, 0, "#8d8680"], [55, -1, "#83776b"], [21, 35, "#8a8379"], [22, 56, "#7a7064"]],
-        { region: [575, 89, 131, 96] });
-    const hasRevive = findMultiColors(shot, "#401b06", [[25, -3, "#3c1906"], [143, -2, "#381706"], [153, 22, "#321504"], [4, 21, "#2d1204"]],
-        { region: [528, 542, 229, 66] });
-
-    const hasDeadConfirm = images.findMultiColors(shot, "#3e4638", [[24, 2, "#384134"], [154, 2, "#373f33"], [154, 25, "#32392d"], [11, 25, "#2a3226"]],
-        { region: [530, 529, 224, 67] });
-    const hasDeadConfirm_2 = images.findMultiColors(shot, "#3e4637", [[26, -1, "#3a4235"], [10, 21, "#2c3427"], [157, 2, "#373f32"], [158, 25, "#2f372a"]],
-        { region: [530, 529, 212, 63] });
-    if ((hasDead_1 || hasDead_2) && hasRevive)
-    {
-        Sleep(1000, 5000);
-        RandomPress([574, 565, 140, 25]);
-        Sleep(15000, 20000);
-        RandomPress([563, 546, 160, 34]);
-        Sleep(3000, 5000);
-        DeathFlow();
-        return false;
-    }
-    else if ((hasDead_1 || hasDead_2 || hasDead_3) && (hasDeadConfirm || hasDeadConfirm_2))
-    {
-        RandomPress([555, 547, 168, 32]);
-        Sleep(5000, 8000);
-        DeathFlow();
-        return false;
-    }
 
     const hasNoExp = images.findImage(shot, imgArr.no_exp, { region: [43, 528, 212, 67] });
     if (hasNoExp)
@@ -246,7 +251,7 @@ function Exception()
             if (!hasBlackScreen) return false;
         }
 
-        RestartApp(appName);
+        RestartApp(romApp);
         return false;
     }
     return true;

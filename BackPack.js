@@ -1,5 +1,6 @@
-const { game_config, ReadImg, Sleep, RandomPress, GoBack, PressBlank, RWFile, } = require("./Global.js");
-const { NumberRecognition } = require("./utils.js");
+const { game_config, RWFile } = require("./Global.js");
+// const { PropsCollectionFlow } = require("./PropsCollection.js");
+const { ReadImg, Sleep, RandomPress, GoBack, PressBlank, NumberRecognition, TipPointCheck, TimeConvert } = require("./Utils.js");
 const BackPackImg = {
     E: ReadImg("E"),
     confirm: ReadImg("backPack_confirm"),
@@ -16,7 +17,7 @@ const BackPackImg = {
 const OpenBackpack = function (page)
 {
     let openSuccess = false;
-    log("open backpack");
+    log(page == undefined ? "close backpack" : "open backpack: " + page);
     Sleep();
     const menuIcon = ReadImg("menu_icon");
     const isBackPack = findImage(captureScreen(), menuIcon, { region: [1211, 2, 58, 57] });
@@ -63,12 +64,14 @@ const GetWeaponColor = function (shot, region)
     const ColorObj = {
         "purple": [
             ["#31213c", [[4, 0, "#3d244b"], [27, 20, "#59326b"], [27, 26, "#4f2861"]]],
+            ["#2f2339", [[19, -2, "#31213e"], [34, -2, "#3d2050"], [43, -2, "#46205b"], [44, 6, "#5f2579"], [44, 17, "#5e2b78"], [45, 24, "#55266c"], [43, 34, "#4b2161"]]]
         ],
         "blue": [
             ["#1c465c", [[14, 15, "#265e75"], [14, 20, "#20576e"], [15, 23, "#1f566d"], [15, 32, "#204b60"]]],
             ["#235e75", [[0, 3, "#2d6278"], [0, 9, "#215971"], [0, 19, "#204e64"], [-15, -14, "#1c4257"]]],
             ["#1c3b4e", [[15, 15, "#246078"], [15, 18, "#296077"], [15, 22, "#235b72"], [15, 27, "#22546a"]]],
-            ["#1e2f3b", [[7, 0, "#1d3441"], [12, 0, "#1b4255"], [33, 18, "#225870"], [33, 30, "#214c60"]]]
+            ["#1e2f3b", [[7, 0, "#1d3441"], [12, 0, "#1b4255"], [33, 18, "#225870"], [33, 30, "#214c60"]]],
+            ["#202d36", [[17, 0, "#1e323d"], [30, 1, "#1a3e54"], [43, 1, "#1e485e"], [43, 15, "#255e72"], [43, 26, "#225266"], [43, 36, "#224b5f"]]]
         ],
         "green": [
             ["#233b20", [[6, 0, "#273d21"], [15, 0, "#2d4520"], [32, 21, "#435b25"], [32, 31, "#3a5526"]]],
@@ -95,14 +98,6 @@ const GetWeaponColor = function (shot, region)
     }
     return "unknown color";
 };
-// log(IsEquiped(captureScreen(), [1178, 99, 33, 27]));
-// log(GetWeaponColor(captureScreen(), [879, 116, 95, 90]));
-/**
- * 
- * @param {*} shot 
- * @param {*} region 
- * @returns 
- */
 const BlankCheck = function (shot, region)
 {
     const isBlank = images.findMultiColors(shot, "#191919", [[25, 1, "#1e1e1f"], [51, 2, "#1e1f1f"], [51, 23, "#1f1f20"], [50, 48, "#1b1c1d"], [26, 49, "#181819"],
@@ -200,7 +195,6 @@ const WearEquipment = function (needOpen, needClose)
     Sleep();
     log("穿戴装备完成");
 };
-// WearEquipment();
 
 const OpenEquipmentBox = function ()
 {
@@ -237,10 +231,8 @@ const OpenEquipmentBox = function ()
     equipmentImg.recycle();
     log("装备箱打开完成");
 };
-// OpenEquipmentBox();
 // ------------------------------strenghten weapon----------------------------------
 
-// log(GetWeaponColor(captureScreen(), [884, 105, 61, 60]));
 const IsLeadToVanish = function ()
 {
     const isVanish = images.findImage(images.captureScreen(), BackPackImg.equipmentVanish, { region: [75, 616, 340, 76], threshold: 0.8 });
@@ -284,8 +276,6 @@ const StrengthenItem = function ()
 {
     const shot = captureScreen();
 
-    const level_10 = ReadImg("strengthenedLevel_10");
-
     out: for (let i = 0; i < 5; i++)
     {
         for (let j = 0; j < 5; j++)
@@ -296,8 +286,9 @@ const StrengthenItem = function ()
                 log("强化完毕，退出 isBlank" + isBlank);
                 break out;
             }
+            let isEquip = IsEquiped(shot, [918 + j * 65, 96 + i * 65, 33, 36]);
             let weaponColor = GetWeaponColor(shot, [882 + j * 65, 104 + i * 65, 60, 60]);
-            if (weaponColor == "purple" || weaponColor == "blue" || weaponColor == "green")
+            if (isEquip == true && (weaponColor == "purple" || weaponColor == "blue" || weaponColor == "green"))
             {
                 RandomPress([895 + j * 65, 115 + i * 65, 35, 35]);
                 let isVanish = IsLeadToVanish();
@@ -324,38 +315,37 @@ const StrengthenItem = function ()
                     }
                 }
             }
-            else if (weaponColor == "white")
-            {
-                let isEquip = images.findMultiColors(shot, "#b0afa3", [[7, 0, "#484132"], [3, 5, "#291f09"], [8, 5, "#b1b0a0"], [3, 8, "#3b3222"], [9, 8, "#8c8172"],
-                [0, 8, "#b8b8a8"]], { region: [925 + j * 65, 106 + i * 65, 20, 18] });
-                if (isEquip) continue;
-                RandomPress([895 + j * 65, 115 + i * 65, 35, 35]);
-                let isUpToLevel_10 = images.findImage(captureScreen(), level_10, { region: [263, 140, 50, 36] });
-                if (isUpToLevel_10) continue;
-                for (let n = 0; n < 4; n++)
-                {
-                    let strenghten_shot = captureScreen();
-                    isUpToLevel_10 = images.findImage(strenghten_shot, level_10, { region: [263, 140, 50, 36] });
-                    if (isUpToLevel_10) break;
-                    let hasFailed = images.findMultiColors(strenghten_shot, "#1d1d1f", [[13, 1, "#202020"], [29, 0, "#1e1e1f"], [29, 20, "#202021"],
-                    [28, 43, "#1e1f20"], [-7, 53, "#1a1a1b"], [-31, 54, "#19191b"], [-35, 32, "#19191b"]], { region: [85, 203, 78, 81] });
-                    if (hasFailed) break;
-                    let isUseOut_2 = images.findMultiColors(strenghten_shot, "#191a1a", [[26, -1, "#1b1d1d"], [59, -1, "#1f1f20"],
-                    [61, 24, "#1f1f20"], [61, 54, "#1d1d1e"], [31, 59, "#171718"], [1, 59, "#191919"], [-2, 28, "#191919"], [26, 13, "#2e2f2c"],
-                    [41, 18, "#40403b"], [27, 26, "#2d2e29"], [17, 35, "#3d3d3a"], [32, 44, "#393a37"]], { region: [350, 206, 74, 76] });
-                    if (isUseOut_2) break out;
-                    RandomPress([933, 672, 284, 28]);
-                    Sleep(3000, 5000);
-                    RandomPress([933, 672, 284, 28]);
-                    Sleep(2000, 3000);
-                    RandomPress([230, 157, 740, 428]);
-                    Sleep(2000, 3000);
-                }
-            }
+            // else if (weaponColor == "white")
+            // {
+            //     let isEquip = images.findMultiColors(shot, "#b0afa3", [[7, 0, "#484132"], [3, 5, "#291f09"], [8, 5, "#b1b0a0"], [3, 8, "#3b3222"], [9, 8, "#8c8172"],
+            //     [0, 8, "#b8b8a8"]], { region: [925 + j * 65, 106 + i * 65, 20, 18] });
+            //     if (isEquip) continue;
+            //     RandomPress([895 + j * 65, 115 + i * 65, 35, 35]);
+            //     let isUpToLevel_10 = images.findImage(captureScreen(), level_10, { region: [263, 140, 50, 36] });
+            //     if (isUpToLevel_10) continue;
+            //     for (let n = 0; n < 4; n++)
+            //     {
+            //         let strenghten_shot = captureScreen();
+            //         isUpToLevel_10 = images.findImage(strenghten_shot, level_10, { region: [263, 140, 50, 36] });
+            //         if (isUpToLevel_10) break;
+            //         let hasFailed = images.findMultiColors(strenghten_shot, "#1d1d1f", [[13, 1, "#202020"], [29, 0, "#1e1e1f"], [29, 20, "#202021"],
+            //         [28, 43, "#1e1f20"], [-7, 53, "#1a1a1b"], [-31, 54, "#19191b"], [-35, 32, "#19191b"]], { region: [85, 203, 78, 81] });
+            //         if (hasFailed) break;
+            //         let isUseOut_2 = images.findMultiColors(strenghten_shot, "#191a1a", [[26, -1, "#1b1d1d"], [59, -1, "#1f1f20"],
+            //         [61, 24, "#1f1f20"], [61, 54, "#1d1d1e"], [31, 59, "#171718"], [1, 59, "#191919"], [-2, 28, "#191919"], [26, 13, "#2e2f2c"],
+            //         [41, 18, "#40403b"], [27, 26, "#2d2e29"], [17, 35, "#3d3d3a"], [32, 44, "#393a37"]], { region: [350, 206, 74, 76] });
+            //         if (isUseOut_2) break out;
+            //         RandomPress([933, 672, 284, 28]);
+            //         Sleep(3000, 5000);
+            //         RandomPress([933, 672, 284, 28]);
+            //         Sleep(2000, 3000);
+            //         RandomPress([230, 157, 740, 428]);
+            //         Sleep(2000, 3000);
+            //     }
+            // }
         }
 
     }
-    level_10.recycle();
 };
 /**
  * 
@@ -376,18 +366,16 @@ const StrengthenEquipment = function (type)
         else if (type == "armor") RandomPress([1228, 283, 26, 28]); // armor page
         RandomPress([1027, 497, 65, 13]); // not binding
         StrengthenItem();
+        Sleep();
+        GoBack();// backpack
+        Sleep();
     }
-    Sleep();
-    GoBack();// backpack
-    Sleep();
+    else
+    {
+        OpenBackpack();
+    }
 };
-// StrengthenEquipment("armor");
-// log(GetWeaponColor(captureScreen(), [882 + 1 * 65, 104 + 0 * 65, 60, 60]));
-// log(GetWeaponColor(captureScreen(), [945, 104, 63, 62]));
 
-
-// log(images.matchTemplate(captureScreen(), ReadImg("props/strengthenScroll_armor_tied"), { region: [884, 96, 343, 417] }));
-// log(BlankCheck(captureScreen(), [1141, 104, 67, 63]));
 const DecomposeProps = function ()
 {
     const popupCheck = function ()
@@ -482,11 +470,7 @@ const ReturnHome = function ()
     }
     else
     {
-        RandomPress(BackPackPos.icon);
-        Sleep(3000, 4000);
-
-        RandomPress(BackPackPos.props);
-        Sleep();
+        OpenBackpack("props");
 
         const returnHomeIcon = ReadImg("return_home");
         const hasReturnHome = images.findImage(captureScreen(), returnHomeIcon, { region: [883, 104, 344, 401] });
@@ -515,8 +499,7 @@ const ReturnHome = function ()
     quickItem_returnHome.recycle();
     log("return home to purchase potion");
 };
-// DecomposeProps();
-// log(images.matchTemplate(captureScreen(), ReadImg("E"), { region: [883, 105, 374, 435], threshold: 0.8 }));
+
 
 const StoreEquipment = function ()
 {
@@ -625,7 +608,7 @@ const DecomposeGreenSuit = function ()
         reservedList.push(ReadImg(`reservedList/${(i + 1).toString().padStart(2, "0")}`));
     }
     const shot = captureScreen();
-    for (let i = 0; i < 4; i++)
+    for (let i = 0; i < 5; i++)
     {
         for (let j = 0; j < 5; j++)
         {
@@ -667,16 +650,59 @@ const DecomposeAllGreenSuit = function ()
     }
     RandomPress([1005, 506, 33, 28]); //decompose btn;   
     decomposeSuccess = DecomposeGreenSuit();
-    if (decomposeSuccess)
+    for (let i = 0; i < 3; i++)
     {
-        console.log("decompose green suit success");
-        DecomposeGreenSuit();
+        decomposeSuccess = DecomposeGreenSuit();
+        if (!decomposeSuccess) break;
+        Sleep();
     }
-    Sleep();
     RandomPress([1243, 68, 31, 16]); //close decompose window;
     return decomposeSuccess;
 };
-
+const DecomposeAllWhiteSuit = function ()
+{
+    const popupCheck = function ()
+    {
+        Sleep(2000, 3000);
+        const hasPopup = images.findMultiColors(captureScreen(), "#363636", [[2, 19, "#303030"], [41, 6, "#262728"],
+        [69, 13, "#262627"], [116, 4, "#394235"], [123, 20, "#2b3326"]], { region: [521, 426, 245, 77] });
+        if (hasPopup)
+        {
+            RandomPress([577, 376, 20, 16]);
+            let setting = game_config.setting;
+            setting.decompose = true;
+            RWFile("setting", setting);
+            RandomPress([702, 455, 125, 24]);
+        }
+    };
+    // OpenBackpack("equipment");
+    RandomPress([1009, 511, 23, 20]); //decompose
+    Sleep();
+    RandomPress([922, 512, 53, 16]); //normal
+    for (let i = 0; i < 3; i++)
+    {
+        RandomPress([1120, 508, 122, 22]); //decompose
+        let continueDecompose = images.findMultiColors(captureScreen(), "#363636", [[16, 0, "#343434"], [11, 8, "#333334"], [55, 6, "#262828"], [83, 3, "#262626"],
+        [121, 1, "#3e4638"], [128, 6, "#373e32"], [120, 18, "#2f372b"]], { region: [480, 538, 378, 70] });
+        if (continueDecompose == null) break;
+        popupCheck();
+        Sleep();
+        RandomPress([696, 563, 127, 23]); //popup confirm
+        Sleep();
+        let isNoMoney = images.findMultiColors(captureScreen(), "#383838", [[-1, 21, "#29292a"], [88, 0, "#333333"], [112, 21, "#2e2e2e"]], { region: [429, 537, 183, 71] });
+        if (isNoMoney)
+        {
+            RandomPress([455, 565, 132, 20]);
+            break;
+        }
+        else
+        {
+            RandomPress([323, 95, 522, 217]);
+        }
+    }
+    OpenBackpack();
+};
+// DecomposeAllWhiteSuit();
 const SortEquipment = function ()
 {
     Sleep();
@@ -707,8 +733,21 @@ const ViewPrice = function ()
     Sleep();
     return [amount, price];
 };
-// ViewPrice(4, 0);
-// log(ViewPrice(3, 2));
+
+const GetWeaponType = function (shot)
+{
+    const weaponTypeList = {
+        "weapon": ReadImg("flag/weaponType/weapon"),
+        "armor": ReadImg("flag/weaponType/armor"),
+        "ornament": ReadImg("flag/weaponType/ornament")
+    };
+    for (let key in weaponTypeList)
+    {
+        let theType = images.findImage(shot, weaponTypeList[key], { region: [650, 109, 46, 48] });
+        if (theType) return key;
+    }
+    return "unknown equipment type";
+};
 const GetAllEquipmentPrice = function ()
 {
     const priceList = [];
@@ -725,19 +764,21 @@ const GetAllEquipmentPrice = function ()
             }
             else continue;
             let equipmentColor = GetWeaponColor(shot, [885 + j * 65, 125 + i * 65, 60, 60]);
-            log("equipment color: " + equipmentColor);
             if (equipmentColor == "white")
             {
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
                 Sleep();
-                let canSell = images.findMultiColors(captureScreen(), "#9e9e88", [[0, 7, "#8e8e7c"], [-3, 9, "#282829"], [4, 12, "#282929"], [11, 12, "#9d9d91"], [-11, 12, "#a0a08f"]],
+                let detailShot = captureScreen();
+                let canSell = images.findMultiColors(detailShot, "#9e9e88", [[0, 7, "#8e8e7c"], [-3, 9, "#282829"], [4, 12, "#282929"], [11, 12, "#9d9d91"], [-11, 12, "#a0a08f"]],
                     { region: [647, 453, 38, 43] });
                 if (canSell)
                 {
+                    let type = GetWeaponType(detailShot);
+                    if (type == "unknown equipment type") continue;
                     RandomPress([654, 460, 24, 26]); // enter trade market;
                     Sleep(3000, 5000);
                     let [amount, price] = ViewPrice();
-                    let item = { row: i, col: j, amount: amount, price: price };
+                    let item = { row: i, col: j, amount: amount, price: price, type: type };
                     priceList.push(item);
                     Sleep();
                     OpenBackpack("equipment");
@@ -747,33 +788,265 @@ const GetAllEquipmentPrice = function ()
     }
     return priceList;
 };
-log(GetAllEquipmentPrice());
 
-// strengthen equipment
+const StrengthenToLevel_10 = function ()
+{
+    const level_10 = ReadImg("strengthenedLevel_10");
+    let isUpToLevel_10 = false;
+    for (let n = 0; n < 4; n++)
+    {
+        let strenghten_shot = captureScreen();
+        isUpToLevel_10 = images.findImage(strenghten_shot, level_10, { region: [263, 140, 50, 36] });
+        if (isUpToLevel_10) break;
+        let hasFailed = images.findMultiColors(strenghten_shot, "#1d1d1f", [[13, 1, "#202020"], [29, 0, "#1e1e1f"], [29, 20, "#202021"],
+        [28, 43, "#1e1f20"], [-7, 53, "#1a1a1b"], [-31, 54, "#19191b"], [-35, 32, "#19191b"]], { region: [85, 203, 78, 81] });
+        if (hasFailed) break;
+        let isUseOut_2 = images.findMultiColors(strenghten_shot, "#191a1a", [[26, -1, "#1b1d1d"], [59, -1, "#1f1f20"],
+        [61, 24, "#1f1f20"], [61, 54, "#1d1d1e"], [31, 59, "#171718"], [1, 59, "#191919"], [-2, 28, "#191919"], [26, 13, "#2e2f2c"],
+        [41, 18, "#40403b"], [27, 26, "#2d2e29"], [17, 35, "#3d3d3a"], [32, 44, "#393a37"]], { region: [350, 206, 74, 76] });
+        if (isUseOut_2) break;
+        RandomPress([933, 672, 284, 28]);
+        Sleep(3000, 5000);
+        RandomPress([933, 672, 284, 28]);
+        Sleep(2000, 3000);
+        RandomPress([230, 157, 740, 428]);
+        Sleep(2000, 3000);
+    }
+    level_10.recycle();
+    return isUpToLevel_10;
+};
 const StrengthenTheEquipment = function (arr)
 {
     let strengthenSuccess = false;
-
+    if (arr.length == 0) return strengthenSuccess = false;
+    //get the most expensive equipment
+    const mostExpensive = arr.sort((a, b) => b.price - a.price)[0];
+    const { row, col, type } = mostExpensive;
+    log("strengthen the equipment: " + row + " " + col + " " + type);
+    RandomPress([895 + col * 65, 135 + row * 65, 40, 40]); // click the equipment
+    Sleep(1000, 3000);
+    RandomPress([599, 465, 25, 20]); // click strengthen
+    Sleep(2000, 4000);
+    const scroll = ReadImg(`flag/strengthenScroll/${type}`);
+    const hasScroll = images.findImage(captureScreen(), scroll, { region: [893, 520, 354, 65] });
+    scroll.recycle();
+    if (hasScroll)
+    {
+        RandomPress([1027, 497, 61, 15]); //concel the normal strengthen
+        RandomPress([hasScroll.x, hasScroll.y, 20, 20]); // click the scroll
+        Sleep(2000, 4000);
+        strengthenSuccess = StrengthenToLevel_10();
+    }
+    GoBack();
+    return strengthenSuccess;
 };
+
+// log(StrengthenTheEquipment([{ row: 4, col: 2, amount: 6, price: 39, type: "armor" }, { row: 4, col: 3, amount: 6, price: 38, type: "armor" }]));
+// log(GetWeaponType(captureScreen()));
+const SaleEquipment = function ()
+{
+    let salePrice = 0;
+    Sleep(2000, 3000);
+    RandomPress([1232, 298, 22, 30]); // equipment icon;
+    const shot = captureScreen();
+    out: for (let i = 0; i < 5; i++)
+    {
+        for (let j = 0; j < 5; j++)
+        {
+            Sleep();
+            let color = GetWeaponColor(shot, [875 + j * 65, 175 + i * 65, 60, 60]);
+            if (color == "white" || color == "green")
+            {
+                RandomPress([887 + j * 65, 188 + i * 65, 40, 35]); // click the equipment
+                Sleep(1000, 3000);
+                let price = NumberRecognition("amount", [925, 385, 132, 33]);
+                log("sale price: " + price);
+                if (price > 50)
+                {
+                    RandomPress([680, 644, 125, 22]); // sell btn;
+                    RandomPress([688, 486, 124, 22]); // confirm btn;
+                    salePrice += price;
+                }
+                else
+                {
+                    RandomPress([497, 643, 128, 23]); //cancel btn;
+                }
+            }
+            else
+            {
+                break out;
+            }
+        }
+    }
+    // GoBack();
+    return salePrice;
+};
+const SaleMaterials = function ()
+{
+    Sleep(1000, 3000);
+    RandomPress([1232, 388, 21, 32]); //material icon;
+    const shot = captureScreen();
+    let total, price = 0;
+    out: for (let i = 0; i < 5; i++)
+    {
+        for (let j = 0; j < 5; j++)
+        {
+            Sleep();
+            let color = GetWeaponColor(shot, [875 + j * 65, 175 + i * 65, 60, 60]);
+            if (color == "purple" || color == "blue" || color == "green")
+            {
+                RandomPress([887 + j * 65, 188 + i * 65, 40, 35]); // click the equipment
+                Sleep(1000, 3000);
+                price = NumberRecognition("amount", [925, 385, 132, 33]);
+                log("sale price: " + price);
+                if (price > 10)
+                {
+                    RandomPress([680, 644, 125, 22]); // sell btn;
+                    RandomPress([688, 486, 124, 22]); // confirm btn;
+                    total += price;
+                }
+                else
+                {
+                    RandomPress([497, 643, 128, 23]); //cancel btn;
+                }
+            }
+            else if (color == "white") continue;
+            else
+            {
+                break out;
+            }
+        }
+    }
+    return total;
+};
+const GetSettlement = function ()
+{
+    console.log("Start Today Settlement");
+    Sleep(2000, 3000);
+    const hadSettlement = TipPointCheck([366, 83, 40, 32]);
+    if (hadSettlement)
+    {
+        RandomPress([298, 95, 75, 31]); // settlement icon;
+        Sleep(2000, 4000);
+        const total = NumberRecognition("amount", [504, 3, 113, 32]);
+        const settlement = NumberRecognition("amount", [997, 672, 103, 34]);
+        const lastTime = TimeConvert(NumberRecognition("amount", [1050, 670, 44, 36]));
+        console.log("Today earnings: " + settlement + " 钻石");
+        const player = game_config.player;
+        if (player.trade == undefined)
+        {
+            player.trade = {
+                total: total,
+                settlement: settlement,
+                lastTime: lastTime
+            };
+
+        }
+        else
+        {
+            player.trade.total = total;
+            player.trade.settlement = settlement;
+            player.trade.lastTime = lastTime;
+        }
+        RWFile("player", player);
+        Sleep();
+        RandomPress([1118, 674, 127, 30]); //settlement btn;
+        Sleep();
+        ui.web.jsBridge.callHandler('updateTradeRecord', JSON.stringify(player.trade), (data) =>
+        {
+            console.log("update trade record success" + data);
+        });
+        ui.run(function ()
+        {
+            floaty_window.settlement.setText(`${settlement}`);
+        });
+    }
+    else
+    {
+        console.log("今日收益: 0 钻石");
+    }
+    console.log("End Today Settlement");
+    return hadSettlement;
+};
+const RePutOnShelf = function ()
+{
+    Sleep(1000, 3000);
+    const hasOverTime = images.findMultiColors(captureScreen(), "#3e4638", [[30, -4, "#3c4537"], [67, 0, "#343a2e"], [117, 3, "#383e32"], [114, 28, "#30382c"],
+    [55, 30, "#2b3528"], [5, 29, "#2c3428"], [-6, 14, "#343c2f"]], { region: [1101, 663, 156, 51] });
+    if (hasOverTime)
+    {
+        RandomPress([1113, 673, 131, 32]);
+        Sleep(1000, 3000);
+        RandomPress([685, 484, 126, 24]);
+    }
+};
+// GetSettlement();
+// log(NumberRecognition("amount", [504, 3, 113, 32]));
+// log(TimeConvert(NumberRecognition("amount", [1041, 314, 172, 36])));
+// SaleMaterials();
 const PutOnSale = function ()
 {
-    let hadSold = false;
+    let hadSold, isStrengthenSuccess = false;
+    // PropsCollectionFlow();
+    Sleep(2000, 3000);
     console.log("start put on sale");
-    // DecomposeAllGreenSuit();
-    // Sleep();
-    // SortEquipment();
+    DecomposeAllGreenSuit();
+    Sleep();
+    SortEquipment();
     const priceList = GetAllEquipmentPrice();
-    log(priceList);
-
+    if (priceList.length == 0)
+    {
+        console.log("no equipment to sale");
+        hadSold = false;
+        RandomPress([843, 69, 28, 15]); //close the equipment detail page;
+    }
+    else
+    {
+        isStrengthenSuccess = StrengthenTheEquipment(priceList);
+        Sleep(2000, 3000);
+        OpenBackpack("equipment");
+    }
+    // log(priceList);  
+    DecomposeAllWhiteSuit();
+    Sleep();
+    RandomPress([1024, 15, 28, 31]); // trade icon;
+    Sleep(3000, 5000);
+    RandomPress([180, 99, 54, 23]); // sell page
+    Sleep();
+    if (isStrengthenSuccess)
+    {
+        console.log("go to sale !!!");
+        const totalPrice = SaleEquipment();
+        if (totalPrice > 0)
+        {
+            hadSold = true;
+        }
+        else
+        {
+            hadSold = false;
+        }
+    }
+    Sleep(1000, 3000);
+    SaleMaterials();
+    Sleep();
+    RePutOnShelf();
+    Sleep();
+    GetSettlement();
+    GoBack();
+    return hadSold;
 };
+
 // PutOnSale();
-// module.exports = {
-//     OpenEquipmentBox,
-//     WearEquipment,
-//     StrengthenEquipment,
-//     DecomposeProps,
-//     ReturnHome,
-//     StoreEquipment,
-//     BlankCheck,
-//     PutOnSale
-// };
+// log(GetWeaponType(captureScreen()));
+// log(images.matchTemplate(captureScreen(), ReadImg("flag/weaponType/ornament"), { region: [650, 109, 46, 48] }));
+// OpenEquipmentBox();
+module.exports = {
+    OpenEquipmentBox,
+    WearEquipment,
+    StrengthenEquipment,
+    DecomposeProps,
+    ReturnHome,
+    StoreEquipment,
+    BlankCheck,
+    PutOnSale
+};

@@ -1,4 +1,4 @@
-const { Sleep, InCity, RandomPress, GoBack } = require("./utils.js");
+const { Sleep, InCity, RandomPress, GoBack } = require("./Utils.js");
 const { ReturnHome, BlankCheck, StrengthenEquipment } = require("./BackPack");
 
 const ColorCheck = function (region)

@@ -1,22 +1,4 @@
-const Sleep = (min, max) =>
-{
-    min = min || 1000;
-    max = max || 2000;
-    sleep(random(min, max));
-};
-const RandomPress = ([startX, startY, w, h]) =>
-{
-    const time = random(16, 512);
-    const x = Math.round(Math.random() * w + startX);
-    const y = Math.round(Math.random() * h + startY);
-    press(x, y, time);
-    Sleep();
-};
-const ReadImg = (name) => images.read(`./img/${name}.png`);
-const GoBack = () => RandomPress([1149, 10, 125, 52]);
-const PressBlank = () => RandomPress([270, 96, 647, 502]);
-const PressMenu = () => RandomPress([1226, 19, 24, 27]);
-const PressBackpack = () => RandomPress([1094, 24, 22, 27]);
+
 let game_config = {
     "player": {
         "deathtime": 0,
@@ -27,6 +9,11 @@ let game_config = {
             "chestplate": { "color": "white", "level": 0 },
             "pants": { "color": "white", "level": 0 },
             "boots": { "color": "white", "level": 0 }
+        },
+        "trade": {
+            "total": 0,
+            "lastTime": "",
+            "settlement": 0
         }
     },
     "ui": {
@@ -47,15 +34,15 @@ let game_config = {
         "autoShop": false
     }
 };
-const configUrl = "/sdcard/Rom/game_config.json";
+const jsonFile = "/sdcard/Rom/game_config.json";
 function RWFile(type, obj)
 {
-    const isCreate = files.createWithDirs(configUrl);
+    const isCreate = files.createWithDirs(jsonFile);
     if (isCreate)
     {
-        files.write(configUrl, JSON.stringify(game_config));
+        files.write(jsonFile, JSON.stringify(game_config));
     }
-    let data = JSON.parse(files.read(configUrl));
+    let data = JSON.parse(files.read(jsonFile));
     if (type == null || obj == null)
     {
         return data;
@@ -74,7 +61,7 @@ function RWFile(type, obj)
     }
     try
     {
-        files.write(configUrl, JSON.stringify(data));
+        files.write(jsonFile, JSON.stringify(data));
     } catch (e)
     {
         log(e);
@@ -83,26 +70,6 @@ function RWFile(type, obj)
 game_config = RWFile();
 game_config.setting.time = GetLocalTime();
 
-
-
-const CharacterIdentity = function ()
-{
-    const actor = ReadImg("archer");
-    const isArcher = images.findImage(captureScreen(), actor, { region: [6, 4, 78, 79] });
-    actor.recycle();
-    const player = game_config.player;
-    if (isArcher)
-    {
-        player.profession = "archer";
-        RWFile("player", player);
-        return true;
-    } else
-    {
-        player.profession = "wizard";
-        RWFile("player", player);
-        return false;
-    }
-};
 
 function GetLocalTime()
 {
@@ -121,14 +88,6 @@ function GetLocalTime()
 log("Global.js 加载完成");
 module.exports = {
     game_config,
-    Sleep,
-    RandomPress,
-    PressBlank,
-    PressMenu,
-    PressBackpack,
     RWFile,
-    ReadImg,
-    GoBack,
-    CharacterIdentity,
     GetLocalTime,
 };

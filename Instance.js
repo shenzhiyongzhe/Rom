@@ -1,4 +1,5 @@
-const { game_config, ReadImg, Sleep, RandomPress, GoBack, PressMenu, PressBackpack } = require("./Global.js");
+const { game_config, } = require("./Global.js");
+const { ReadImg, Sleep, RandomPress, GoBack, PressMenu, PressBackpack } = require("./Utils.js");
 const { Daily } = require("./Daily.js");
 const { GroceryFlow } = require("./Death.js");
 const { AbilityPointsFlow, MissionAwardFlow } = require("./Common.js");
@@ -157,13 +158,6 @@ function EnterInstanceZones()
     if (!hasMenuIcon) return;
     Sleep(3000, 5000);
     Daily();
-    OpenEquipmentBox();
-    Sleep();
-    WearEquipment();
-    Sleep();
-    StrengthenEquipment("weapon");
-    Sleep();
-    StrengthenEquipment("armor");
     Sleep();
     GetInstanceQueue();
     PressMenu();
@@ -227,8 +221,8 @@ function EnterInstanceZones()
     }
 
     Sleep();
-    AbilityPointsFlow();
     AutoBattleCheck();
+    AbilityPointsFlow();
     RandomPress([19, 449, 25, 14]);
 }
 const UseRandomTransformScroll = function ()
@@ -316,7 +310,7 @@ function HangUpWild(number)
         if (isNoMoney_1) return;
         Sleep(8000, 16000);
         RandomPress([1163, 552, 29, 28]); //auto battle
-        RandomPress([19, 450, 24, 12]); // save mode
+        // RandomPress([19, 450, 24, 12]); // save mode
         log("go to the wild: " + mapName);
     }
     else
@@ -328,9 +322,9 @@ function HangUpWild(number)
         if (hasAlreadyInThere)
         {
             RandomPress([1164, 24, 106, 23]); //press back
-            AutoBattleCheck();
-            AbilityPointsFlow();
-            RandomPress([19, 450, 24, 12]); //save mode
+            // AutoBattleCheck();
+            // AbilityPointsFlow();
+            // RandomPress([19, 450, 24, 12]); //save mode
         }
         else
         {
@@ -342,7 +336,7 @@ function HangUpWild(number)
             if (isNoMoney_2) return;
             Sleep(8000, 16000);
             RandomPress([1163, 552, 29, 28]); //auto battle
-            RandomPress([19, 450, 24, 12]); // save mode
+            // RandomPress([19, 450, 24, 12]); // save mode
             log("go to the wild: " + mapName);
         }
 

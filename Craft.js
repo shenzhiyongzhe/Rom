@@ -1,16 +1,6 @@
 const { WearEquipment } = require("./BackPack.js");
-const {
-
-    game_config,
-    PressBlank,
-    RWFile,
-    ReadImg,
-    Sleep,
-    RandomPress,
-    GoBack,
-    CharacterIdentity,
-} = require("./Global.js");
-
+const { game_config, RWFile } = require("./Global.js");
+const { PressBlank, ReadImg, Sleep, RandomPress, GoBack, } = require("./Utils.js");
 const CraftPos = {
     icon: [953, 200, 33, 31],
     craft_button: [1062, 657, 175, 36],

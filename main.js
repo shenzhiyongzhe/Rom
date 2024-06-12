@@ -3,7 +3,8 @@ const UI = require("./UI.js");
 UI();
 
 
-const { game_config, RWFile, PressMenu, Sleep, GoBack } = require("./Global.js");
+const { game_config, RWFile, } = require("./Global.js");
+const { PressMenu, Sleep, GoBack } = require("./Utils.js");
 
 const Check = require("./Check.js");
 const BeginnerFlow = require("./Beginner.js");
@@ -15,15 +16,17 @@ console.setGlobalLogConfig({
     "filePattern": "%d{dd日}%m%n"
 });
 const bird = "file://img/bird.png";
+/* <frame gravity="center">
+    <img src="{{bird}}" w="24" h="24" alpha="1" />
+</frame>; */
 const floaty_window = floaty.window(
-    <frame gravity="center">
-        <frame gravity="center">
-            <img id="switch" src="{{bird}}" w="24" h="24" alpha="1" />
-        </frame>
+    <frame gravity="center" id="switch" w="40" h="26" bg="#ffffff" alpha="1">
+        <text id="settlement" textColor="#f44336">000</text>
     </frame>
+
 );
 
-floaty_window.setPosition(0, 60);
+floaty_window.setPosition(0, 550);
 let mainThread;
 floaty_window.switch.click(function ()
 {
@@ -62,12 +65,12 @@ const Main = function (data)
     Sleep(3000, 4000);
     for (let i = 0; i < 5; i++)
     {
-        Sleep();
+        Sleep(3000, 5000);
         UnifyScreen();
         Exception();
     }
 
-    Sleep(3000, 5000);
+    Sleep(60000, 180000);
     if (gameMode == "instance") EnterInstanceZones();
     mainThread = threads.start(function ()
     {

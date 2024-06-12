@@ -1,4 +1,4 @@
-const { ReadImg, Sleep, RandomPress, GoBack, PressMenu, } = require("./Global.js");
+const { ReadImg, Sleep, RandomPress, GoBack, PressMenu, } = require("./Utils.js");
 const { WearEquipment, OpenEquipmentBox, StrengthenEquipment } = require("./BackPack.js");
 const { AbilityPointsFlow, MissionAwardFlow } = require("./Common.js");
 const { Daily } = require("./Daily.js");
@@ -156,5 +156,5 @@ const MainStory = function ()
 };
 
 
-// module.exports = { MainStory };
-MainStory();
+module.exports = { MainStory };
+// MainStory();

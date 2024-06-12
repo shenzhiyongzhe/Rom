@@ -1,6 +1,6 @@
 
-const { ReadImg, Sleep, RandomPress, GoBack, game_config, RWFile } = require("./Global.js");
-
+const { game_config, RWFile } = require("./Global.js");
+const { ReadImg, Sleep, RandomPress, GoBack } = require("./Utils.js");
 const { WearEquipment } = require("./BackPack.js");
 const { Daily } = require("./Daily.js");
 const { MissionAwardFlow } = require("./Common.js");

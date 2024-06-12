@@ -1,4 +1,5 @@
-const { game_config, Sleep, RandomPress, GoBack, ReadImg, PressBlank, } = require("./Global.js");
+const { game_config } = require("./Global.js");
+const { Sleep, RandomPress, GoBack, ReadImg, PressBlank, } = require("./Utils.js");
 
 const { WearEquipment, DecomposeProps } = require("./BackPack.js");
 const propCollectionPos = [1098, 121, 19, 27];

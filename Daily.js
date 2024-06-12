@@ -1,5 +1,5 @@
-const { Sleep, RandomPress, GoBack, PressBlank, PressMenu } = require("./Global.js");
-
+const { Sleep, RandomPress, GoBack, PressBlank, PressMenu } = require("./Utils.js");
+const { OpenEquipmentBox, WearEquipment, StrengthenEquipment, } = require("./BackPack.js");
 function MenuTipCheck()
 {
     const hasMenuTipPoint = images.findMultiColors(captureScreen(), "#b52110", [[0, 3, "#c22516"], [0, 5, "#c32b1c"]], { region: [1236, 3, 32, 25] });
@@ -296,6 +296,14 @@ function Daily()
     {
         GetDuty();
         ShopFlow();
+        Sleep();
+        OpenEquipmentBox();
+        Sleep();
+        WearEquipment();
+        Sleep();
+        StrengthenEquipment("weapon");
+        Sleep();
+        StrengthenEquipment("armor");
     }
     else
     {

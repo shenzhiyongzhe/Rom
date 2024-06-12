@@ -1,5 +1,6 @@
 test.js
-tool.js
+tool.js,
+test.html,
 _gsdata_
 node_modules
 package-lock.json

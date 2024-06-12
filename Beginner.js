@@ -1,4 +1,4 @@
-const { ReadImg, Sleep, RandomPress, GoBack } = require("./Global.js");
+const { ReadImg, Sleep, RandomPress, GoBack } = require("./Utils.js");
 
 const BeginnerImg = {
     skip: ReadImg("mainStory_skip"),

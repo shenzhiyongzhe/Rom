@@ -18,6 +18,10 @@ const startScript = document.querySelector("#startScript");
 const updateScript = document.querySelector("#updateScript");
 const shopCheckBox = document.querySelector("input[name=shop]");
 const version = document.querySelector("#version");
+//trade
+const total = document.querySelector("#total");
+const time = document.querySelector("#time");
+const settlement = document.querySelector("#settlement");
 //复选框
 beginnerCheckBox.addEventListener("click", () =>
 {
@@ -108,6 +112,14 @@ $autox.registerHandler("InitUIData", (data, callBack) =>
         //回调安卓
         callBack(data);
     }, 1000);
+});
+$autox.registerHandler("updateTradeRecord", (data, callBack) =>
+{
+    const trade = JSON.parse(data);
+    total.innerHTML = trade.total;
+    time.innerHTML = trade.time;
+    settlement.innerHTML = trade.settlement;
+    callBack(data);
 });
 // updateGame.addEventListener("click", () =>
 // {

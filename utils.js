@@ -18,11 +18,7 @@ const GoBack = () => RandomPress([1125, 18, 141, 35]);
 const PressBlank = () => RandomPress([270, 96, 647, 502]);
 const PressMenu = () => RandomPress([1226, 19, 24, 27]);
 const PressBackpack = () => RandomPress([1094, 24, 22, 27]);
-/**
- * @param {*} path  settlement or level
- * @param {*} region [961, 657, 216, 61] or [31, 38, 64, 40]
- * @returns 
- */
+
 const NumberRecognition = function (directory, region)
 {
     const numberArr = [];
@@ -37,14 +33,11 @@ const NumberRecognition = function (directory, region)
         }
         numberArr.push(arr);
     }
-    // log(numberArr);
-    //recognition
     const shot = captureScreen();
     let settleAccount = []; //settle account
     for (let i = 0; i < 10; i++)
     {
         let n = numberArr[i].length;
-        // log("n: " + n);
         for (let j = 0; j < n; j++)
         {
             let num = images.matchTemplate(shot, numberArr[i][j], { region: region });
@@ -57,6 +50,8 @@ const NumberRecognition = function (directory, region)
     }
     // //recycle
     numberArr.forEach(arr => arr.forEach(img => img.recycle()));
+    // check if it is not a number
+    if (settleAccount.length === 0) return null;
     //sort
     const sequence = [];
     settleAccount.forEach(item =>
@@ -80,16 +75,7 @@ const NumberRecognition = function (directory, region)
     const finalNumber = filteredArr.join("");
     return parseInt(finalNumber);
 };
-// console.time("NumberRecognition");
-// log(NumberRecognition("amount", [1109, 377, 94, 45]));
-// log(images.matchTemplate(captureScreen(), ReadImg("number/amount/1/3"), { region: [956, 399, 48, 37] }));
-// log(ReadImg("number/amount/0/0"));
-// console.timeEnd("NumberRecognition");
-/**
- * @description check if there is a tip point in the area
- * @param {*} region the tip point area
- * @returns 
- */
+
 const TipPointCheck = function (region)
 {
     const tipPointArr = [
@@ -107,10 +93,6 @@ const TipPointCheck = function (region)
     return hasTipPoint;
 };
 
-/**
- * 
- * @returns {boolean} true in city, false not in city
- */
 const InCity = function ()
 {
     const groceryIcon = ReadImg("grocery");
@@ -120,9 +102,24 @@ const InCity = function ()
 };
 // log(InCity());
 
+
 const NoMoneyAlert = function ()
 {
     alert("手动处理", "no money");
+};
+const TimeConvert = function (timeString)
+{
+    if (timeString == null) return null;
+    timeString = timeString.toString();
+    if (timeString.length != 14) return null;
+
+    const year = timeString.slice(0, 4);
+    const month = timeString.slice(4, 6);
+    const day = timeString.slice(6, 8);
+    const hour = timeString.slice(8, 10);
+    const minute = timeString.slice(10, 12);
+    const second = timeString.slice(12, 14);
+    return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 };
 module.exports = {
     Sleep,
@@ -135,5 +132,6 @@ module.exports = {
     NumberRecognition,
     TipPointCheck,
     InCity,
-    NoMoneyAlert
+    NoMoneyAlert,
+    TimeConvert
 };

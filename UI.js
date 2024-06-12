@@ -124,15 +124,6 @@ const UI = () =>
         callBack("successful");
     });
 
-    // setInterval(() =>
-    // {
-    //     console.log("UI:game_config.setting.time:" + game_config.setting.time);
-    //     ui.web.jsBridge.callHandler('AndroidToWeb', JSON.stringify(game_config), (data) =>
-    //     {
-    //         console.log("web callback:" + data);
-    //     });
-    // }, 1000);
-
     //定时器中等待web加载完成
     setTimeout(() =>
     {

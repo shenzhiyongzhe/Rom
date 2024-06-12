@@ -1,5 +1,5 @@
-const { game_config, ReadImg, Sleep, RandomPress, PressBlank } = require("./Global.js");
-
+const { game_config } = require("./Global.js");
+const { ReadImg, Sleep, RandomPress, PressBlank } = require("./Utils.js");
 
 const MissionAwardFlow = function ()
 {

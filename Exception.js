@@ -1,19 +1,18 @@
 const { game_config } = require("./Global.js");
-const { ReadImg, Sleep, RandomPress, } = require("./Utils.js");
+const { ReadImg, Sleep, RandomPress, InCity, } = require("./Utils.js");
+const { RomApp } = require("./CONST.js");
 const { ReturnHome, StoreEquipment, PutOnSale } = require("./BackPack.js");
 const { DeathFlow, GroceryFlow } = require("./Death.js");
 const { EnterInstanceZones } = require("./Instance.js");
 //断开连接
 const imgArr = {
     pageBack: ReadImg("back"),
-    potion_zero: ReadImg("potion_zero"),
     haltMode_outOfPotion: ReadImg("haltMode_outOfPotion"),
     exception_outOfPotion: ReadImg("exception_outOfPotion"),
     backpack_overload: ReadImg("exception_backpackOverload"),
     backpack_overload100: ReadImg("exception_backpackOverload100"),
     no_exp: ReadImg("exception_noExp")
 };
-const romApp = "com.kakaogames.rom";
 const RestartApp = function (appName)
 {
     app.openAppSetting(appName);
@@ -71,7 +70,7 @@ function Exception()
         RandomPress([462, 449, 146, 18]);
         Sleep(3000, 5000);
         app.launch("com.kakaogames.rom");
-        LaunchApp(romApp);
+        LaunchApp(RomApp);
         return false;
     }
     //背包满了
@@ -104,7 +103,7 @@ function Exception()
         console.log("检测到游戏不正常运行，游戏终止");
         RandomPress([568, 444, 148, 24]);
         Sleep(10000, 15000);
-        LaunchApp(romApp);
+        LaunchApp(RomApp);
         return false;
     }
 
@@ -114,7 +113,11 @@ function Exception()
     if (outOfPotion)
     {
         console.log("药水用完了，回城购买");
-        ReturnHome();
+        const isInCity = InCity();
+        if (isInCity)
+        {
+            ReturnHome();
+        }
         Sleep(10000, 15000);
         GroceryFlow();
         return false;
@@ -123,7 +126,10 @@ function Exception()
     {
         console.log("处于省电模式，药水用完了，回城购买");
         ExitHaltMode();
-        ReturnHome();
+        if (isInCity)
+        {
+            ReturnHome();
+        }
         Sleep(10000, 15000);
         GroceryFlow();
         return false;
@@ -149,7 +155,7 @@ function Exception()
                 if (i == 9)
                 {
                     //restart game
-                    RestartApp(romApp);
+                    RestartApp(RomApp);
                 }
             }
             else break;
@@ -198,7 +204,7 @@ function Exception()
         console.log("角色界面，点击开始游戏");
         RandomPress([1106, 660, 132, 21]);
         Sleep(30000, 60000);
-        if (images.findImage(captureScreen(), imgArr.potion_zero, { region: [941, 618, 77, 78] }))
+        if (images.findImage(captureScreen(), imgArr.exception_outOfPotion, { region: [941, 618, 77, 78] }))
         {
             GroceryFlow();
         }
@@ -210,7 +216,8 @@ function Exception()
         console.log("长时间未操作，自动点击关闭游戏");
         RandomPress([571, 447, 140, 21]);
         Sleep(4000, 6000);
-        alert("卡点", "未知问题，需手动处理");
+        // RestartApp(RomApp);
+        // alert("卡点", "未知问题，需手动处理");
         return false;
     }
 
@@ -251,7 +258,7 @@ function Exception()
             if (!hasBlackScreen) return false;
         }
 
-        RestartApp(romApp);
+        RestartApp(RomApp);
         return false;
     }
     return true;

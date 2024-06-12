@@ -855,13 +855,12 @@ const SaleEquipment = function ()
         {
             Sleep();
             let color = GetWeaponColor(shot, [875 + j * 65, 175 + i * 65, 60, 60]);
-            if (color == "white" || color == "green")
+            if (color == "white" || color == "green" || color == "blue" || color == "purple")
             {
                 RandomPress([887 + j * 65, 188 + i * 65, 40, 35]); // click the equipment
                 Sleep(1000, 3000);
                 let price = NumberRecognition("amount", [925, 385, 132, 33]);
-                log("sale price: " + price);
-                if (price > 50)
+                if (price > 10)
                 {
                     RandomPress([680, 644, 125, 22]); // sell btn;
                     RandomPress([688, 486, 124, 22]); // confirm btn;
@@ -986,7 +985,7 @@ const RePutOnShelf = function ()
 // SaleMaterials();
 const PutOnSale = function ()
 {
-    let hadSold, isStrengthenSuccess = false;
+    let hadSold = false;
     // PropsCollectionFlow();
     Sleep(2000, 3000);
     console.log("start put on sale");
@@ -1002,7 +1001,7 @@ const PutOnSale = function ()
     }
     else
     {
-        isStrengthenSuccess = StrengthenTheEquipment(priceList);
+        StrengthenTheEquipment(priceList);
         Sleep(2000, 3000);
         OpenBackpack("equipment");
     }
@@ -1013,19 +1012,16 @@ const PutOnSale = function ()
     Sleep(3000, 5000);
     RandomPress([180, 99, 54, 23]); // sell page
     Sleep();
-    if (isStrengthenSuccess)
+    const totalPrice = SaleEquipment();
+    if (totalPrice > 0)
     {
-        console.log("go to sale !!!");
-        const totalPrice = SaleEquipment();
-        if (totalPrice > 0)
-        {
-            hadSold = true;
-        }
-        else
-        {
-            hadSold = false;
-        }
+        hadSold = true;
     }
+    else
+    {
+        hadSold = false;
+    }
+
     Sleep(1000, 3000);
     SaleMaterials();
     Sleep();

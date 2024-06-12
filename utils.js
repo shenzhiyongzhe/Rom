@@ -105,7 +105,7 @@ const InCity = function ()
 
 const NoMoneyAlert = function ()
 {
-    alert("手动处理", "no money");
+    alert("手动处理", "no money 没有金币了");
 };
 const TimeConvert = function (timeString)
 {
@@ -121,6 +121,18 @@ const TimeConvert = function (timeString)
     const second = timeString.slice(12, 14);
     return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 };
+const MultiSampleColorCheck = function (shot, colorArr, region)
+{
+    let hasColor = false;
+    for (let i = 0; i < colorArr.length; i++)
+    {
+        let color = colorList[i][0];
+        let position = colorList[i][1];
+        hasColor = images.findMultiColors(shot, color, position, { region: region });
+        if (hasColor) break;
+    }
+    return hasColor;
+};
 module.exports = {
     Sleep,
     RandomPress,
@@ -133,5 +145,6 @@ module.exports = {
     TipPointCheck,
     InCity,
     NoMoneyAlert,
-    TimeConvert
+    TimeConvert,
+    MultiSampleColorCheck
 };

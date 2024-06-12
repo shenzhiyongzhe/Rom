@@ -3,6 +3,6 @@
     "main": "main.js",
     "ignore": ["build", "tool.js", "test.js", "test.html"],
     "packageName": "com.autojs.rom",
-    "versionName": "1.0.0611",
+    "versionName": "1.0.0612",
     "versionCode": 1
 }

@@ -1,17 +1,16 @@
-const { game_config } = require("./Global.js");
-const { ReadImg, Sleep, RandomPress, InCity, } = require("./Utils.js");
-const { RomApp } = require("./CONST.js");
-const { ReturnHome, StoreEquipment, PutOnSale } = require("./BackPack.js");
+// const { game_config } = require("./Global.js");
+const { ReadImg, Sleep, RandomPress, InCity, NoMoneyAlert, MultiSampleColorCheck, GoBack } = require("./Utils.js");
+const { RomApp, DisconnectedGameArray, DisconnectedServerArray, MainUIArray, DeathPopupArray, LongTimeNoInputArray, StartGameArray } = require("./CONST.js");
+const { ReturnHome, PutOnSale } = require("./BackPack.js");
 const { DeathFlow, GroceryFlow } = require("./Death.js");
 const { EnterInstanceZones } = require("./Instance.js");
 //断开连接
-const imgArr = {
+const imgList = {
     pageBack: ReadImg("back"),
-    haltMode_outOfPotion: ReadImg("haltMode_outOfPotion"),
-    exception_outOfPotion: ReadImg("exception_outOfPotion"),
-    backpack_overload: ReadImg("exception_backpackOverload"),
-    backpack_overload100: ReadImg("exception_backpackOverload100"),
-    no_exp: ReadImg("exception_noExp")
+    noPotion: ReadImg("exception/noPotion"),
+    haltMode_noPotion: ReadImg("exception/haltMode_noPotion"),
+    haltMode_backpack90: ReadImg("exception/haltMode_backpack90"),
+    haltMode_backpack100: ReadImg("exception/haltMode_backpack100"),
 };
 const RestartApp = function (appName)
 {
@@ -39,6 +38,16 @@ const LaunchApp = function (appName)
     app.launch(appName);
     Sleep(60000, 120000);
 };
+const HaltModeCheck = function (shot)
+{
+    const hasHaltMode = images.findMultiColors(shot, "#454442", [[24, 1, "#373737"], [47, 4, "#535353"], [73, 1, "#515151"], [91, 1, "#494947"]], { region: [516, 172, 271, 250] });
+    if (hasHaltMode)
+    {
+        console.log("HaltModeCheck: halt mode!!!");
+        return true;
+    }
+    return false;
+};
 const ExitHaltMode = function ()
 {
     const x1 = 630 + random(-20, 20);
@@ -47,222 +56,259 @@ const ExitHaltMode = function ()
     const y2 = 400 + random(-20, 100);
     gesture(1000, [x1, y1], [x2, y2]);
     log("Exiting Halt Mode");
-    Sleep();
+    Sleep(3000, 5000);
     return true;
 };
+const PageBackCheck = function (shot)
+{
+    const hasPageBack = images.findImage(shot, imgList.pageBack, { region: [1197, 4, 80, 58] });
+    if (hasPageBack)
+    {
+        Sleep();
+        RandomPress([1162, 17, 106, 30]);
+    }
+};
+const NoExpCheck = function (shot)
+{
+    let curExp = images.clip(shot, 151, 547, 80, 24);
+    for (let i = 0; i < 10; i++)
+    {
+        Sleep(10000, 20000);
+        let hasIncrease = images.findImage(captureScreen(), curExp, { region: [136, 536, 121, 52] });
 
+        if (hasIncrease == null) return false;
+        else if (i == 9)
+        {
+            ExitHaltMode();
+            console.log("long time no exp!!! exit halt mode check game");
+            return true;
+        }
+    }
+};
+const NoPotionCheck = function (shot)
+{
+    const hasNoPotion = images.findImage(shot, imgList.noPotion, { region: [941, 615, 80, 82] });
+    const hasNoPotion_haltMode = images.findImage(shot, imgList.haltMode_noPotion, { region: [904, 4, 63, 70] });
+    if (hasNoPotion || hasNoPotion_haltMode)
+    {
+        console.log("NoPotionCheck: no potion!!!");
+        return true;
+    }
+
+    return false;
+};
+const BackpackFullCheck = function (shot)
+{
+    const backpack90 = images.findImage(shot, imgList.haltMode_backpack90, { region: [967, 16, 65, 65] });
+    const backpack100 = images.findImage(shot, imgList.haltMode_backpack100, { region: [967, 16, 65, 65] });
+    if (backpack90 || backpack100)
+    {
+        console.log("BackpackFullCheck: backpack full!!!");
+        return true;
+    }
+    return false;
+};
+const DisconnectedGameCheck = function (shot)
+{
+    // 1-6: 断开连接
+    const hasDisconnected = MultiSampleColorCheck(shot, DisconnectedGameArray, [501, 429, 79, 57]);
+    if (hasDisconnected)
+    {
+        console.log("DisconnectedGameCheck: disconnected game!!!");
+        return true;
+    }
+    return false;
+};
+
+const DisconnectedServerCheck = function (shot)
+{
+    const hasDisconnected = MultiSampleColorCheck(shot, DisconnectedServerArray, [496, 429, 85, 56]);
+    if (hasDisconnected)
+    {
+        console.log("DisconnectedServerCheck: disconnected server!!!");
+        return true;
+    }
+    return false;
+};
+const LongTimeNoInputCheck = function (shot)
+{
+    const hasLongTimeNoInput = MultiSampleColorCheck(shot, LongTimeNoInputArray, [526, 423, 222, 71]);
+    if (hasLongTimeNoInput)
+    {
+        console.log("LongTimeNoInputCheck: 检测到长时间无输入，点击继续");
+        return true;
+    }
+    return false;
+};
+const MainUICheck = function (shot)
+{
+    const hasMainUI = MultiSampleColorCheck(shot, MainUIArray, [1107, 664, 148, 49]);
+    if (hasMainUI)
+    {
+        console.log("MainUICheck: 检测到主界面");
+        return true;
+    }
+    return false;
+};
+const DeathPopupCheck = function (shot)
+{
+    const hasDeathPopup = MultiSampleColorCheck(shot, DeathPopupArray, [591, 528, 104, 68]);
+    if (hasDeathPopup)
+    {
+        console.log("DeathPopupCheck: 检测到死亡弹窗");
+        return true;
+    }
+    return false;
+};
+const StartGameCheck = function (shot)
+{
+    const hasStartGame = MultiSampleColorCheck(shot, StartGameArray, [32, 647, 100, 43]);
+    if (hasStartGame)
+    {
+        console.log("StartGameCheck: 检测到开始游戏按钮");
+        return true;
+    }
+    return false;
+};
+
+const NoPotionFlow = function (shot)
+{
+    const isInHaltMode = HaltModeCheck(shot);
+    if (isInHaltMode)
+    {
+        ExitHaltMode();
+    }
+    const isInCity = InCity(shot);
+    if (!isInCity)
+    {
+        ReturnHome();
+    }
+    GroceryFlow();
+    Sleep(4000, 8000);
+    const isNoMoneyTobuy = NoPotionCheck(captureScreen());
+    if (isNoMoneyTobuy)
+    {
+        NoMoneyAlert();
+    }
+    EnterInstanceZones();
+};
 function Exception()
 {
     const shot = captureScreen();
-    const hasPageBack = images.findImage(shot, imgArr.pageBack, { region: [1197, 4, 80, 58] });
-    if (hasPageBack)
+
+    const isNoPotion = NoPotionCheck(shot);
+    if (isNoPotion)
     {
-        RandomPress([1162, 17, 106, 30]);
-        return false;
-    }
-    const hasDisconnected = images.findMultiColors(shot, "#343434", [[0, 16, "#292929"], [32, 7, "#2c2c2c"], [129, 1, "#333333"], [123, 15, "#30302e"]], { region: [431, 426, 207, 65] });
-    const hasDisconnected_2 = images.findMultiColors(shot, "#383838", [[-5, 18, "#2a2a2a"], [108, 0, "#313131"], [103, 16, "#313131"], [71, 4, "#383838"]], { region: [427, 424, 210, 68] });
-    const hasDisconnected_3 = images.findMultiColors(shot, "#363636", [[3, 18, "#2f2f2f"], [36, 7, "#252525"], [70, 0, "#3e4639"], [72, 17, "#2c362b"]], { region: [527, 421, 207, 70] });
-    const hasDisconnected_4 = images.findMultiColors(shot, "#3a3a3a", [[39, 0, "#373737"], [116, 1, "#373737"], [127, 18, "#303030"], [14, 18, "#2c2c2d"], [45, 12, "#2c2c2c"]], { region: [429, 424, 204, 60] });
-    if (hasDisconnected || hasDisconnected_2 || hasDisconnected_3 || hasDisconnected_4)
-    {
-        log("connetion lost! :);Exit Game and Restart");
-        RandomPress([462, 449, 146, 18]);
-        Sleep(3000, 5000);
-        app.launch("com.kakaogames.rom");
-        LaunchApp(RomApp);
-        return false;
-    }
-    //背包满了
-    // const isBackpackOverLoad = images.findImage(shot, imgArr.backpack_overload, { region: [967, 16, 65, 65] });
-    const isBackpackOverLoad100 = images.findImage(shot, imgArr.backpack_overload100, { region: [967, 16, 65, 65] });
-    if (isBackpackOverLoad100)
-    {
-        console.log("背包已满，需要清理背包");
-        ExitHaltMode();
-        // let setting = game_config.setting;
-        // if (game_config.setting.storeMax == false || setting.storeMax == undefined)
-        // {
-        //     ReturnHome();
-        //     StoreEquipment();
-        //     if (setting.storeMax == undefined)
-        //     {
-        //         game_config.setting.storeMax = false;
-        //         RWFile("setting", game_config.setting);
-        //     }
-        // }
-        // PropsCollectionFlow();
-        PutOnSale();
-        Sleep();
-        return false;
-    }
-    //游戏终止
-    const gameOver = images.findMultiColors(shot, "#3b4336", [[57, 1, "#343c2f"], [55, 9, "#d19e5c"], [70, 9, "#9b7743"], [70, 18, "#ae8c5c"], [118, 12, "#353d30"]], { region: [526, 423, 222, 71] },);
-    if (gameOver)
-    {
-        console.log("检测到游戏不正常运行，游戏终止");
-        RandomPress([568, 444, 148, 24]);
-        Sleep(10000, 15000);
-        LaunchApp(RomApp);
-        return false;
+        NoPotionFlow(shot);
+        return;
     }
 
-    const outOfPotion = images.findImage(shot, imgArr.exception_outOfPotion, { region: [941, 615, 80, 82] });
-    const saveMode_outOfPotion = images.findImage(captureScreen(), imgArr.haltMode_outOfPotion,
-        { region: [904, 4, 63, 70] });
-    if (outOfPotion)
+    const hasHaltMode = HaltModeCheck(shot);
+    if (hasHaltMode)
     {
-        console.log("药水用完了，回城购买");
-        const isInCity = InCity();
-        if (isInCity)
+        const isNoExpIncrease = NoExpCheck(shot);
+        if (isNoExpIncrease)
         {
-            ReturnHome();
+            ExitHaltMode();
+            const noExp_shot = captureScreen();
+            const noExp_IsInCity = InCity(noExp_shot);
+            if (noExp_IsInCity)
+            {
+                const haltMode_isNoPotion = NoPotionCheck(noExp_shot);
+                if (haltMode_isNoPotion)
+                {
+                    NoPotionFlow(noExp_shot);
+                }
+            }
+            return;
         }
-        Sleep(10000, 15000);
-        GroceryFlow();
-        return false;
-    }
-    if (saveMode_outOfPotion)
-    {
-        console.log("处于省电模式，药水用完了，回城购买");
-        ExitHaltMode();
-        if (isInCity)
+        const isBackpackFull = BackpackFullCheck(shot);
+        if (isBackpackFull)
         {
-            ReturnHome();
+            ExitHaltMode();
+            PutOnSale();
+            Sleep(10000, 20000);
+            EnterInstanceZones();
+            return;
         }
-        Sleep(10000, 15000);
-        GroceryFlow();
-        return false;
     }
-    //special
-    const hasVersion = images.findMultiColors(shot, "#ff2200", [[-1, 6, "#ff2200"], [20, 4, "#ff2200"], [57, 11, "#ff2200"], [68, 10, "#ffffff"]],
-        { region: [1107, 664, 148, 49] });
-    const hasVersion_2 = images.findMultiColors(shot, "#fe2200", [[0, 7, "#fe2200"], [19, -4, "#fd2300"], [19, 13, "#fe2200"], [68, 6, "#fefefc"], [114, 10, "#fefefc"]],
-        { region: [1108, 657, 152, 62] });
-    if (hasVersion || hasVersion_2)
+    else
     {
-        console.log("游戏主界面，点击开始游戏");
-        RandomPress([184, 107, 902, 456]);
-        Sleep(3000, 5000);
-        for (let i = 0; i < 10; i++)
+        const hadPageBack = PageBackCheck(shot);
+        if (hadPageBack)
         {
-            Sleep();
-            let hasStillInVersion = images.findMultiColors(captureScreen(), "#ff2200", [[-1, 6, "#ff2200"], [20, 4, "#ff2200"], [57, 11, "#ff2200"], [68, 10, "#ffffff"]],
-                { region: [1107, 664, 148, 49] });
-            if (hasStillInVersion)
+            GoBack();
+            return;
+        }
+
+        const atMainUI = MainUICheck(shot);
+        if (atMainUI)
+        {
+            for (let i = 0; i < 3; i++)
             {
                 RandomPress([184, 107, 902, 456]);
-                if (i == 9)
+                Sleep(10000, 20000);
+                let hasMainUI = MainUICheck(captureScreen());
+                if (!hasMainUI)
                 {
-                    //restart game
+                    return;
+                }
+                else if (i == 9)
+                {
                     RestartApp(RomApp);
                 }
             }
-            else break;
+            return;
         }
-        return false;
-    }
-    const hasDead_1 = images.findMultiColors(shot, "#766c61", [[0, 32, "#7a7166"], [0, 76, "#8c847a"], [-22, 34, "#8c8987"], [31, 32, "#857b71"]],
-        { region: [576, 49, 131, 135] });
-    const hasDead_2 = images.findMultiColors(shot, "#3b4336", [[35, 0, "#394134"], [132, -1, "#393f33"], [135, 21, "#333b2e"], [13, 17, "#2b3326"]],
-        { region: [522, 531, 245, 66] });
-    const hasDead_3 = images.findMultiColors(shot, "#96938a", [[10, 0, "#8d8680"], [55, -1, "#83776b"], [21, 35, "#8a8379"], [22, 56, "#7a7064"]],
-        { region: [575, 89, 131, 96] });
-    const hasRevive = findMultiColors(shot, "#401b06", [[25, -3, "#3c1906"], [143, -2, "#381706"], [153, 22, "#321504"], [4, 21, "#2d1204"]],
-        { region: [528, 542, 229, 66] });
-
-    const hasDeadConfirm = images.findMultiColors(shot, "#3e4638", [[24, 2, "#384134"], [154, 2, "#373f33"], [154, 25, "#32392d"], [11, 25, "#2a3226"]],
-        { region: [530, 529, 224, 67] });
-    const hasDeadConfirm_2 = images.findMultiColors(shot, "#3e4637", [[26, -1, "#3a4235"], [10, 21, "#2c3427"], [157, 2, "#373f32"], [158, 25, "#2f372a"]],
-        { region: [530, 529, 212, 63] });
-    if ((hasDead_1 || hasDead_2) && hasRevive)
-    {
-        console.log("检测到死亡");
-        Sleep(1000, 5000);
-        RandomPress([574, 565, 140, 25]);
-        Sleep(15000, 20000);
-        RandomPress([563, 546, 160, 34]);
-        Sleep(3000, 5000);
-        DeathFlow();
-        return false;
-    }
-    else if ((hasDead_1 || hasDead_2 || hasDead_3) && (hasDeadConfirm || hasDeadConfirm_2))
-    {
-        console.log("检测到死亡");
-        RandomPress([555, 547, 168, 32]);
-        Sleep(5000, 8000);
-        DeathFlow();
-        return false;
-    }
-
-    const hasStartGame = images.findMultiColors(shot, "#373735", [[-1, 9, "#2f2f2f"], [-3, 18, "#2b2b2b"], [83, 2, "#353535"], [100, 2, "#353535"], [92, 21, "#2f2f2f"]],
-        { region: [17, 638, 192, 64] });
-    const hasStartGame_2 = images.findMultiColors(shot, "#394134", [[18, 2, "#384033"], [3, 15, "#2b3326"], [30, 15, "#2d3528"], [126, -1, "#373f32"], [127, 17, "#2f372a"]],
-        { region: [17, 638, 192, 64] },);
-    if (hasStartGame || hasStartGame_2)
-    {
-        console.log("角色界面，点击开始游戏");
-        RandomPress([1106, 660, 132, 21]);
-        Sleep(30000, 60000);
-        if (images.findImage(captureScreen(), imgArr.exception_outOfPotion, { region: [941, 618, 77, 78] }))
+        const hadDead = DeathPopupCheck(shot);
+        if (hadDead)
         {
-            GroceryFlow();
-        }
-        return false;
-    }
-    const hasLongTimeTip = images.findMultiColors(shot, "#384033", [[3, 19, "#2c3729"], [40, 8, "#2e3629"], [139, 1, "#353d30"], [114, 13, "#333b2e"]], { region: [534, 419, 208, 77] });
-    if (hasLongTimeTip)
-    {
-        console.log("长时间未操作，自动点击关闭游戏");
-        RandomPress([571, 447, 140, 21]);
-        Sleep(4000, 6000);
-        // RestartApp(RomApp);
-        // alert("卡点", "未知问题，需手动处理");
-        return false;
-    }
-
-
-    const hasNoExp = images.findImage(shot, imgArr.no_exp, { region: [43, 528, 212, 67] });
-    if (hasNoExp)
-    {
-        for (let i = 0; i < 10; i++)
-        {
+            Sleep(1000, 5000);
+            RandomPress([574, 565, 140, 25]);
+            Sleep(15000, 20000);
+            RandomPress([563, 546, 160, 34]);
             Sleep(3000, 5000);
-            let isStillNoExp = images.findImage(captureScreen(), imgArr.no_exp, { region: [43, 528, 212, 67] });
-
-            if (isStillNoExp == null) return;
-            else if (i == 9)
-            {
-                ExitHaltMode();
-                if (game_config.ui.gameMode == "instance")
-                {
-                    console.log("long time no exp!!! exit halt mode check game");
-                    Sleep();
-                    EnterInstanceZones();
-                }
-                else if (game_config.ui.gameMode == "wild")
-                {
-                    console.log("go to wild ");
-                }
-            }
+            DeathFlow();
+            return;
         }
-
-    }
-    let hasBlackScreen = images.findMultiColors(shot, "#000000", [[0, 618, "#000000"], [1167, 629, "#000000"], [1186, 13, "#000000"], [541, 307, "#000000"]]);
-    if (hasBlackScreen)
-    {
-        for (let i = 0; i < 5; i++)
+        const hasStartGame = StartGameCheck(shot);
+        if (hasStartGame)
         {
-            Sleep(6000, 10000);
-            hasBlackScreen = images.findMultiColors(shot, "#000000", [[0, 618, "#000000"], [1167, 629, "#000000"], [1186, 13, "#000000"], [541, 307, "#000000"]]);
-            if (!hasBlackScreen) return false;
+            RandomPress([1106, 660, 132, 21]);
+            Sleep(60000, 120000);
+            const startGame_isNoPotion = NoPotionCheck(captureScreen());
+            if (startGame_isNoPotion)
+            {
+                GroceryFlow();
+            }
+            return;
+        }
+        const hasLongTimeNoInput = LongTimeNoInputCheck(shot);
+        if (hasLongTimeNoInput)
+        {
+            RandomPress([571, 447, 140, 21]);
+            Sleep(3000, 5000);
+            LaunchApp(RomApp);
+            return;
+        }
+        const isDisconnectedGame = DisconnectedGameCheck(shot);
+        if (isDisconnectedGame)
+        {
+            RandomPress([468, 443, 138, 25]);
+            Sleep(10000, 20000);
+            LaunchApp(RomApp);
+            return;
+        }
+        const isDisconnectedServer = DisconnectedServerCheck(shot);
+        if (isDisconnectedServer)
+        {
+            RandomPress([463, 442, 146, 25]);
+            Sleep(10000, 20000);
+            LaunchApp(RomApp);
+            return;
         }
 
-        RestartApp(RomApp);
-        return false;
     }
-    return true;
-
 }
 const UnifyScreen = function ()
 {
@@ -275,23 +321,6 @@ const UnifyScreen = function ()
     {
         return;
     };
-    const back = ReadImg("back");
-    const hasBack = images.findImage(shot, back, { region: [1206, 3, 64, 63] });
-    back.recycle();
-    if (hasBack)
-    {
-        GoBack();
-        return;
-    }
-    const justStartGame_01 = images.findMultiColors(shot, "#231f20", [[8, 233, "#231f20"], [5, 619, "#231f20"], [536, -20, "#231f20"], [1215, -16, "#231f20"],
-    [1222, 303, "#231f20"], [1209, 656, "#231f20"]]);
-    const justStartGame_02 = images.findMultiColors(shot, "#000000", [[1, 195, "#000000"], [1, 439, "#000000"], [423, -29, "#000000"], [936, 7, "#000000"],
-    [924, 452, "#000000"], [511, 438, "#000000"]]);
-    if (justStartGame_01 || justStartGame_02)
-    {
-        Sleep(60000, 120000);
-        return;
-    }
     const inSaveMode = images.findMultiColors(shot, "#454442", [[24, 1, "#373737"], [47, 4, "#535353"], [73, 1, "#515151"], [91, 1, "#494947"]], { region: [516, 172, 271, 250] });
     if (inSaveMode)
     {
@@ -300,12 +329,12 @@ const UnifyScreen = function ()
         return;
     }
 };
-module.exports = { Exception, UnifyScreen };
+// module.exports = { Exception, UnifyScreen };
 
 // UnifyScreen();
 // log(images.findMultiColors(captureScreen(), "#454442", [[24, 1, "#373737"], [47, 4, "#535353"], [73, 1, "#515151"], [91, 1, "#494947"]], { region: [516, 172, 271, 250] }));
 // console.time("exception");
-// Exception();
-// const isBackpackOverLoad = images.findImage(captureScreen(), imgArr.backpack_overload100, { region: [967, 16, 65, 65] });
+Exception();
+// const isBackpackOverLoad = images.findImage(captureScreen(), imgList.backpack_overload100, { region: [967, 16, 65, 65] });
 // log(isBackpackOverLoad);
 // console.timeEnd("exception");

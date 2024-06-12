@@ -1,4 +1,4 @@
-const { game_config } = require("./Global.js");
+
 const { ReadImg, Sleep, RandomPress, PressBlank } = require("./Utils.js");
 
 const MissionAwardFlow = function ()
@@ -25,6 +25,7 @@ const MissionAwardFlow = function ()
 
 const AbilityPointsFlow = function ()
 {
+    console.log("AbilityPointsFlow");
     const AbilityPointCheck = images.findMultiColors(captureScreen(), "#bd220f", [[3, 0, "#bd2415"], [-1, 3, "#d62d1d"], [3, 3, "#bb2316"],],
         { region: [13, 4, 71, 31] });
     if (AbilityPointCheck == null) return;
@@ -38,30 +39,58 @@ const AbilityPointsFlow = function ()
     const isMaxPoint66 = images.findImage(captureScreen(), abilityPoint_66, { region: [260, 273, 55, 43] });
     if (isMaxPoint65 || isMaxPoint66)
     {
-        RandomPress([319, 403, 13, 15]);
+        RandomPress([318, 284, 15, 19]); //敏捷
     }
     else
     {
-        RandomPress([312, 282, 25, 20]); //游侠 敏捷
+        RandomPress([317, 285, 18, 18]); //体力
     }
 
     Sleep();
     RandomPress([230, 510, 120, 20]);
     Sleep();
-    game_config.player.level++;
-    console.log(`Level UP! 技能点敏捷，当前等级：${game_config.player.level}`);
-    RWFile("player", game_config.player);
     if (random() > 0.5)
     {
-        RandomPress([339, 71, 32, 14]);
+        RandomPress([340, 71, 31, 13]);
     }
     else
     {
-        RandomPress([18, 15, 53, 20]);
+        RandomPress([22, 20, 47, 30]);
     }
+    abilityPoint_65.recycle();
     abilityPoint_66.recycle();
+    console.log("AbilityPointsFlow end");
 };
+const GetTypeOfMaterial = function (region)
+{
+    const materialList = {
+        "blue_cloth": ReadImg("material/blue_cloth"),
+        "blue_wood": ReadImg("material/blue_wood"),
+        "green_ironIngot": ReadImg("material/green_ironIngot"),
+        "green_jewel": ReadImg("material/green_jewel"),
+        "green_magicGem": ReadImg("material/green_magicGem"),
 
+    };
+    for (let material in materialList)
+    {
+        let type = images.findImage(captureScreen(), materialList[material], { region: region });
+        if (type)
+        {
+            return material;
+        }
+    }
+    return null;
+};
+const MakeMaterial = function ()
+{
+    console.log("MakeMaterial");
+    const canUpgrade = images.findMultiColors(captureScreen(), "#353c30", [[95, 0, "#32392d"], [102, 13, "#2e362b"], [2, 13, "#272e23"]], { region: [1116, 140, 161, 65] });
+    for (let i = 0; i < 10; i++)
+    {
+        let type = GetTypeOfMaterial([110, 100, 100, 100]);
+    }
+
+};
 module.exports = { AbilityPointsFlow, MissionAwardFlow };
 // MissionAwardFlow(captureScreen());
 // AbilityPointsFlow();

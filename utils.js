@@ -81,7 +81,8 @@ const TipPointCheck = function (region)
     const tipPointArr = [
         ["#b9200f", [[-2, 2, "#b92211"], [0, 4, "#c02416"], [3, 2, "#b92315"]]],
         ["#b8200e", [[-2, 2, "#c22314"], [2, 2, "#bb2415"], [0, 4, "#bf2416"]]],
-        ["#b32615", [[1, 3, "#c82817"], [-2, 3, "#ca2618"], [0, 6, "#b02215"]]]
+        ["#b32615", [[1, 3, "#c82817"], [-2, 3, "#ca2618"], [0, 6, "#b02215"]]],
+
     ];
     const shot = captureScreen();
     let hasTipPoint;
@@ -126,13 +127,70 @@ const MultiSampleColorCheck = function (shot, colorArr, region)
     let hasColor = false;
     for (let i = 0; i < colorArr.length; i++)
     {
-        let color = colorList[i][0];
-        let position = colorList[i][1];
+        let color = colorArr[i][0];
+        let position = colorArr[i][1];
         hasColor = images.findMultiColors(shot, color, position, { region: region });
         if (hasColor) break;
     }
     return hasColor;
 };
+const ColorCheck = function (region)
+{
+    const colorArr =
+    {
+        blue: [["#1f333c", [[8, 0, "#1f3b47"], [22, 0, "#224352"], [28, 0, "#274857"], [28, 3, "#254b5e"]]],
+        ["#1d343c", [[8, 0, "#1f3a4b"], [17, 0, "#1e3d51"], [27, 0, "#25485b"], [27, 11, "#295d73"]]]],
+        green: [["#273b22", [[9, 0, "#2f4222"], [18, 0, "#304a23"], [26, 0, "#375323"], [26, 8, "#4c6428"]]],
+        ["#283e21", [[8, 0, "#2d441f"], [23, 0, "#34511f"], [26, 9, "#4e6326"]]],]
+    };
+    const shot = captureScreen();
+    let color, equipColor;
+    out: for (let key in colorArr)
+    {
+        for (let i = 0; i < colorArr[key].length; i++)
+        {
+            color = images.findMultiColors(shot, colorArr[key][i][0], colorArr[key][i][1], { region: region });
+            if (color)
+            {
+                equipColor = key;
+                break out;
+            }
+        }
+    }
+    return equipColor;
+};
+const RandomSwipe = function ([x1, y1, w1, h1], [x2, y2, w2, h2])
+{
+    let x1 = random() * w1 + x1;
+    let y1 = random() * h1 + y1;
+    let x2 = random() * w2 + x2;
+    let y2 = random() * h2 + y2;
+    const duration = random() * 100 + 400;
+    swipe(x1, y1, x2, y2, duration);
+    Sleep(2000, 3000);
+};
+const UpdateConfig = (type) =>
+{
+    console.log("rewrite config" + type);
+};
+const RandomHollow = (hollowRegion) =>
+{
+    const [x, y, w, h] = hollowRegion;
+    let x1 = random() * 1000 + 140;
+    let y1 = random() * 620 + 70;
+    for (let i = 0; i < 100; i++)
+    {
+        x1 = random() * 1000 + 140;
+        y1 = random() * 620 + 70;
+        if ((x1 < x || x1 > x + w) && (y1 < y || y1 > y + h))
+        {
+            break;
+        }
+    }
+    log(`RandomHollow ${x1}, ${y1}`);
+    press(x1, y1, random(16, 256));
+};
+// RandomHollow([300, 303, 745, 100]);
 module.exports = {
     Sleep,
     RandomPress,
@@ -146,5 +204,7 @@ module.exports = {
     InCity,
     NoMoneyAlert,
     TimeConvert,
-    MultiSampleColorCheck
+    MultiSampleColorCheck,
+    RandomSwipe,
+    RandomHollow,
 };

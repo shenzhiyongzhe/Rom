@@ -1,5 +1,5 @@
 const { game_config, } = require("./Global.js");
-const { ReadImg, Sleep, RandomPress, GoBack, PressMenu, PressBackpack } = require("./Utils.js");
+const { ReadImg, Sleep, RandomPress, GoBack, PressMenu, PressBackpack, NumberRecognition } = require("./Utils.js");
 const { Daily } = require("./Daily.js");
 const { GroceryFlow } = require("./Death.js");
 const { AbilityPointsFlow, MissionAwardFlow } = require("./Common.js");
@@ -149,7 +149,16 @@ const InstanceCheck = function ()
     AutoBattleCheck(shot);
     // InstanceExceptionCheck(shot);
 };
-
+const NoMoneyEnterInstance = () =>
+{
+    let money = NumberRecognition("amount", [639, 1, 115, 37]);
+    if (money < 25000)
+    {
+        log("No money to enter instance");
+        return true;
+    }
+    return false;
+};
 function EnterInstanceZones()
 {
     const menuIcon = ReadImg("menu_icon");
@@ -164,6 +173,12 @@ function EnterInstanceZones()
     Sleep(2000, 3000);
     RandomPress([958, 286, 27, 34]); //instance icon
     Sleep(3000, 6000);
+    //no money issue
+    if (NoMoneyEnterInstance())
+    {
+        alert("暂时手动处理", `没有足够的金币进入副本，当前金币为${money}，请手动处理`);
+        return;
+    }
     for (let i = 0; i < instanceQueue.length; i++)
     {
         if (instanceQueue[i].type == "special")
@@ -306,11 +321,9 @@ function HangUpWild(number)
         }
         RandomPress([967, 654, 201, 32]); //立即前往
         RandomPress([678, 469, 143, 23]); //confrim
-        const isNoMoney_1 = NoMoneyCheck();
-        if (isNoMoney_1) return;
+
         Sleep(8000, 16000);
         RandomPress([1163, 552, 29, 28]); //auto battle
-        // RandomPress([19, 450, 24, 12]); // save mode
         log("go to the wild: " + mapName);
     }
     else
@@ -322,21 +335,14 @@ function HangUpWild(number)
         if (hasAlreadyInThere)
         {
             RandomPress([1164, 24, 106, 23]); //press back
-            // AutoBattleCheck();
-            // AbilityPointsFlow();
-            // RandomPress([19, 450, 24, 12]); //save mode
         }
         else
         {
             CollectedCheck(mapShot);
             RandomPress([967, 654, 201, 32]); //立即前往
             RandomPress([678, 469, 143, 23]); //confirm
-            //no money check
-            const isNoMoney_2 = NoMoneyCheck();
-            if (isNoMoney_2) return;
             Sleep(8000, 16000);
             RandomPress([1163, 552, 29, 28]); //auto battle
-            // RandomPress([19, 450, 24, 12]); // save mode
             log("go to the wild: " + mapName);
         }
 

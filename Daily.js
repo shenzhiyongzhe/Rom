@@ -1,5 +1,6 @@
-const { Sleep, RandomPress, GoBack, PressBlank, PressMenu } = require("./Utils.js");
+const { Sleep, RandomPress, GoBack, PressBlank, PressMenu, NumberRecognition, RandomSwipe, TipPointCheck, RandomHollow } = require("./Utils.js");
 const { OpenEquipmentBox, WearEquipment, StrengthenEquipment, } = require("./BackPack.js");
+const { ForgeMaterial } = require("./Manufacture.js");
 function MenuTipCheck()
 {
     const hasMenuTipPoint = images.findMultiColors(captureScreen(), "#b52110", [[0, 3, "#c22516"], [0, 5, "#c32b1c"]], { region: [1236, 3, 32, 25] });
@@ -65,7 +66,7 @@ const GetEmail = function (needPressMenu)
         PressMenu();
         Sleep(3000, 5000);
     }
-    const hasEmail = images.findMultiColors(captureScreen(), "#ad210f", [[0, 2, "#c42312"], [0, 5, "#c82818"]], { region: [1036, 529, 44, 43] });
+    const hasEmail = TipPointCheck([1043, 536, 24, 27]);
     if (!hasEmail) return false;
     RandomPress([1024, 556, 31, 22]); //email icon;
     Sleep(2000, 4000);
@@ -121,7 +122,6 @@ const NoMoneyCheck = function ()
         return true;
     }
 };
-
 
 const GetDuty = function ()
 {
@@ -203,114 +203,97 @@ const GetDuty = function ()
     RandomPress([1112, 69, 38, 16]); //close 
     console.log("get duty award, finished pick up");
 };
-// GetDuty();
-/**
- *---------------------------------商城购买----------------------------
- *
- */
-const PressMax = () => RandomPress([765, 412, 45, 27]);
-const PressConfirm = () => RandomPress([686, 578, 151, 24]);
-
-const DaliyCall = () =>
+const BulkBuy = function ()
 {
-    RandomPress([167, 96, 80, 33]); // 召唤页
-    Sleep();
-    RandomPress([18, 270, 171, 39]); //每日召唤page
-    Sleep();
-    const shot = captureScreen();
-    for (let i = 0; i < 2; i++)
-    {
-        for (let j = 0; j < 3; j++)
-        {
-            let isUnlock = images.findMultiColors(shot, "#333736", [[3, 14, "#323633"], [192, 6, "#272b28"], [204, 22, "#313633"], [198, 29, "#1a1f1e"]],
-                { region: [200 + j * 286, 254 + i * 288, 308, 68] });
-            if (isUnlock == null)
-            {
-                RandomPress([284 + j * 286, 188 + i * 288, 147, 152]);
-                PressConfirm();
-                let isNoMoney = NoMoneyCheck();
-                if (isNoMoney == true) return;
-                Sleep(4000, 6000);
-                RandomPress([554, 640, 174, 25]);
-                Sleep(2000, 3000);
-                RandomPress([554, 640, 174, 25]);
-                Sleep();
-            }
+    console.log("bulk buy");
 
+    // RandomPress([961, 21, 22, 26]); //shop icon
+    // Sleep(6000, 12000);
+    const totalMoney = NumberRecognition("amount", [590, 3, 121, 35]);
+    if (totalMoney < 700000)
+    {
+        console.log("当前金币为：" + totalMoney + " not enough money to buy anything");
+        GoBack();
+        return false;
+    }
+    RandomPress([26, 530, 163, 32]); //bulk btn
+    RandomSwipe([277, 444, 795, 64], [271, 194, 802, 65]);
+    for (let i = 0; i < 3; i++)
+    {
+        let isBottom = NumberRecognition("amount", [704, 486, 71, 33]) == 193110;
+        if (!isBottom)
+        {
+            RandomSwipe([277, 444, 795, 64], [271, 194, 802, 65]);
+        }
+        else
+        {
+            break;
+        }
+        if (i == 2)
+        {
+            console.log("bulk buy failed");
+            GoBack();
+            return false;
         }
     }
-};
-
-const ShopFlow = function ()
-{
-    let isNoMoney = false;
-    RandomPress([955, 19, 35, 30]); // 商城
-    Sleep(3000, 5000);
-    RandomPress([296, 98, 72, 28]); //第三页 普通页
-    RandomPress([17, 211, 173, 37]); // 强化卷轴页
-    // 购买防御卷轴
-    RandomPress([817, 159, 224, 243]);
-    PressMax();
-    PressConfirm();
-    Sleep();
-    isNoMoney = NoMoneyCheck();
-    if (isNoMoney == true)
+    if (totalMoney >= 700000 && totalMoney < 1040000)
     {
-        GoBack();
-        return;
+        console.log("当前金币为：" + totalMoney + " can only buy scroll");
+        RandomPress([218, 277, 16, 16]); // weapon scroll;
+        RandomPress([813, 278, 21, 13]); // - btn
+        RandomPress([813, 350, 20, 15]); // defence scroll -btn
     }
-    // 购买武器卷轴
-    RandomPress([537, 443, 201, 241]);
-    PressMax();
-    PressConfirm(); //确定
-    Sleep();
-    isNoMoney = NoMoneyCheck();
-    if (isNoMoney == true)
+    else if (totalMoney >= 1040000 && totalMoney < 1440000)
     {
-        GoBack();
-        return;
+        console.log("当前金币为：" + totalMoney + " can buy scroll and slab");
+        RandomPress([218, 573, 15, 14]); // select all btn
+        //cancel the return home scroll treasure box crystal box
+        RandomPress([218, 206, 16, 14]); // return home scroll
+        RandomPress([218, 420, 15, 16]); //treasure box
+        RandomPress([216, 492, 17, 16]); // crystal box
     }
-    //购买装备宝箱
-    // RandomPress([821, 439, 186, 241]);
-    // PressMax();
-    // PressConfirm(); //确定
-    // Sleep();
-    // NoMoneyCheck();
-    //购买水晶宝箱
-    // RandomPress([417, 96, 79, 33]);
-    // RandomPress([18, 209, 171, 39]);
-    // RandomPress([255, 223, 186, 394]);
-    // PressMax();
-    // PressConfirm(); //确定
-    // Sleep();
-    // NoMoneyCheck();
-    //每日召唤
-    // DaliyCall();
-    // Sleep();
+    else
+    {
+        console.log("当前金币为：" + totalMoney + " can buy scroll, slab and crystal box");
+        RandomPress([218, 573, 15, 14]); // select all btn
+        RandomPress([218, 206, 16, 14]); // return home scroll
+        RandomPress([218, 420, 15, 16]); //treasure box
+    }
+    RandomPress([900, 565, 148, 26]); // buy btn
+    Sleep(2000, 4000);
+    RandomHollow([210, 311, 847, 81]);
+    console.log("bulk buy finished");
     GoBack();
+    return true;
 };
-function Daily()
+// BulkBuy();
+// log(NumberRecognition("amount", [704, 486, 71, 33]));
+const Daily = function ()
 {
     const hasGetSignIn = GetSignIn();
     if (hasGetSignIn)
     {
         GetDuty();
-        ShopFlow();
         Sleep();
         OpenEquipmentBox();
+        Sleep();
+        BulkBuy();
         Sleep();
         WearEquipment();
         Sleep();
         StrengthenEquipment("weapon");
         Sleep();
         StrengthenEquipment("armor");
+        Sleep();
+        ForgeMaterial();
     }
     else
     {
         const hasGetEmail = GetEmail(false);
         if (!hasGetEmail) PressMenu();
     }
-}
+};
 
 // Daily();
 module.exports = { Daily };
+

@@ -43,7 +43,6 @@ const HaltModeCheck = function (shot)
     const hasHaltMode = images.findMultiColors(shot, "#454442", [[24, 1, "#373737"], [47, 4, "#535353"], [73, 1, "#515151"], [91, 1, "#494947"]], { region: [516, 172, 271, 250] });
     if (hasHaltMode)
     {
-        console.log("HaltModeCheck: halt mode!!!");
         return true;
     }
     return false;
@@ -152,7 +151,7 @@ const MainUICheck = function (shot)
 };
 const DeathPopupCheck = function (shot)
 {
-    const hasDeathPopup = MultiSampleColorCheck(shot, DeathPopupArray, [591, 528, 104, 68]);
+    const hasDeathPopup = MultiSampleColorCheck(shot, DeathPopupArray, [599, 539, 82, 45]);
     if (hasDeathPopup)
     {
         console.log("DeathPopupCheck: 检测到死亡弹窗");
@@ -162,7 +161,7 @@ const DeathPopupCheck = function (shot)
 };
 const StartGameCheck = function (shot)
 {
-    const hasStartGame = MultiSampleColorCheck(shot, StartGameArray, [32, 647, 100, 43]);
+    const hasStartGame = MultiSampleColorCheck(shot, StartGameArray, [119, 651, 48, 34]);
     if (hasStartGame)
     {
         console.log("StartGameCheck: 检测到开始游戏按钮");
@@ -329,12 +328,12 @@ const UnifyScreen = function ()
         return;
     }
 };
-// module.exports = { Exception, UnifyScreen };
-
+module.exports = { Exception, UnifyScreen };
+// log(DisconnectedGameCheck(captureScreen()));
 // UnifyScreen();
 // log(images.findMultiColors(captureScreen(), "#454442", [[24, 1, "#373737"], [47, 4, "#535353"], [73, 1, "#515151"], [91, 1, "#494947"]], { region: [516, 172, 271, 250] }));
 // console.time("exception");
-Exception();
+// Exception();
 // const isBackpackOverLoad = images.findImage(captureScreen(), imgList.backpack_overload100, { region: [967, 16, 65, 65] });
 // log(isBackpackOverLoad);
 // console.timeEnd("exception");

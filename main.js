@@ -7,7 +7,7 @@ const { game_config, RWFile, } = require("./Global.js");
 const { PressMenu, Sleep, GoBack } = require("./Utils.js");
 
 const Check = require("./Check.js");
-const BeginnerFlow = require("./Beginner.js");
+const {BeginnerFlow} = require("./Player.js");
 const { UnifyScreen, Exception } = require("./Exception.js");
 const { EnterInstanceZones } = require("./Instance.js");
 
@@ -20,13 +20,13 @@ const bird = "file://img/bird.png";
     <img src="{{bird}}" w="24" h="24" alpha="1" />
 </frame>; */
 const floaty_window = floaty.window(
-    <frame gravity="center" id="switch" w="40" h="26" bg="#ffffff" alpha="1">
+    <frame gravity="center" id="switch" w="42" h="20" bg="#ffffff" alpha="1">
         <text id="settlement" textColor="#f44336">000</text>
     </frame>
 
 );
 
-floaty_window.setPosition(0, 550);
+floaty_window.setPosition(10, 650);
 let mainThread;
 floaty_window.switch.click(function ()
 {

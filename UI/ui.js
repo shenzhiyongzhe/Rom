@@ -101,7 +101,9 @@ function InitUIData(data)
             menuList[2].querySelectorAll(".option-list .option input[type=checkbox]")[queue.index].checked = true;
         }
     });
-
+    total.innerHTML = game_config.trade.total;
+    time.innerHTML = game_config.trade.time;
+    settlement.innerHTML = game_config.trade.settlement;
 }
 $autox.registerHandler("InitUIData", (data, callBack) =>
 {

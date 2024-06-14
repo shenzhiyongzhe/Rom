@@ -791,11 +791,13 @@ const GetAllEquipmentPrice = function ()
 
 const StrengthenToLevel_10 = function ()
 {
+    console.log("strengthen to level 10");
     const level_10 = ReadImg("strengthenedLevel_10");
     let isUpToLevel_10 = false;
     for (let n = 0; n < 4; n++)
     {
         let strenghten_shot = captureScreen();
+        log(n);
         isUpToLevel_10 = images.findImage(strenghten_shot, level_10, { region: [263, 140, 50, 36] });
         if (isUpToLevel_10) break;
         let hasFailed = images.findMultiColors(strenghten_shot, "#1d1d1f", [[13, 1, "#202020"], [29, 0, "#1e1e1f"], [29, 20, "#202021"],
@@ -805,14 +807,16 @@ const StrengthenToLevel_10 = function ()
         [61, 24, "#1f1f20"], [61, 54, "#1d1d1e"], [31, 59, "#171718"], [1, 59, "#191919"], [-2, 28, "#191919"], [26, 13, "#2e2f2c"],
         [41, 18, "#40403b"], [27, 26, "#2d2e29"], [17, 35, "#3d3d3a"], [32, 44, "#393a37"]], { region: [350, 206, 74, 76] });
         if (isUseOut_2) break;
-        RandomPress([933, 672, 284, 28]);
+        RandomPress([937, 675, 280, 28]);// strengthen btn;
+
+        Sleep(5000, 8000);
+        RandomPress([459, 142, 390, 533]); // click to see result;
         Sleep(3000, 5000);
-        RandomPress([933, 672, 284, 28]);
-        Sleep(2000, 3000);
-        RandomPress([230, 157, 740, 428]);
-        Sleep(2000, 3000);
+        RandomPress([459, 142, 390, 533]); // click to close result;
+        Sleep(3000, 5000);
     }
     level_10.recycle();
+    console.log("strengthen to level 10 result: " + isUpToLevel_10);
     return isUpToLevel_10;
 };
 const StrengthenTheEquipment = function (arr)
@@ -840,7 +844,7 @@ const StrengthenTheEquipment = function (arr)
     GoBack();
     return strengthenSuccess;
 };
-
+// log(StrengthenToLevel_10());
 // log(StrengthenTheEquipment([{ row: 4, col: 2, amount: 6, price: 39, type: "armor" }, { row: 4, col: 3, amount: 6, price: 38, type: "armor" }]));
 // log(GetWeaponType(captureScreen()));
 const SaleEquipment = function ()
@@ -927,29 +931,38 @@ const GetSettlement = function ()
     {
         RandomPress([298, 95, 75, 31]); // settlement icon;
         Sleep(2000, 4000);
-        const total = NumberRecognition("amount", [504, 3, 113, 32]);
-        const settlement = NumberRecognition("amount", [997, 672, 103, 34]);
-        const lastTime = TimeConvert(NumberRecognition("amount", [1050, 670, 44, 36]));
-        console.log("Today earnings: " + settlement + " 钻石");
+        let settlement = NumberRecognition("amount", [997, 672, 103, 34]);
+        let todaySettlementTimes, lastSettlement;
         const player = game_config.player;
+
         if (player.trade == undefined)
         {
-            player.trade = {
-                total: total,
-                settlement: settlement,
-                lastTime: lastTime
-            };
+            player.trade = {};
+            player.trade.todaySettlementTimes = 0;
+            player.trade.lastSettlement = 0;
 
         }
-        else
+        todaySettlementTimes = player.trade.todaySettlementTimes;
+        lastSettlement = player.trade.lastSettlement;
+        const isFirstDayofMonth = new Date().getDate() == 1;
+        if (isFirstDayofMonth && todaySettlementTimes == 0)
         {
-            player.trade.total = total;
-            player.trade.settlement = settlement;
-            player.trade.lastTime = lastTime;
+            lastSettlement = 0;
         }
-        RWFile("player", player);
-        Sleep();
+        settlement = settlement + lastSettlement;
+        const lastTime = TimeConvert(NumberRecognition("amount", [1050, 670, 44, 36]));
+
         RandomPress([1118, 674, 127, 30]); //settlement btn;
+        Sleep();
+
+        const total = NumberRecognition("amount", [504, 3, 113, 32]);
+        console.log("Today earnings: " + settlement + " 钻石");
+        player.trade.total = total;
+        player.trade.settlement = settlement;
+        player.trade.lastTime = lastTime;
+        player.trade.todaySettlementTimes = todaySettlementTimes + 1;
+        player.trade.lastSettlement = settlement;
+        RWFile("player", player);
         Sleep();
         ui.web.jsBridge.callHandler('updateTradeRecord', JSON.stringify(player.trade), (data) =>
         {
@@ -1046,3 +1059,4 @@ module.exports = {
     BlankCheck,
     PutOnSale
 };
+// log(NumberRecognition("amount", [1097, 610, 32, 24]));

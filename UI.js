@@ -1,4 +1,4 @@
-const { game_config } = require("./Global");
+const { game_config } = require("./RomConfig");
 let isRunning = false;
 function StartScript(data)
 {
@@ -130,6 +130,10 @@ const UI = () =>
         ui.web.jsBridge.callHandler('InitUIData', JSON.stringify(game_config), (data) =>
         {
             toastLog("更新数据成功");
+        });
+        ui.run(function ()
+        {
+            floaty_window.settlement.setText(`${game_config.player.trade == undefined ? 0 : game_config.player.trade.settlement}`);
         });
     }, 1000);
 };

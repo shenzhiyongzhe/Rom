@@ -1,9 +1,11 @@
 // const { game_config } = require("./Global.js");
-const { ReadImg, Sleep, RandomPress, InCity, NoMoneyAlert, MultiSampleColorCheck, GoBack } = require("./Utils.js");
-const { RomApp, DisconnectedGameArray, DisconnectedServerArray, MainUIArray, DeathPopupArray, LongTimeNoInputArray, StartGameArray } = require("./CONST.js");
+const { ReadImg, Sleep, RandomPress, InCity, NoMoneyAlert, GetColorInMultiple, GoBack, GetCurrentDate } = require("./Utils.js");
+const { RomApp, baseUrl, DisconnectedGameArray, DisconnectedServerArray, MainUIArray, DeathPopupArray, LongTimeNoInputArray, StartGameArray } = require("./CONST.js");
 const { ReturnHome, PutOnSale } = require("./BackPack.js");
 const { DeathFlow, GroceryFlow } = require("./Death.js");
-const { EnterInstanceZones } = require("./Instance.js");
+const { AutoBattleCheck, EnterInstanceZones } = require("./Instance.js");
+const { game_config } = require("./RomConfig.js");
+const { PropsCollectionFlow } = require("./PropsCollection.js");
 //断开连接
 const imgList = {
     pageBack: ReadImg("back"),
@@ -110,7 +112,7 @@ const BackpackFullCheck = function (shot)
 const DisconnectedGameCheck = function (shot)
 {
     // 1-6: 断开连接
-    const hasDisconnected = MultiSampleColorCheck(shot, DisconnectedGameArray, [501, 429, 79, 57]);
+    const hasDisconnected = GetColorInMultiple(shot, DisconnectedGameArray, [501, 429, 79, 57]);
     if (hasDisconnected)
     {
         console.log("DisconnectedGameCheck: disconnected game!!!");
@@ -121,7 +123,7 @@ const DisconnectedGameCheck = function (shot)
 
 const DisconnectedServerCheck = function (shot)
 {
-    const hasDisconnected = MultiSampleColorCheck(shot, DisconnectedServerArray, [496, 429, 85, 56]);
+    const hasDisconnected = GetColorInMultiple(shot, DisconnectedServerArray, [501, 436, 64, 40]);
     if (hasDisconnected)
     {
         console.log("DisconnectedServerCheck: disconnected server!!!");
@@ -131,7 +133,7 @@ const DisconnectedServerCheck = function (shot)
 };
 const LongTimeNoInputCheck = function (shot)
 {
-    const hasLongTimeNoInput = MultiSampleColorCheck(shot, LongTimeNoInputArray, [526, 423, 222, 71]);
+    const hasLongTimeNoInput = GetColorInMultiple(shot, LongTimeNoInputArray, [612, 438, 56, 38]);
     if (hasLongTimeNoInput)
     {
         console.log("LongTimeNoInputCheck: 检测到长时间无输入，点击继续");
@@ -141,7 +143,7 @@ const LongTimeNoInputCheck = function (shot)
 };
 const MainUICheck = function (shot)
 {
-    const hasMainUI = MultiSampleColorCheck(shot, MainUIArray, [1107, 664, 148, 49]);
+    const hasMainUI = GetColorInMultiple(shot, MainUIArray, [1107, 664, 148, 49]);
     if (hasMainUI)
     {
         console.log("MainUICheck: 检测到主界面");
@@ -151,7 +153,7 @@ const MainUICheck = function (shot)
 };
 const DeathPopupCheck = function (shot)
 {
-    const hasDeathPopup = MultiSampleColorCheck(shot, DeathPopupArray, [599, 539, 82, 45]);
+    const hasDeathPopup = GetColorInMultiple(shot, DeathPopupArray, [598, 539, 80, 46]);
     if (hasDeathPopup)
     {
         console.log("DeathPopupCheck: 检测到死亡弹窗");
@@ -161,7 +163,7 @@ const DeathPopupCheck = function (shot)
 };
 const StartGameCheck = function (shot)
 {
-    const hasStartGame = MultiSampleColorCheck(shot, StartGameArray, [119, 651, 48, 34]);
+    const hasStartGame = GetColorInMultiple(shot, StartGameArray, [119, 651, 48, 34]);
     if (hasStartGame)
     {
         console.log("StartGameCheck: 检测到开始游戏按钮");
@@ -187,7 +189,11 @@ const NoPotionFlow = function (shot)
     const isNoMoneyTobuy = NoPotionCheck(captureScreen());
     if (isNoMoneyTobuy)
     {
-        NoMoneyAlert();
+        const moneyClip = captureScreen();
+        const time = GetCurrentDate();
+        files.create(baseUrl + "/shot");
+        images.save(moneyClip, baseUrl + "/shot/" + "nomoeny" + time);
+        // NoMoneyAlert();
     }
     EnterInstanceZones();
 };
@@ -218,6 +224,11 @@ function Exception()
                 {
                     NoPotionFlow(noExp_shot);
                 }
+                EnterInstanceZones();
+            }
+            else
+            {
+                AutoBattleCheck();
             }
             return;
         }
@@ -225,6 +236,7 @@ function Exception()
         if (isBackpackFull)
         {
             ExitHaltMode();
+            PropsCollectionFlow();
             PutOnSale();
             Sleep(10000, 20000);
             EnterInstanceZones();
@@ -239,7 +251,23 @@ function Exception()
             GoBack();
             return;
         }
-
+        const isInCity = InCity(shot);
+        if (isInCity)
+        {
+            const inCity_isNoPotion = NoPotionCheck(shot);
+            if (inCity_isNoPotion)
+            {
+                NoPotionFlow(shot);
+            }
+            if (game_config.ui.gameMode == "instance")
+            {
+                EnterInstanceZones();
+            }
+        }
+        else
+        {
+            AutoBattleCheck(shot);
+        }
         const atMainUI = MainUICheck(shot);
         if (atMainUI)
         {
@@ -334,6 +362,4 @@ module.exports = { Exception, UnifyScreen };
 // log(images.findMultiColors(captureScreen(), "#454442", [[24, 1, "#373737"], [47, 4, "#535353"], [73, 1, "#515151"], [91, 1, "#494947"]], { region: [516, 172, 271, 250] }));
 // console.time("exception");
 // Exception();
-// const isBackpackOverLoad = images.findImage(captureScreen(), imgList.backpack_overload100, { region: [967, 16, 65, 65] });
-// log(isBackpackOverLoad);
 // console.timeEnd("exception");

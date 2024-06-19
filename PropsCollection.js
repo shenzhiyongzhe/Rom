@@ -1,7 +1,6 @@
-const { game_config } = require("./Global.js");
+
 const { Sleep, RandomPress, GoBack, ReadImg, PressBlank, } = require("./Utils.js");
 
-const { WearEquipment, DecomposeProps } = require("./BackPack.js");
 const propCollectionPos = [1098, 121, 19, 27];
 const propsLogin = [752, 610, 109, 23];
 const progressAward = [1103, 252, 139, 27];
@@ -95,8 +94,7 @@ const loginItem = function (points)
 };
 const PropsCollectionFlow = function ()
 {
-    Sleep();
-    WearEquipment();
+    console.log("道具图鉴");
     Sleep();
     RandomPress([1223, 18, 29, 32]); // 菜单栏图标
     Sleep();
@@ -120,12 +118,9 @@ const PropsCollectionFlow = function ()
 
     GoBack();
     Sleep();
-    // DecomposeProps();
-    // Sleep();
-
+    console.log("道具图鉴结束");
 };
-// PropsCollectionFlow();
-// log(FindAllTipPoint());
+
 module.exports = { PropsCollectionFlow };
 
 

@@ -1,6 +1,7 @@
 const { Sleep, RandomPress, GoBack, PressBlank, PressMenu, NumberRecognition, RandomSwipe, TipPointCheck, RandomHollow } = require("./Utils.js");
-const { OpenEquipmentBox, WearEquipment, StrengthenEquipment, } = require("./BackPack.js");
+const { OpeningAllEquipmentBox, StrengthenEquipment, } = require("./BackPack.js");
 const { ForgeMaterial } = require("./Manufacture.js");
+const { game_config, RWFile } = require("./RomConfig.js");
 function MenuTipCheck()
 {
     const hasMenuTipPoint = images.findMultiColors(captureScreen(), "#b52110", [[0, 3, "#c22516"], [0, 5, "#c32b1c"]], { region: [1236, 3, 32, 25] });
@@ -68,6 +69,7 @@ const GetEmail = function (needPressMenu)
     }
     const hasEmail = TipPointCheck([1043, 536, 24, 27]);
     if (!hasEmail) return false;
+    console.log("get email");
     RandomPress([1024, 556, 31, 22]); //email icon;
     Sleep(2000, 4000);
     const shot = captureScreen();
@@ -98,7 +100,7 @@ const GetEmail = function (needPressMenu)
 
     }
     GoBack();
-    console.log("get email award");
+    console.log("get email end");
     return true;
 };
 
@@ -206,9 +208,17 @@ const GetDuty = function ()
 const BulkBuy = function ()
 {
     console.log("bulk buy");
-
-    // RandomPress([961, 21, 22, 26]); //shop icon
-    // Sleep(6000, 12000);
+    const pressMaxScroll = () =>
+    {
+        RandomPress([1031, 271, 20, 23]);
+        RandomPress([652, 440, 40, 40]); //max 
+        RandomPress([658, 511, 94, 26]); // confirm
+        RandomPress([1030, 343, 21, 22]);
+        RandomPress([652, 440, 40, 40]); //max 
+        RandomPress([658, 511, 94, 26]); // confirm
+    };
+    RandomPress([961, 21, 22, 26]); //shop icon
+    Sleep(6000, 12000);
     const totalMoney = NumberRecognition("amount", [590, 3, 121, 35]);
     if (totalMoney < 700000)
     {
@@ -217,13 +227,32 @@ const BulkBuy = function ()
         return false;
     }
     RandomPress([26, 530, 163, 32]); //bulk btn
+    let x1 = random() * 15 + 218;
+    let y1 = random() * 15 + 571;
+
+    press(x1, y1, random() * 250 + 16); //select all
+    Sleep(2000, 4000);
+    for (let i = 0; i < 10; i++)
+    {
+        Sleep();
+        let x2 = random() * 15 + 218;
+        let y2 = random() * 15 + 571;
+        if (x1 != x2 || y1 != y2)
+        {
+            press(x2, y2, random() * 250 + 16);
+            Sleep(2000, 4000);
+            break;
+        }
+    }
     RandomSwipe([277, 444, 795, 64], [271, 194, 802, 65]);
+    Sleep(2000, 4000);
     for (let i = 0; i < 3; i++)
     {
         let isBottom = NumberRecognition("amount", [704, 486, 71, 33]) == 193110;
         if (!isBottom)
         {
             RandomSwipe([277, 444, 795, 64], [271, 194, 802, 65]);
+            Sleep(2000, 4000);
         }
         else
         {
@@ -240,8 +269,8 @@ const BulkBuy = function ()
     {
         console.log("当前金币为：" + totalMoney + " can only buy scroll");
         RandomPress([218, 277, 16, 16]); // weapon scroll;
-        RandomPress([813, 278, 21, 13]); // - btn
         RandomPress([813, 350, 20, 15]); // defence scroll -btn
+        pressMaxScroll();
     }
     else if (totalMoney >= 1040000 && totalMoney < 1440000)
     {
@@ -251,6 +280,7 @@ const BulkBuy = function ()
         RandomPress([218, 206, 16, 14]); // return home scroll
         RandomPress([218, 420, 15, 16]); //treasure box
         RandomPress([216, 492, 17, 16]); // crystal box
+        pressMaxScroll();
     }
     else
     {
@@ -258,30 +288,44 @@ const BulkBuy = function ()
         RandomPress([218, 573, 15, 14]); // select all btn
         RandomPress([218, 206, 16, 14]); // return home scroll
         RandomPress([218, 420, 15, 16]); //treasure box
+        RandomPress([967, 493, 14, 12]); // plus crystal box
+        pressMaxScroll();
     }
+    Sleep(3000, 6000);
     RandomPress([900, 565, 148, 26]); // buy btn
-    Sleep(2000, 4000);
+    Sleep(6000, 10000);
     RandomHollow([210, 311, 847, 81]);
+    if (totalMoney > 1440000)
+    {
+        RandomHollow([210, 311, 847, 81]);
+    }
     console.log("bulk buy finished");
+    Sleep();
     GoBack();
     return true;
 };
-// BulkBuy();
-// log(NumberRecognition("amount", [704, 486, 71, 33]));
+
 const Daily = function ()
 {
+    const setting = game_config.setting;
+    const date = new Date().getDate();
     const hasGetSignIn = GetSignIn();
-    if (hasGetSignIn)
+
+    if (hasGetSignIn && date != setting.date)
     {
+        setting.date = date;
+        console.log("今天" + date + "号");
+        RWFile("setting", setting);
         GetDuty();
         Sleep();
-        OpenEquipmentBox();
+        OpeningAllEquipmentBox();
         Sleep();
         BulkBuy();
         Sleep();
-        WearEquipment();
-        Sleep();
-        StrengthenEquipment("weapon");
+        if (game_config.player.equipment.weapon.level < 7)
+        {
+            StrengthenEquipment("weapon");
+        }
         Sleep();
         StrengthenEquipment("armor");
         Sleep();
@@ -295,5 +339,6 @@ const Daily = function ()
 };
 
 // Daily();
+// BulkBuy();
 module.exports = { Daily };
 

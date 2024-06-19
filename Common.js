@@ -33,17 +33,15 @@ const AbilityPointsFlow = function ()
     Sleep();
     RandomPress([14, 14, 50, 44]);
     Sleep(2000, 3000);
-    const abilityPoint_65 = ReadImg("abilityPoint_65");
-    const abilityPoint_66 = ReadImg("abilityPoint_66");
-    const isMaxPoint65 = images.findImage(captureScreen(), abilityPoint_65, { region: [260, 273, 55, 43] });
-    const isMaxPoint66 = images.findImage(captureScreen(), abilityPoint_66, { region: [260, 273, 55, 43] });
-    if (isMaxPoint65 || isMaxPoint66)
+    const isMax = images.findMultiColors(captureScreen(), "#2d2e31", [[7, 0, "#757678"], [13, 0, "#757578"], [9, -5, "#757577"], [9, 3, "#747477"],
+    [9, 11, "#292a2b"], [10, -8, "#2d2e31"], [9, 0, "#7e7f81"]], { region: [302, 273, 44, 42] });
+    if (isMax)
     {
-        RandomPress([318, 284, 15, 19]); //敏捷
+        RandomPress([314, 399, 21, 18]); //体力
     }
     else
     {
-        RandomPress([317, 285, 18, 18]); //体力
+        RandomPress([318, 287, 15, 14]); //敏捷
     }
 
     Sleep();
@@ -57,40 +55,10 @@ const AbilityPointsFlow = function ()
     {
         RandomPress([22, 20, 47, 30]);
     }
-    abilityPoint_65.recycle();
-    abilityPoint_66.recycle();
     console.log("AbilityPointsFlow end");
 };
-const GetTypeOfMaterial = function (region)
-{
-    const materialList = {
-        "blue_cloth": ReadImg("material/blue_cloth"),
-        "blue_wood": ReadImg("material/blue_wood"),
-        "green_ironIngot": ReadImg("material/green_ironIngot"),
-        "green_jewel": ReadImg("material/green_jewel"),
-        "green_magicGem": ReadImg("material/green_magicGem"),
 
-    };
-    for (let material in materialList)
-    {
-        let type = images.findImage(captureScreen(), materialList[material], { region: region });
-        if (type)
-        {
-            return material;
-        }
-    }
-    return null;
-};
-const MakeMaterial = function ()
-{
-    console.log("MakeMaterial");
-    const canUpgrade = images.findMultiColors(captureScreen(), "#353c30", [[95, 0, "#32392d"], [102, 13, "#2e362b"], [2, 13, "#272e23"]], { region: [1116, 140, 161, 65] });
-    for (let i = 0; i < 10; i++)
-    {
-        let type = GetTypeOfMaterial([110, 100, 100, 100]);
-    }
 
-};
 module.exports = { AbilityPointsFlow, MissionAwardFlow };
-// MissionAwardFlow(captureScreen());
-// AbilityPointsFlow();
+
+

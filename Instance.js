@@ -1,4 +1,4 @@
-const { game_config, } = require("./Global.js");
+const { game_config, } = require("./RomConfig.js");
 const { ReadImg, Sleep, RandomPress, GoBack, PressMenu, PressBackpack, NumberRecognition } = require("./Utils.js");
 const { Daily } = require("./Daily.js");
 const { GroceryFlow } = require("./Death.js");
@@ -82,38 +82,10 @@ const GetInstanceQueue = function ()
 
 
 };
-//no money
-const NoMoneyCheck = function ()
-{
-    Sleep();
-    const noMoneyTransform = images.findMultiColors(captureScreen(), "#893c00", [[1, 12, "#e05604"], [1, 20, "#cf4701"]], { region: [656, 641, 78, 72] });
-    if (noMoneyTransform)
-    {
-        console.log("no money to transform wild/instance");
-        GoBack();
-        MissionAwardFlow();
-        Daily();
-        return true;
-    }
-    return false;
-};
-function InstanceExceptionCheck(shot)
-{
-    const errorPopup = images.findMultiColors(shot, "#393939", [[52, 6, "#c5c5c3"], [68, 15, "#aaaaa8"], [97, 9, "#2f2f2f"]], { region: [433, 594, 200, 62] });
-    if (errorPopup)
-    {
-        console.log("Instance Exception popup");
-        RandomPress([461, 614, 148, 24]);
-        return;
-    }
-
-}
 const AutoBattleCheck = function (shot)
 {
     shot = shot || captureScreen();
-    const isInHaltMode = images.findMultiColors(shot, "#4d4d4d", [[13, 1, "#2a2a2a"], [23, -3, "#282726"], [53, -6, "#595857"], [81, 3, "#434343"], [46, 33, "#242323"]],
-        { region: [549, 202, 192, 178] });
-    if (isInHaltMode) return;
+
     const hasAutoBattle = images.findImage(shot, instanceImg.auto, { region: [1132, 513, 98, 101] });
     if (hasAutoBattle) return;
     const hasAutoGray = images.findImage(shot, instanceImg.auto_gray, { region: [1132, 513, 98, 101] });
@@ -123,41 +95,22 @@ const AutoBattleCheck = function (shot)
     log("instance click Auto battle icon");
 
 };
-const OutInstanceCheck = function (shot)
-{
-    const outInstance = images.findImage(shot, instanceImg.grocery, { region: [48, 252, 104, 73] });
-    if (outInstance)
-    {
-        Sleep();
-        const isZeroPotion = images.findMultiColors(captureScreen(), "#511414", [[12, -12, "#504e4f"], [28, 9, "#b1b1b1"], [32, 10, "#aaaaaa"], [23, 8, "#1d1d1d"], [21, 12, "#1c1d1c"]],
-            { region: [944, 622, 74, 70] },);
-        if (isZeroPotion)
-        {
-            GroceryFlow();
-            Sleep();
-        }
-        log("Out of instance");
-        EnterInstanceZones();
-    }
-};
 
-const isNeedEnterInstance = function () { };
+// const isNeedEnterInstance = function () { };
 const InstanceCheck = function ()
 {
     const shot = captureScreen();
-    OutInstanceCheck(shot);
     AutoBattleCheck(shot);
     // InstanceExceptionCheck(shot);
 };
 const NoMoneyEnterInstance = () =>
 {
-    let money = NumberRecognition("amount", [639, 1, 115, 37]);
+    let money = NumberRecognition("amount", [634, 3, 101, 33]);
     if (money < 25000)
     {
-        log("No money to enter instance");
-        return true;
+        log("No money to enter instance " + money);
     }
-    return false;
+    return money;
 };
 function EnterInstanceZones()
 {
@@ -174,7 +127,8 @@ function EnterInstanceZones()
     RandomPress([958, 286, 27, 34]); //instance icon
     Sleep(3000, 6000);
     //no money issue
-    if (NoMoneyEnterInstance())
+    const money = NumberRecognition("amount", [634, 3, 101, 33]);
+    if (money < 25000)
     {
         alert("暂时手动处理", `没有足够的金币进入副本，当前金币为${money}，请手动处理`);
         return;
@@ -203,6 +157,7 @@ function EnterInstanceZones()
         if (hasEntered) continue;
 
         RandomPress(instancePos[instanceQueue[i].index]);
+        Sleep(2000, 4000)
         switch (instanceQueue[i].level)
         {
             case 0:
@@ -225,17 +180,17 @@ function EnterInstanceZones()
         {
             RandomPress([876, 140, 34, 14]);
             RandomPress([1178, 20, 90, 35]);
-            AutoBattleCheck();
             Sleep();
             break;
         }
+        Sleep(2000, 4000)
         RandomPress([680, 469, 142, 24]); // confirm
         console.log("Entering instance " + instanceQueue[i].type + " " + instanceQueue[i].index + " level " + instanceQueue[i].level);
         Sleep(5000, 20000);
         break;
     }
 
-    Sleep();
+    Sleep(8000, 20000);
     AutoBattleCheck();
     AbilityPointsFlow();
     RandomPress([19, 449, 25, 14]);
@@ -360,11 +315,6 @@ function testMap(number)
     // RandomPress([89, 136, 242, 31]); //select
     log(mapName);
 }
-// testMap(12);
-// HangUpWild("27");
-// GoOutOfCity();
-module.exports = { InstanceCheck, EnterInstanceZones };
-// EnterInstanceZones();
-// AutoBattleCheck(captureScreen());
-// log(images.matchTemplate(captureScreen(), instanceImg.auto_gray, { region: [1132, 513, 98, 101] }));
-// HaltModeCheck(captureScreen());0.
+// log(NumberRecognition("amount", [634, 3, 101, 33]));
+module.exports = { AutoBattleCheck, EnterInstanceZones };
+// AutoBattleCheck();

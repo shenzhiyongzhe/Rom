@@ -1,6 +1,6 @@
 
-const { game_config, RWFile } = require("./Global.js");
-const { ReadImg, Sleep, RandomPress, GoBack } = require("./Utils.js");
+const { game_config, RWFile } = require("./RomConfig.js");
+const { ReadImg, Sleep, RandomPress, GoBack, NumberRecognition } = require("./Utils.js");
 const { WearEquipment } = require("./BackPack.js");
 const { Daily } = require("./Daily.js");
 const { MissionAwardFlow } = require("./Common.js");
@@ -99,7 +99,8 @@ const GroceryFlow = function ()
     potion.recycle();
     Sleep();
     let setting = game_config.setting;
-    if (setting.autoGrocery == false || setting.autoGrocery == undefined)
+    const isZero = NumberRecognition("amount", [1130, 658, 108, 34]);
+    if (setting.autoGrocery == false || setting.autoGrocery == undefined || isZero == 0)
     {
         // set auto purchase;
         RandomPress([65, 662, 295, 25]); //set auot btn;
@@ -149,6 +150,7 @@ function DeathFlow()
 
 
 module.exports = { DeathFlow, GroceryFlow };
+// log(NumberRecognition("amount", [1130, 658, 108, 34]));
 // DeathFlow();
 // CrucifixFlow();
 // MissionAwardFlow();

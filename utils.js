@@ -104,11 +104,12 @@ const InCity = function ()
 // log(InCity());
 
 
-const NoMoneyAlert = function ()
+const NoMoneyAlert = function (money)
 {
-    alert("手动处理", "no money 没有金币了");
+    const curMoney = money || "---";
+    alert("请手动处理", "当前金币为 " + curMoney + " 金币不足");
 };
-const TimeConvert = function (timeString)
+const ConvertTradeTime = function (timeString)
 {
     if (timeString == null) return null;
     timeString = timeString.toString();
@@ -122,7 +123,19 @@ const TimeConvert = function (timeString)
     const second = timeString.slice(12, 14);
     return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 };
-const MultiSampleColorCheck = function (shot, colorArr, region)
+const GetCurrentDate = function ()
+{
+    const time = new Date();
+
+    const year = time.getFullYear();
+    const month = time.getMonth() + 1;
+    const day = time.getDate();
+    const hour = time.getHours();
+    const minute = time.getMinutes();
+    const second = time.getSeconds();
+    return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+};
+const GetColorInMultiple = function (shot, colorArr, region)
 {
     let hasColor = false;
     for (let i = 0; i < colorArr.length; i++)
@@ -134,7 +147,7 @@ const MultiSampleColorCheck = function (shot, colorArr, region)
     }
     return hasColor;
 };
-const ColorCheck = function (region)
+const ColorCheck = function (shot, region)
 {
     const colorArr =
     {
@@ -143,7 +156,6 @@ const ColorCheck = function (region)
         green: [["#273b22", [[9, 0, "#2f4222"], [18, 0, "#304a23"], [26, 0, "#375323"], [26, 8, "#4c6428"]]],
         ["#283e21", [[8, 0, "#2d441f"], [23, 0, "#34511f"], [26, 9, "#4e6326"]]],]
     };
-    const shot = captureScreen();
     let color, equipColor;
     out: for (let key in colorArr)
     {
@@ -189,8 +201,9 @@ const RandomHollow = (hollowRegion) =>
     }
     log(`RandomHollow ${x1}, ${y1}`);
     press(x1, y1, random(16, 256));
+    Sleep();
 };
-// RandomHollow([300, 303, 745, 100]);
+
 module.exports = {
     Sleep,
     RandomPress,
@@ -203,8 +216,9 @@ module.exports = {
     TipPointCheck,
     InCity,
     NoMoneyAlert,
-    TimeConvert,
-    MultiSampleColorCheck,
+    ConvertTradeTime,
+    GetCurrentDate,
+    GetColorInMultiple,
     RandomSwipe,
     RandomHollow,
 };

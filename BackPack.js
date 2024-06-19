@@ -1,6 +1,6 @@
-const { game_config, RWFile } = require("./Global.js");
-// const { PropsCollectionFlow } = require("./PropsCollection.js");
-const { ReadImg, Sleep, RandomPress, GoBack, PressBlank, NumberRecognition, TipPointCheck, TimeConvert } = require("./Utils.js");
+const { game_config, RWFile } = require("./RomConfig.js");
+const { PropsCollectionFlow } = require("./PropsCollection.js");
+const { ReadImg, Sleep, RandomPress, GoBack, PressBlank, NumberRecognition, TipPointCheck, ConvertTradeTime, NoMoneyAlert } = require("./Utils.js");
 const BackPackImg = {
     E: ReadImg("E"),
     confirm: ReadImg("backPack_confirm"),
@@ -199,7 +199,9 @@ const WearEquipment = function (needOpen, needClose)
 const OpenEquipmentBox = function ()
 {
     log("打开装备箱");
-    OpenBackpack("props");
+    const hasOpened = OpenBackpack("props");
+    if (!hasOpened) return false;
+    let hadOpened = false;
     const equipmentImg = ReadImg("props/treasureBox_white_nomal_equipment_tied");
     const hasEquipmentBox = images.findImage(captureScreen(), equipmentImg, { region: [885, 111, 327, 341] });
     if (hasEquipmentBox)
@@ -224,13 +226,32 @@ const OpenEquipmentBox = function ()
             }
             else break;
         }
+        hadOpened = true;
     }
     Sleep();
 
     OpenBackpack();
     equipmentImg.recycle();
     log("装备箱打开完成");
+    return hadOpened;
 };
+
+const OpeningAllEquipmentBox = () =>
+{
+    for (let i = 0; i < 5; i++)
+    {
+        Sleep();
+        let hasOpened = OpenEquipmentBox();
+        if (!hasOpened) return;
+        Sleep();
+        WearEquipment();
+        Sleep();
+        PropsCollectionFlow();
+        Sleep();
+        DecomposeProps();
+    }
+};
+
 // ------------------------------strenghten weapon----------------------------------
 
 const IsLeadToVanish = function ()
@@ -239,10 +260,6 @@ const IsLeadToVanish = function ()
     if (isVanish != null) return true;
     else return false;
 };
-/**
- * 
- * @param {*} type "weapon" or "armor"
- */
 const getScroll = function (type)
 {
     let scroll;
@@ -272,7 +289,7 @@ const getScroll = function (type)
     scroll.recycle();
     return false;
 };
-const StrengthenItem = function ()
+const StrengthenEEquipment = function ()
 {
     const shot = captureScreen();
 
@@ -290,14 +307,13 @@ const StrengthenItem = function ()
             let weaponColor = GetWeaponColor(shot, [882 + j * 65, 104 + i * 65, 60, 60]);
             if (isEquip == true && (weaponColor == "purple" || weaponColor == "blue" || weaponColor == "green"))
             {
+                let strengthenLevel = NumberRecognition("strengthen", [920 + j * 65, 142 + i * 65, 26, 25]);
+                if (strengthenLevel >= 7) continue;
                 RandomPress([895 + j * 65, 115 + i * 65, 35, 35]);
                 let isVanish = IsLeadToVanish();
                 if (isVanish)
                 {
-                    // let player = game_config.player;
-                    // player.equipment.weapon.level = 7;
-                    // player.equipment.weapon.color = weaponColor;
-                    console.log("强化完毕，退出 isVanish" + isVanish);
+                    console.log("强化到+7，下一个" + isVanish);
                     continue;
                 }
                 else
@@ -315,41 +331,13 @@ const StrengthenItem = function ()
                     }
                 }
             }
-            // else if (weaponColor == "white")
-            // {
-            //     let isEquip = images.findMultiColors(shot, "#b0afa3", [[7, 0, "#484132"], [3, 5, "#291f09"], [8, 5, "#b1b0a0"], [3, 8, "#3b3222"], [9, 8, "#8c8172"],
-            //     [0, 8, "#b8b8a8"]], { region: [925 + j * 65, 106 + i * 65, 20, 18] });
-            //     if (isEquip) continue;
-            //     RandomPress([895 + j * 65, 115 + i * 65, 35, 35]);
-            //     let isUpToLevel_10 = images.findImage(captureScreen(), level_10, { region: [263, 140, 50, 36] });
-            //     if (isUpToLevel_10) continue;
-            //     for (let n = 0; n < 4; n++)
-            //     {
-            //         let strenghten_shot = captureScreen();
-            //         isUpToLevel_10 = images.findImage(strenghten_shot, level_10, { region: [263, 140, 50, 36] });
-            //         if (isUpToLevel_10) break;
-            //         let hasFailed = images.findMultiColors(strenghten_shot, "#1d1d1f", [[13, 1, "#202020"], [29, 0, "#1e1e1f"], [29, 20, "#202021"],
-            //         [28, 43, "#1e1f20"], [-7, 53, "#1a1a1b"], [-31, 54, "#19191b"], [-35, 32, "#19191b"]], { region: [85, 203, 78, 81] });
-            //         if (hasFailed) break;
-            //         let isUseOut_2 = images.findMultiColors(strenghten_shot, "#191a1a", [[26, -1, "#1b1d1d"], [59, -1, "#1f1f20"],
-            //         [61, 24, "#1f1f20"], [61, 54, "#1d1d1e"], [31, 59, "#171718"], [1, 59, "#191919"], [-2, 28, "#191919"], [26, 13, "#2e2f2c"],
-            //         [41, 18, "#40403b"], [27, 26, "#2d2e29"], [17, 35, "#3d3d3a"], [32, 44, "#393a37"]], { region: [350, 206, 74, 76] });
-            //         if (isUseOut_2) break out;
-            //         RandomPress([933, 672, 284, 28]);
-            //         Sleep(3000, 5000);
-            //         RandomPress([933, 672, 284, 28]);
-            //         Sleep(2000, 3000);
-            //         RandomPress([230, 157, 740, 428]);
-            //         Sleep(2000, 3000);
-            //     }
-            // }
         }
 
     }
 };
 /**
  * 
- * @param {*} type "weapon or armor" 
+ * @param {*} type weapon or armor 
  */
 const StrengthenEquipment = function (type)
 {
@@ -365,7 +353,7 @@ const StrengthenEquipment = function (type)
         if (type == "weapon") RandomPress([1225, 199, 29, 33]); // weapon page
         else if (type == "armor") RandomPress([1228, 283, 26, 28]); // armor page
         RandomPress([1027, 497, 65, 13]); // not binding
-        StrengthenItem();
+        StrengthenEEquipment();
         Sleep();
         GoBack();// backpack
         Sleep();
@@ -378,6 +366,7 @@ const StrengthenEquipment = function (type)
 
 const DecomposeProps = function ()
 {
+    console.log("开始分解道具");
     const popupCheck = function ()
     {
         Sleep(2000, 3000);
@@ -396,8 +385,11 @@ const DecomposeProps = function ()
     RandomPress([1009, 511, 23, 20]); //decompose
     Sleep();
     RandomPress([922, 512, 53, 16]); //normal
+    RandomPress([1018, 511, 14, 16]); // green btn;
     for (let i = 0; i < 3; i++)
     {
+        let isZeroItem = NumberRecognition("strengthen", [1170, 504, 20, 27]);
+        if (isZeroItem == 0) break;
         RandomPress([1120, 508, 122, 22]); //decompose
         let continueDecompose = images.findMultiColors(captureScreen(), "#363636", [[16, 0, "#343434"], [11, 8, "#333334"], [55, 6, "#262828"], [83, 3, "#262626"],
         [121, 1, "#3e4638"], [128, 6, "#373e32"], [120, 18, "#2f372b"]], { region: [480, 538, 378, 70] });
@@ -408,6 +400,7 @@ const DecomposeProps = function ()
         if (isNoMoney)
         {
             RandomPress([455, 565, 132, 20]);
+            NoMoneyAlert("100");
             break;
         }
         else
@@ -416,47 +409,9 @@ const DecomposeProps = function ()
         }
     }
     Sleep();
-    //分解绿装
-    // RandomPress([1018, 512, 50, 15]); //green equipment;
-    const shot = captureScreen();
-    for (let i = 0; i < 2; i++)
-    {
-        for (let j = 0; j < 5; j++)
-        {
-            for (let k = 0; k < 15; k++)
-            {
 
-                let ornament_img = ReadImg(`ornaments/${(k + 1).toString().padStart(2, "0")}`);
-                let is_ornament = images.findImage(shot, ornament_img, { region: [876 + j * 65, 118 + i * 65, 78, 76], threshold: 0.8 });
-                ornament_img.recycle();
-                if (is_ornament != null) break;
-                let isBlue = images.findMultiColors(shot, "#1c475b", [[5, 1, "#1d4b63"], [5, 5, "#215167"], [5, 13, "#256079"], [5, 19, "#2a5f76"]],
-                    { region: [876 + j * 65, 118 + i * 65, 78, 76] });
-                if (isBlue) break;
-                if (k == 14)
-                {
-                    RandomPress([896 + j * 65, 136 + i * 65, 44, 40]);
-                }
-            }
-            let isEquiped = images.findMultiColors(shot, "#5e5d55", [[0, 5, "#606059"], [3, 4, "#0e0901"], [9, 4, "#636158"], [9, 1, "#605f57"]],
-                { region: [916 + j * 65, 118 + i * 65, 37, 40] });
-            if (isEquiped) break;
-        }
-    }
-    RandomPress([1120, 508, 122, 22]); //decompose
-    RandomPress([696, 563, 127, 23]); //popup confirm
-    if (game_config.setting.decompose == undefined || game_config.setting.decompose == false) popupCheck();
-    Sleep();
-    let isNoMoney = images.findMultiColors(captureScreen(), "#383838", [[-1, 21, "#29292a"], [88, 0, "#333333"], [112, 21, "#2e2e2e"]], { region: [429, 537, 183, 71] });
-    if (isNoMoney)
-    {
-        RandomPress([455, 565, 132, 20]);
-    }
-    else
-    {
-        RandomPress([323, 95, 522, 217]);
-    }
     OpenBackpack();
+    console.log("分解道具完毕");
 };
 
 const ReturnHome = function ()
@@ -702,7 +657,7 @@ const DecomposeAllWhiteSuit = function ()
     }
     OpenBackpack();
 };
-// DecomposeAllWhiteSuit();
+
 const SortEquipment = function ()
 {
     Sleep();
@@ -710,7 +665,7 @@ const SortEquipment = function ()
     RandomPress([1041, 423, 90, 21]);
     Sleep();
 };
-// log(DecomposeAllGreenSuit());
+
 const ViewPrice = function ()
 {
     let amount, price = 0;
@@ -819,7 +774,7 @@ const StrengthenToLevel_10 = function ()
     console.log("strengthen to level 10 result: " + isUpToLevel_10);
     return isUpToLevel_10;
 };
-const StrengthenTheEquipment = function (arr)
+const StrengthenTradeEquipment = function (arr)
 {
     let strengthenSuccess = false;
     if (arr.length == 0) return strengthenSuccess = false;
@@ -831,22 +786,30 @@ const StrengthenTheEquipment = function (arr)
     Sleep(1000, 3000);
     RandomPress([599, 465, 25, 20]); // click strengthen
     Sleep(2000, 4000);
+    RandomPress([1027, 497, 61, 15]); //concel the normal strengthen
+    Sleep();
     const scroll = ReadImg(`flag/strengthenScroll/${type}`);
-    const hasScroll = images.findImage(captureScreen(), scroll, { region: [893, 520, 354, 65] });
-    scroll.recycle();
-    if (hasScroll)
+    const shot = captureScreen();
+    for (let i = 0; i < 5; i++)
     {
-        RandomPress([1027, 497, 61, 15]); //concel the normal strengthen
-        RandomPress([hasScroll.x, hasScroll.y, 20, 20]); // click the scroll
-        Sleep(2000, 4000);
-        strengthenSuccess = StrengthenToLevel_10();
+        let isWhite = GetWeaponColor(shot, [920 + i * 63, 525, 55, 55]);
+        if (isWhite == "white")
+        {
+            let hasScroll = images.findImage(shot, scroll, { region: [920 + i * 63, 525, 55, 55] });
+            if (hasScroll)
+            {
+                RandomPress([hasScroll.x, hasScroll.y, 20, 20]);
+                Sleep(2000, 4000);
+                strengthenSuccess = StrengthenToLevel_10();
+                break;
+            }
+        }
     }
+    scroll.recycle();
     GoBack();
     return strengthenSuccess;
 };
-// log(StrengthenToLevel_10());
-// log(StrengthenTheEquipment([{ row: 4, col: 2, amount: 6, price: 39, type: "armor" }, { row: 4, col: 3, amount: 6, price: 38, type: "armor" }]));
-// log(GetWeaponType(captureScreen()));
+
 const SaleEquipment = function ()
 {
     let salePrice = 0;
@@ -932,25 +895,46 @@ const GetSettlement = function ()
         RandomPress([298, 95, 75, 31]); // settlement icon;
         Sleep(2000, 4000);
         let settlement = NumberRecognition("amount", [997, 672, 103, 34]);
+        if (settlement == null)
+        {
+            settlement = 0;
+        }
         let todaySettlementTimes, lastSettlement;
         const player = game_config.player;
 
         if (player.trade == undefined)
         {
             player.trade = {};
+        }
+        if (typeof player.trade.todaySettlementTimes != "number")
+        {
             player.trade.todaySettlementTimes = 0;
-            player.trade.lastSettlement = 0;
-
+        }
+        if (typeof player.trade.settlement != "number")
+        {
+            player.trade.settlement = 0;
         }
         todaySettlementTimes = player.trade.todaySettlementTimes;
-        lastSettlement = player.trade.lastSettlement;
+        lastSettlement = player.trade.settlement;
         const isFirstDayofMonth = new Date().getDate() == 1;
-        if (isFirstDayofMonth && todaySettlementTimes == 0)
+        if (isFirstDayofMonth)
         {
-            lastSettlement = 0;
+            if (todaySettlementTimes == 0)
+            {
+                lastSettlement = 0;
+            }
+            else
+            {
+                todaySettlementTimes++;
+
+            }
+        }
+        else
+        {
+            todaySettlementTimes = 0;
         }
         settlement = settlement + lastSettlement;
-        const lastTime = TimeConvert(NumberRecognition("amount", [1050, 670, 44, 36]));
+        const lastTime = ConvertTradeTime(NumberRecognition("amount", [1050, 670, 44, 36]));
 
         RandomPress([1118, 674, 127, 30]); //settlement btn;
         Sleep();
@@ -960,8 +944,7 @@ const GetSettlement = function ()
         player.trade.total = total;
         player.trade.settlement = settlement;
         player.trade.lastTime = lastTime;
-        player.trade.todaySettlementTimes = todaySettlementTimes + 1;
-        player.trade.lastSettlement = settlement;
+        player.trade.todaySettlementTimes = todaySettlementTimes;
         RWFile("player", player);
         Sleep();
         ui.web.jsBridge.callHandler('updateTradeRecord', JSON.stringify(player.trade), (data) =>
@@ -992,10 +975,7 @@ const RePutOnShelf = function ()
         RandomPress([685, 484, 126, 24]);
     }
 };
-// GetSettlement();
-// log(NumberRecognition("amount", [504, 3, 113, 32]));
-// log(TimeConvert(NumberRecognition("amount", [1041, 314, 172, 36])));
-// SaleMaterials();
+
 const PutOnSale = function ()
 {
     let hadSold = false;
@@ -1014,7 +994,7 @@ const PutOnSale = function ()
     }
     else
     {
-        StrengthenTheEquipment(priceList);
+        StrengthenTradeEquipment(priceList);
         Sleep(2000, 3000);
         OpenBackpack("equipment");
     }
@@ -1045,12 +1025,9 @@ const PutOnSale = function ()
     return hadSold;
 };
 
-// PutOnSale();
-// log(GetWeaponType(captureScreen()));
-// log(images.matchTemplate(captureScreen(), ReadImg("flag/weaponType/ornament"), { region: [650, 109, 46, 48] }));
-// OpenEquipmentBox();
 module.exports = {
     OpenEquipmentBox,
+    OpeningAllEquipmentBox,
     WearEquipment,
     StrengthenEquipment,
     DecomposeProps,
@@ -1059,4 +1036,4 @@ module.exports = {
     BlankCheck,
     PutOnSale
 };
-// log(NumberRecognition("amount", [1097, 610, 32, 24]));
+

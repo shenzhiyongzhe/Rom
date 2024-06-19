@@ -16,7 +16,7 @@ const menuList = document.querySelectorAll(".select-menu");
 
 const startScript = document.querySelector("#startScript");
 const updateScript = document.querySelector("#updateScript");
-const shopCheckBox = document.querySelector("input[name=shop]");
+
 const version = document.querySelector("#version");
 //trade
 const total = document.querySelector("#total");
@@ -27,10 +27,7 @@ beginnerCheckBox.addEventListener("click", () =>
 {
     ui.isBeginner = beginnerCheckBox.checked;
 });
-shopCheckBox.addEventListener("click", () =>
-{
-    ui.exception.shop = shopCheckBox.checked;
-});
+
 randomServerCheckBox.addEventListener("click", () =>
 {
     ui.isRandomServer = randomServerCheckBox.checked;
@@ -84,7 +81,6 @@ function InitUIData(data)
     }
     beginnerCheckBox.checked = ui.isBeginner;
     randomServerCheckBox.checked = ui.isRandomServer;
-    shopCheckBox.checked = ui.exception.shop;
     // version.innerHTML = `版本：${game_config.setting.time}`;
     ui.instanceQueue.forEach((queue) =>
     {

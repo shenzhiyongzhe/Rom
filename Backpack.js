@@ -9,7 +9,7 @@ const OpenBackpack = (page) =>
 {
 
     const hasBackpack = findImage(captureScreen(), icon.menu, { region: [1211, 2, 58, 57] });
-    if (!hasBackpack) return;
+    if (!hasBackpack) return false;
     const backpack_close = ReadImg("icon/backpack_close");
     const hasBackpack_close = findImage(captureScreen(), backpack_close, { region: [1235, 57, 43, 40] });
     if (!hasBackpack_close)
@@ -32,6 +32,7 @@ const OpenBackpack = (page) =>
     }
     backpack_close.recycle();
     Sleep();
+    return true;
 };
 const CloseBackpack = () =>
 {
@@ -312,8 +313,9 @@ const OpenEquipmentBox = () =>
     log("打开装备箱");
     const hasOpened = OpenBackpack("props");
     if (!hasOpened) return false;
+
     let hadOpened = false;
-    const equipmentImg = ReadImg("props/treasureBox_white_nomal_equipment_tied");
+    const equipmentImg = ReadImg("backpack/props/treasureBox_white_nomal_equipment_tied");
     const hasEquipmentBox = images.findImage(captureScreen(), equipmentImg, { region: [885, 111, 327, 341] });
     if (hasEquipmentBox)
     {
@@ -346,6 +348,21 @@ const OpenEquipmentBox = () =>
     log("装备箱打开完成");
     return hadOpened;
 };
+const OpeningAllEquipmentBox = () =>
+{
+    for (let i = 0; i < 5; i++)
+    {
+        Sleep();
+        let hasOpened = OpenEquipmentBox();
+        if (!hasOpened) return;
+        Sleep();
+        WearEquipment();
+        Sleep();
+        PropsCollectionFlow();
+        Sleep();
+        DecomposeAll();
+    }
+};
 const FindScroll = (type) =>
 {
     const shot = captureScreen();
@@ -359,9 +376,11 @@ const FindScroll = (type) =>
             if (hasScroll) return hasScroll;
         }
     }
+
     scroll.recycle();
     return false;
 };
+
 const NoScrollCheck = () =>
 {
     const noScrollArr = [
@@ -784,13 +803,10 @@ const StrengthenOrnament = () =>
     }
 };
 module.exports = {
-    OpenEquipmentBox,
-    // OpeningAllEquipmentBox,
+    OpeningAllEquipmentBox,
     WearEquipment,
     StrengthenPlayerEquipment,
     DecomposeAll,
     ReturnHome,
-    // StoreEquipment,
-    // BlankCheck,
-    PutOnSale
+    PutOnSale,
 };

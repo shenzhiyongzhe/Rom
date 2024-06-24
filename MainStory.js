@@ -1,8 +1,7 @@
-const { ReadImg, Sleep, RandomPress, GoBack, PressMenu, } = require("./Utils.js");
-const { WearEquipment, OpenEquipmentBox, StrengthenEquipment } = require("./BackPack.js");
+const { ReadImg, Sleep, RandomPress, GoBack, OpenMenu, } = require("./Utils.js");
+const { WearEquipment, OpenEquipmentBox, StrengthenPlayerEquipment } = require("./Backpack.js");
 const { AbilityPointsFlow, MissionAwardFlow } = require("./Common.js");
 const { Daily } = require("./Daily.js");
-const CraftFlow = require("./Craft.js");
 
 
 const MissionSkip = function (shot)
@@ -101,7 +100,7 @@ let curTime = 0;
 const Craft = function ()
 {
 
-    PressMenu();
+    OpenMenu();
     Sleep();
 
     const hasCraftPoint = images.findMultiColors(captureScreen(), "#b72e1b", [[-4, 3, "#db2e1c"], [1, 3, "#c02517"], [4, 3, "#cf3324"], [0, 5, "#be2618"],], { region: [971, 178, 35, 37] });

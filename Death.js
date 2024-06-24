@@ -1,7 +1,6 @@
 
 const { game_config, RWFile } = require("./RomConfig.js");
 const { ReadImg, Sleep, RandomPress, GoBack, NumberRecognition } = require("./Utils.js");
-const { WearEquipment } = require("./BackPack.js");
 const { Daily } = require("./Daily.js");
 const { MissionAwardFlow } = require("./Common.js");
 
@@ -125,9 +124,7 @@ const GroceryFlow = function ()
     RandomPress([930, 658, 302, 30]); // purchase 
     GoBack();
 };
-// GroceryFlow();
-// log(images.findImage(captureScreen(), ReadImg("grocery_returnHome"), { region: [86, 352, 64, 64] }));
-//死亡流程 点击确认按钮，购买药水
+
 function DeathFlow()
 {
     gameMode = game_config.ui.gameMode;
@@ -150,9 +147,4 @@ function DeathFlow()
 
 
 module.exports = { DeathFlow, GroceryFlow };
-// log(NumberRecognition("amount", [1130, 658, 108, 34]));
-// DeathFlow();
-// CrucifixFlow();
-// MissionAwardFlow();
-// GroceryFlow();
-// log(images.findImage(captureScreen(), ReadImg("grocery_returnHome"), { region: [47, 108, 358, 493] }));
+

@@ -1,4 +1,4 @@
-const { WearEquipment, StrengthenEquipment } = require("./BackPack.js");
+const { WearEquipment, StrengthenPlayerEquipment } = require("./Backpack.js");
 const { BlueSquare } = require("./CONST.js");
 const { game_config, RWFile } = require("./RomConfig.js");
 const { ReadImg, Sleep, RandomPress, GoBack, NumberRecognition, GetColorInMultiple } = require("./Utils.js");

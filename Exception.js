@@ -1,7 +1,8 @@
 // const { game_config } = require("./Global.js");
-const { ReadImg, Sleep, RandomPress, InCity, NoMoneyAlert, GetColorInMultiple, GoBack, GetCurrentDate } = require("./Utils.js");
-const { RomApp, baseUrl, DisconnectedGameArray, DisconnectedServerArray, MainUIArray, DeathPopupArray, LongTimeNoInputArray, StartGameArray } = require("./CONST.js");
-const { ReturnHome, PutOnSale } = require("./BackPack.js");
+const { ReadImg, Sleep, RandomPress, InCity, NoMoneyAlert, GetColorInMultiple, GoBack, SaveShot } = require("./Utils.js");
+const { DisconnectedGameArray, DisconnectedServerArray, MainUIArray, DeathPopupArray, LongTimeNoInputArray, StartGameArray } = require("./Color.js");
+const { RomApp, } = require("./CONST.js");
+const { ReturnHome, PutOnSale } = require("./Backpack.js");
 const { DeathFlow, GroceryFlow } = require("./Death.js");
 const { AutoBattleCheck, EnterInstanceZones } = require("./Instance.js");
 const { game_config } = require("./RomConfig.js");
@@ -13,6 +14,7 @@ const imgList = {
     haltMode_noPotion: ReadImg("exception/haltMode_noPotion"),
     haltMode_backpack90: ReadImg("exception/haltMode_backpack90"),
     haltMode_backpack100: ReadImg("exception/haltMode_backpack100"),
+    menu_close: ReadImg("icon/menu_close")
 };
 const RestartApp = function (appName)
 {
@@ -69,6 +71,7 @@ const PageBackCheck = function (shot)
         RandomPress([1162, 17, 106, 30]);
     }
 };
+const MenuCloseCheck = (shot) => images.findImage(shot, imgList.menu_close, { region: [1213, 7, 51, 52] });
 const NoExpCheck = function (shot)
 {
     let curExp = images.clip(shot, 151, 547, 80, 24);
@@ -92,7 +95,7 @@ const NoPotionCheck = function (shot)
     const hasNoPotion_haltMode = images.findImage(shot, imgList.haltMode_noPotion, { region: [904, 4, 63, 70] });
     if (hasNoPotion || hasNoPotion_haltMode)
     {
-        console.log("NoPotionCheck: no potion!!!");
+        console.log("---------------no potion---------------");
         return true;
     }
 
@@ -104,7 +107,7 @@ const BackpackFullCheck = function (shot)
     const backpack100 = images.findImage(shot, imgList.haltMode_backpack100, { region: [967, 16, 65, 65] });
     if (backpack90 || backpack100)
     {
-        console.log("BackpackFullCheck: backpack full!!!");
+        console.log("---------------backpack full--------------");
         return true;
     }
     return false;
@@ -189,11 +192,8 @@ const NoPotionFlow = function (shot)
     const isNoMoneyTobuy = NoPotionCheck(captureScreen());
     if (isNoMoneyTobuy)
     {
-        const moneyClip = captureScreen();
-        const time = GetCurrentDate();
-        files.create(baseUrl + "/shot");
-        images.save(moneyClip, baseUrl + "/shot/" + "nomoeny" + time);
-        // NoMoneyAlert();
+        SaveShot();
+        NoMoneyAlert("{{没钱买药}}");
     }
     EnterInstanceZones();
 };
@@ -250,6 +250,11 @@ function Exception()
         {
             GoBack();
             return;
+        }
+        const hadMenuClose = MenuCloseCheck(shot);
+        if (hadMenuClose)
+        {
+            RandomPress([1227, 20, 21, 28]);
         }
         const isInCity = InCity(shot);
         if (isInCity)
@@ -356,7 +361,30 @@ const UnifyScreen = function ()
         return;
     }
 };
-module.exports = { Exception, UnifyScreen };
+const FirstOpenGameCheck = function ()
+{
+    //screen is black
+    const blackScreenArr = [
+        ["#000000", [[-11, 162, "#000000"], [-8, 383, "#000000"], [-12, 598, "#000000"], [474, 644, "#000000"], [1033, 643, "#000000"], [1045, 324, "#000000"], [1046, -10, "#000000"]]],
+        ["#000000", [[43, 187, "#000000"], [57, 480, "#000000"], [287, 99, "#000000"], [881, 88, "#000000"], [987, 443, "#000000"], [664, 532, "#000000"], [499, 556, "#000000"]]],
+        ["#000000", [[362, 23, "#000000"], [600, 42, "#000000"], [1040, 257, "#000000"], [797, 487, "#000000"], [441, 509, "#000000"], [152, 469, "#000000"], [544, 581, "#000000"]]]
+    ];
+    for (let i = 0; i < 3; i++)
+    {
+        let isFirstEnterGame = GetColorInMultiple(captureScreen(), blackScreenArr, [4, 4, 1275, 714]);
+        if (isFirstEnterGame)
+        {
+            Sleep(120000, 180000);
+            break;
+        }
+        else
+        {
+            isFirstEnterGame = GetColorInMultiple(captureScreen(), blackScreenArr, [4, 4, 1275, 714]);
+        }
+        Sleep(3000, 6000);
+    }
+};
+module.exports = { Exception, UnifyScreen, FirstOpenGameCheck };
 // log(DisconnectedGameCheck(captureScreen()));
 // UnifyScreen();
 // log(images.findMultiColors(captureScreen(), "#454442", [[24, 1, "#373737"], [47, 4, "#535353"], [73, 1, "#515151"], [91, 1, "#494947"]], { region: [516, 172, 271, 250] }));

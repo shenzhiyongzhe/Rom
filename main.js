@@ -3,10 +3,10 @@ const UI = require("./UI.js");
 UI();
 
 const { game_config, RWFile, } = require("./RomConfig.js");
-const { PressMenu, Sleep, GoBack } = require("./Utils.js");
+const { Sleep, GoBack } = require("./Utils.js");
 
 const { BeginnerFlow } = require("./Player.js");
-const { UnifyScreen, Exception } = require("./Exception.js");
+const { UnifyScreen, Exception, FirstOpenGameCheck } = require("./Exception.js");
 const { EnterInstanceZones } = require("./Instance.js");
 
 console.setGlobalLogConfig({
@@ -56,6 +56,7 @@ floaty_window.switch.click(function ()
 });
 
 
+
 const Main = function (data)
 {
     let data = JSON.parse(data);
@@ -66,6 +67,7 @@ const Main = function (data)
     game_config.ui.isBeginner == true && BeginnerFlow(data.isRandomServer);
     gameMode = game_config.ui.gameMode;
     Sleep(3000, 4000);
+    FirstOpenGameCheck();
     for (let i = 0; i < 5; i++)
     {
         Sleep(3000, 5000);
@@ -73,7 +75,7 @@ const Main = function (data)
         Exception();
     }
 
-    Sleep(60000, 180000);
+    Sleep(30000, 60000);
     if (gameMode == "instance") EnterInstanceZones();
     mainThread = threads.start(function ()
     {

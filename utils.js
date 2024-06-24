@@ -1,4 +1,4 @@
-
+const { baseUrl } = require("./CONST.js");
 const Sleep = (min, max) =>
 {
     min = min || 1000;
@@ -14,9 +14,41 @@ const RandomPress = ([startX, startY, w, h]) =>
     Sleep();
 };
 const ReadImg = (name) => images.read(`./img/${name}.png`);
-const GoBack = () => RandomPress([1125, 18, 141, 35]);
+const GoBack = () =>
+{
+    const backIcon = ReadImg('icon/back');
+    const hasBack = images.findImage(captureScreen(), backIcon, { region: [1217, 10, 42, 43] });
+    if (hasBack)
+    {
+        RandomPress([1125, 18, 141, 35]);
+    }
+    backIcon.recycle();
+};
 const PressBlank = () => RandomPress([270, 96, 647, 502]);
-const PressMenu = () => RandomPress([1226, 19, 24, 27]);
+const OpenMenu = () =>
+{
+    console.log("打开菜单");
+    const menu_icon = ReadImg("menu_icon");
+    const menu_close = ReadImg("menu_close");
+    const shot = captureScreen();
+    const hasIcon = images.findImage(shot, menu_icon, { region: [1217, 10, 42, 43] });
+    const hasClose = images.findImage(shot, menu_close, { region: [1217, 10, 42, 43] });
+    if (hasIcon)
+    {
+        RandomPress([1221, 15, 33, 33]);
+        Sleep(2000, 4000);
+    }
+    else if (hasClose)
+    {
+        Sleep();
+    }
+    else
+    {
+        console.log("当前页面没有菜单按钮");
+    }
+    menu_icon.recycle();
+    menu_close.recycle();
+};
 const PressBackpack = () => RandomPress([1094, 24, 22, 27]);
 
 const NumberRecognition = function (directory, region)
@@ -101,8 +133,6 @@ const InCity = function ()
     groceryIcon.recycle();
     return hasGrocery;
 };
-// log(InCity());
-
 
 const NoMoneyAlert = function (money)
 {
@@ -123,8 +153,9 @@ const ConvertTradeTime = function (timeString)
     const second = timeString.slice(12, 14);
     return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 };
-const GetCurrentDate = function ()
+const GetCurrentDate = function (sign)
 {
+    let s = sign || ":";
     const time = new Date();
 
     const year = time.getFullYear();
@@ -133,7 +164,7 @@ const GetCurrentDate = function ()
     const hour = time.getHours();
     const minute = time.getMinutes();
     const second = time.getSeconds();
-    return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+    return `${year}-${month}-${day} ${hour}${s}${minute}${s}${second}`;
 };
 const GetColorInMultiple = function (shot, colorArr, region)
 {
@@ -203,14 +234,20 @@ const RandomHollow = (hollowRegion) =>
     press(x1, y1, random(16, 256));
     Sleep();
 };
-
+const SaveShot = () =>
+{
+    const moneyClip = captureScreen();
+    const time = GetCurrentDate("_");
+    files.create(baseUrl + "/shot/");
+    images.save(moneyClip, `${baseUrl}/shot/${time}.png`);
+};
 module.exports = {
     Sleep,
     RandomPress,
     ReadImg,
     GoBack,
     PressBlank,
-    PressMenu,
+    OpenMenu,
     PressBackpack,
     NumberRecognition,
     TipPointCheck,
@@ -221,4 +258,6 @@ module.exports = {
     GetColorInMultiple,
     RandomSwipe,
     RandomHollow,
+    SaveShot
 };
+// log(baseUrl);

@@ -1,15 +1,10 @@
-const { Sleep, RandomPress, GoBack, PressBlank, PressMenu, NumberRecognition, RandomSwipe, TipPointCheck, RandomHollow } = require("./Utils.js");
-const { OpeningAllEquipmentBox, StrengthenEquipment, } = require("./BackPack.js");
+const { Sleep, RandomPress, GoBack, PressBlank, OpenMenu, NumberRecognition, RandomSwipe, TipPointCheck, RandomHollow, GetColorInMultiple } = require("./Utils.js");
+const { StrengthenPlayerEquipment, } = require("./Backpack.js");
 const { ForgeMaterial } = require("./Manufacture.js");
 const { game_config, RWFile } = require("./RomConfig.js");
-function MenuTipCheck()
-{
-    const hasMenuTipPoint = images.findMultiColors(captureScreen(), "#b52110", [[0, 3, "#c22516"], [0, 5, "#c32b1c"]], { region: [1236, 3, 32, 25] });
-    if (hasMenuTipPoint == null) return false;
-    PressMenu();
-    Sleep(3000, 5000);
-    return true;
-}
+const { TipPointArr } = require("./Color.js");
+
+const MenuTipPointCheck = (shot) => GetColorInMultiple(shot, TipPointArr, [1241, 3, 25, 25]);
 
 const overMaxNumber = () =>
 {
@@ -26,21 +21,21 @@ const overMaxNumber = () =>
 
 const GetSignIn = function ()
 {
-    const hasMenu = MenuTipCheck();
-    if (hasMenu == false) return;
-    const canSignIn = images.findMultiColors(captureScreen(), "#ad2514", [[0, 2, "#c32513"], [0, 5, "#c32719"]], { region: [969, 527, 36, 43] });
-    if (canSignIn == null) return false;
+    const hasMenuTipPoint = MenuTipPointCheck(captureScreen());
+    if (!hasMenuTipPoint) return;
+    OpenMenu();
+    const canSignIn = GetColorInMultiple(captureScreen(), TipPointArr, [977, 536, 21, 27]);
+    if (!canSignIn) return;
     RandomPress([961, 555, 26, 30]);
     Sleep(2000, 4000);
     const shot = captureScreen();
-    let hasTipPoint, hasTipPoint2, canGetAward, isCurPage;
+    let canGetAward, isCurPage;
     for (let i = 0; i < 4; i++)
     {
         Sleep();
-        hasTipPoint = images.findMultiColors(shot, "#b02c1c", [[0, 3, "#bc2213"], [0, 5, "#c02619"]], { region: [130 + 162 * i, 77, 100, 40] });
-        hasTipPoint2 = images.findMultiColors(shot, "#ba2414", [[0, 2, "#bc2213"], [0, 4, "#c02619"]], { region: [130 + 162 * i, 77, 100, 40] });
+        let hasTipPoint = GetColorInMultiple(shot, TipPointArr, [130 + 162 * i, 77, 100, 40]);
         isCurPage = images.findMultiColors(captureScreen(), "#c38e4d", [[13, 0, "#d29950"], [20, 0, "#d49a50"], [30, 0, "#d59a4f"]], { region: [40 + 162 * i, 120, 140, 15] });
-        if (hasTipPoint || hasTipPoint2)
+        if (hasTipPoint)
         {
             if (isCurPage == null)
             {
@@ -58,17 +53,15 @@ const GetSignIn = function ()
     }
     GoBack();
     console.log("get sign in award");
-    return true;
 };
-const GetEmail = function (needPressMenu)
+const GetEmail = function ()
 {
-    if (needPressMenu)
-    {
-        PressMenu();
-        Sleep(3000, 5000);
-    }
-    const hasEmail = TipPointCheck([1043, 536, 24, 27]);
+    const hasMenuTipPoint = MenuTipPointCheck(captureScreen());
+    if (!hasMenuTipPoint) return;
+    OpenMenu();
+    const hasEmail = GetColorInMultiple(captureScreen(), TipPointArr, [1041, 534, 26, 28]);
     if (!hasEmail) return false;
+
     console.log("get email");
     RandomPress([1024, 556, 31, 22]); //email icon;
     Sleep(2000, 4000);
@@ -101,29 +94,8 @@ const GetEmail = function (needPressMenu)
     }
     GoBack();
     console.log("get email end");
-    return true;
 };
 
-
-const NoMoneyCheck = function ()
-{
-    Sleep();
-    const isNoMoney = images.findMultiColors(captureScreen(), "#3d4538", [[121, 1, "#384033"], [143, 11, "#333b2f"], [4, 17, "#2b3428"]], { region: [658, 556, 209, 66] });
-    if (isNoMoney == null) return false;
-    else
-    {
-        console.log("No Money");
-        if (random() > 0.5)
-        {
-            RandomPress([447, 580, 157, 21]);
-        }
-        else
-        {
-            RandomPress([958, 78, 32, 14]);
-        }
-        return true;
-    }
-};
 
 const GetDuty = function ()
 {
@@ -179,7 +151,7 @@ const GetDuty = function ()
             Sleep(1000, 2000);
         });
     };
-    PressMenu();
+    OpenMenu();
     Sleep(2000, 4000);
     const hasDutyTip = images.findMultiColors(captureScreen(), "#b72313", [[0, 2, "#bd2515"], [0, 4, "#be2417"]], { region: [1172, 175, 41, 45] });
     if (!hasDutyTip) return;
@@ -227,16 +199,16 @@ const BulkBuy = function ()
         return false;
     }
     RandomPress([26, 530, 163, 32]); //bulk btn
-    let x1 = random() * 15 + 218;
-    let y1 = random() * 15 + 571;
+    let x1 = x2 = random() * 10 + 219;
+    let y1 = y2 = random() * 10 + 573;
 
     press(x1, y1, random() * 250 + 16); //select all
     Sleep(2000, 4000);
     for (let i = 0; i < 10; i++)
     {
         Sleep();
-        let x2 = random() * 15 + 218;
-        let y2 = random() * 15 + 571;
+        let x2 = random() * 10 + 219;
+        let y2 = random() * 10 + 573;
         if (x1 != x2 || y1 != y2)
         {
             press(x2, y2, random() * 250 + 16);
@@ -295,7 +267,9 @@ const BulkBuy = function ()
     RandomPress([900, 565, 148, 26]); // buy btn
     Sleep(6000, 10000);
     RandomHollow([210, 311, 847, 81]);
-    if (totalMoney > 1440000)
+    const hasNeedClickOnceMore = images.findMultiColors(captureScreen(), "#493426", [[12, 1, "#8d6f50"], [30, 3, "#906c51"], [29, 15, "#91694a"], [14, 17, "#ebe7d5"],
+    [-4, 17, "#6b4d3c"], [4, 27, "#9d9168"], [29, 26, "#6d6648"]], { region: [595, 120, 91, 92] });
+    if (totalMoney > 1440000 || hasNeedClickOnceMore)
     {
         RandomHollow([210, 311, 847, 81]);
     }
@@ -309,32 +283,27 @@ const Daily = function ()
 {
     const setting = game_config.setting;
     const date = new Date().getDate();
-    const hasGetSignIn = GetSignIn();
-
-    if (hasGetSignIn && date != setting.date)
+    GetSignIn();
+    GetEmail();
+    if (date != setting.date)
     {
         setting.date = date;
         console.log("今天" + date + "号");
         RWFile("setting", setting);
         GetDuty();
         Sleep();
-        OpeningAllEquipmentBox();
+        // OpeningAllEquipmentBox();
         Sleep();
         BulkBuy();
         Sleep();
         if (game_config.player.equipment.weapon.level < 7)
         {
-            StrengthenEquipment("weapon");
+            StrengthenPlayerEquipment("weapon");
         }
         Sleep();
-        StrengthenEquipment("armor");
+        StrengthenPlayerEquipment("armor");
         Sleep();
-        ForgeMaterial();
-    }
-    else
-    {
-        const hasGetEmail = GetEmail(false);
-        if (!hasGetEmail) PressMenu();
+        // ForgeMaterial();
     }
 };
 

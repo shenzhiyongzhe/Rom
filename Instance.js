@@ -1,9 +1,7 @@
 const { game_config, } = require("./RomConfig.js");
-const { ReadImg, Sleep, RandomPress, GoBack, PressMenu, PressBackpack, NumberRecognition } = require("./Utils.js");
+const { ReadImg, Sleep, RandomPress, GoBack, OpenMenu, PressBackpack, NumberRecognition, SaveShot } = require("./Utils.js");
 const { Daily } = require("./Daily.js");
-const { GroceryFlow } = require("./Death.js");
 const { AbilityPointsFlow, MissionAwardFlow } = require("./Common.js");
-const { OpenEquipmentBox, WearEquipment, StrengthenEquipment } = require("./BackPack.js");
 
 const WorldMap = {
     "06": "림스트", //林斯特
@@ -103,12 +101,20 @@ const InstanceCheck = function ()
     AutoBattleCheck(shot);
     // InstanceExceptionCheck(shot);
 };
-const NoMoneyEnterInstance = () =>
+const NoMoneyEnterInstanceCheck = (level) =>
 {
-    let money = NumberRecognition("amount", [634, 3, 101, 33]);
-    if (money < 25000)
+    const levelArr = [
+        [697, 226, 92, 39],
+        [693, 289, 105, 42],
+        [700, 356, 90, 37],
+    ];
+    let money = NumberRecognition("amount", [628, 5, 110, 30]);
+    let enterFare = NumberRecognition("amount", levelArr[level]);
+    if (money < enterFare)
     {
+        SaveShot();
         log("No money to enter instance " + money);
+        alert("No money to enter instance " + money);
     }
     return money;
 };
@@ -122,17 +128,11 @@ function EnterInstanceZones()
     Daily();
     Sleep();
     GetInstanceQueue();
-    PressMenu();
-    Sleep(2000, 3000);
+    OpenMenu();
+    Sleep(3000, 5000);
     RandomPress([958, 286, 27, 34]); //instance icon
     Sleep(3000, 6000);
-    //no money issue
-    const money = NumberRecognition("amount", [634, 3, 101, 33]);
-    if (money < 25000)
-    {
-        alert("暂时手动处理", `没有足够的金币进入副本，当前金币为${money}，请手动处理`);
-        return;
-    }
+
     for (let i = 0; i < instanceQueue.length; i++)
     {
         if (instanceQueue[i].type == "special")
@@ -157,7 +157,8 @@ function EnterInstanceZones()
         if (hasEntered) continue;
 
         RandomPress(instancePos[instanceQueue[i].index]);
-        Sleep(2000, 4000)
+        Sleep(2000, 4000);
+        NoMoneyEnterInstanceCheck(instanceQueue[i].level);
         switch (instanceQueue[i].level)
         {
             case 0:
@@ -183,7 +184,7 @@ function EnterInstanceZones()
             Sleep();
             break;
         }
-        Sleep(2000, 4000)
+        Sleep(2000, 4000);
         RandomPress([680, 469, 142, 24]); // confirm
         console.log("Entering instance " + instanceQueue[i].type + " " + instanceQueue[i].index + " level " + instanceQueue[i].level);
         Sleep(5000, 20000);

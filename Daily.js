@@ -1,10 +1,9 @@
-const { Sleep, RandomPress, GoBack, PressBlank, OpenMenu, NumberRecognition, RandomSwipe, TipPointCheck, RandomHollow, GetColorInMultiple } = require("./Utils.js");
-const { StrengthenPlayerEquipment, } = require("./Backpack.js");
+const { Sleep, RandomPress, GoBack, PressBlank, OpenMenu, NumberRecognition, RandomSwipe, TipPointCheck, RandomHollow, GetColorInMultiple, ReadImg } = require("./Utils.js");
+const { OpenAllEquipmentBox, OpenAllProps, StrengthenPlayerEquipment, } = require("./BackPack.js");
 const { ForgeMaterial } = require("./Manufacture.js");
 const { game_config, RWFile } = require("./RomConfig.js");
-const { TipPointArr } = require("./Color.js");
 
-const MenuTipPointCheck = (shot) => GetColorInMultiple(shot, TipPointArr, [1241, 3, 25, 25]);
+const MenuTipPointCheck = () => TipPointCheck([1242, 2, 22, 25]);
 
 const overMaxNumber = () =>
 {
@@ -21,10 +20,8 @@ const overMaxNumber = () =>
 
 const GetSignIn = function ()
 {
-    const hasMenuTipPoint = MenuTipPointCheck(captureScreen());
-    if (!hasMenuTipPoint) return;
     OpenMenu();
-    const canSignIn = GetColorInMultiple(captureScreen(), TipPointArr, [977, 536, 21, 27]);
+    const canSignIn = TipPointCheck([977, 536, 21, 27]);
     if (!canSignIn) return;
     RandomPress([961, 555, 26, 30]);
     Sleep(2000, 4000);
@@ -33,7 +30,7 @@ const GetSignIn = function ()
     for (let i = 0; i < 4; i++)
     {
         Sleep();
-        let hasTipPoint = GetColorInMultiple(shot, TipPointArr, [130 + 162 * i, 77, 100, 40]);
+        let hasTipPoint = TipPointCheck([142 + 166 * i, 77, 55, 28]);
         isCurPage = images.findMultiColors(captureScreen(), "#c38e4d", [[13, 0, "#d29950"], [20, 0, "#d49a50"], [30, 0, "#d59a4f"]], { region: [40 + 162 * i, 120, 140, 15] });
         if (hasTipPoint)
         {
@@ -56,21 +53,19 @@ const GetSignIn = function ()
 };
 const GetEmail = function ()
 {
-    const hasMenuTipPoint = MenuTipPointCheck(captureScreen());
-    if (!hasMenuTipPoint) return;
     OpenMenu();
-    const hasEmail = GetColorInMultiple(captureScreen(), TipPointArr, [1041, 534, 26, 28]);
+    const hasEmail = TipPointCheck([1045, 536, 21, 25]);
     if (!hasEmail) return false;
 
     console.log("get email");
     RandomPress([1024, 556, 31, 22]); //email icon;
-    Sleep(2000, 4000);
+    Sleep(4000, 6000);
     const shot = captureScreen();
     let hasTipPoint, canGetAward, isCurPage;
     for (let i = 0; i < 4; i++)
     {
         Sleep();
-        hasTipPoint = images.findMultiColors(shot, "#c02914", [[0, 1, "#c12411"], [0, 4, "#c22718"]], { region: [100 + 125 * i, 80, 100, 40] });
+        hasTipPoint = TipPointCheck([100 + 125 * i, 80, 100, 40]);
         isCurPage = images.findMultiColors(captureScreen(), "#cb9f63", [[4, 0, "#d0a262"], [10, 0, "#d8a867"], [21, 0, "#dca966"]], { region: [30 + 125 * i, 115, 140, 15] });
         if (hasTipPoint)
         {
@@ -84,7 +79,7 @@ const GetEmail = function ()
             if (canGetAward)
             {
                 RandomPress([1078, 659, 154, 33]);
-                Sleep(2000, 3000);
+                Sleep(4000, 6000);
                 let isOverMax = overMaxNumber();
                 if (isOverMax == false) PressBlank();
             }
@@ -182,12 +177,19 @@ const BulkBuy = function ()
     console.log("bulk buy");
     const pressMaxScroll = () =>
     {
-        RandomPress([1031, 271, 20, 23]);
-        RandomPress([652, 440, 40, 40]); //max 
-        RandomPress([658, 511, 94, 26]); // confirm
-        RandomPress([1030, 343, 21, 22]);
-        RandomPress([652, 440, 40, 40]); //max 
-        RandomPress([658, 511, 94, 26]); // confirm
+        if (NumberRecognition("amount", [879, 265, 38, 39]) != 5)
+        {
+            RandomPress([1031, 271, 20, 23]);
+            RandomPress([652, 440, 40, 40]); //max 
+            RandomPress([658, 511, 94, 26]); // confirm
+        }
+        if (NumberRecognition("amount", [881, 337, 38, 40]) != 5)
+        {
+            RandomPress([1030, 343, 21, 22]);
+            RandomPress([652, 440, 40, 40]); //max 
+            RandomPress([658, 511, 94, 26]); // confirm  
+        }
+
     };
     RandomPress([961, 21, 22, 26]); //shop icon
     Sleep(6000, 12000);
@@ -241,7 +243,7 @@ const BulkBuy = function ()
     {
         console.log("当前金币为：" + totalMoney + " can only buy scroll");
         RandomPress([218, 277, 16, 16]); // weapon scroll;
-        RandomPress([813, 350, 20, 15]); // defence scroll -btn
+        RandomPress([218, 350, 15, 14]); // defence scroll 
         pressMaxScroll();
     }
     else if (totalMoney >= 1040000 && totalMoney < 1440000)
@@ -279,12 +281,29 @@ const BulkBuy = function ()
     return true;
 };
 
+const GetDelegate = () =>
+{
+    const missionIcon = images.findMultiColors(captureScreen(), "#776f53", [[-5, 4, "#887559"], [-8, 11, "#5b221b"], [-13, 14, "#a3966e"], [-19, 16, "#c0b293"], [-21, 18, "#bdae89"]]);
+    if (!missionIcon) return false;
+
+    RandomPress([1155, 18, 30, 32]);
+    Sleep(4000, 6000);
+    RandomPress([419, 97, 66, 28]);
+    Sleep(2000, 4000);
+
+
+};
 const Daily = function ()
 {
     const setting = game_config.setting;
     const date = new Date().getDate();
-    GetSignIn();
-    GetEmail();
+    const hasMenuTipPoint = MenuTipPointCheck();
+    if (hasMenuTipPoint)
+    {
+        GetSignIn();
+        GetEmail();
+    }
+
     if (date != setting.date)
     {
         setting.date = date;
@@ -292,8 +311,9 @@ const Daily = function ()
         RWFile("setting", setting);
         GetDuty();
         Sleep();
-        // OpeningAllEquipmentBox();
+        OpenAllEquipmentBox();
         Sleep();
+        OpenAllProps();
         BulkBuy();
         Sleep();
         if (game_config.player.equipment.weapon.level < 7)
@@ -307,7 +327,6 @@ const Daily = function ()
     }
 };
 
-// Daily();
-// BulkBuy();
+// GetDelegate();
 module.exports = { Daily };
 

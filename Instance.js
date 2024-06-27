@@ -1,7 +1,9 @@
-const { game_config, } = require("./RomConfig.js");
-const { ReadImg, Sleep, RandomPress, GoBack, OpenMenu, PressBackpack, NumberRecognition, SaveShot } = require("./Utils.js");
-const { Daily } = require("./Daily.js");
-const { AbilityPointsFlow, MissionAwardFlow } = require("./Common.js");
+const { ReadImg, RandomPress, Sleep, GetColorInMultiple, NumberRecognition, SaveShot, GoBack, OpenMenu } = require("./Utils");
+const { ReturnHome, OpenBackpack, CloseBackpack } = require("./BackPack");
+const { Daily } = require("./Daily");
+const { AbilityPointsFlow } = require("./Common");
+const { GreenBtn, DeepGreenBtn } = require("./Color");
+const { GroceryFlow } = require("./Death");
 
 const WorldMap = {
     "06": "림스트", //林斯特
@@ -30,8 +32,6 @@ const WorldMap = {
     "29": "지하 신전", //地下神殿 지하 신전 지하 신전
     "30": "드베르그 B2", //迪贝格B2
 };
-
-
 const instancePos = [
     [42, 202, 173, 325],
     [283, 167, 185, 368],
@@ -44,62 +44,43 @@ const instanceLevel = [
     [396, 289, 490, 38],
     [393, 353, 496, 38]
 ];
-const instanceImg = {
-    finish: ReadImg("instance_finish"),
-    haltMode: ReadImg("haltMode"),
-    grocery: ReadImg("grocery"),
-    auto: ReadImg("instance_auto"),
-    auto_gray: ReadImg("instance_auto_gray")
-
-};
-let instanceQueue = [];
-let curInstanceType = "normal";
 
 const GetInstanceQueue = function ()
 {
-    try
+    let instanceQueue = [];
+    console.log("get instance queue:" + game_config.ui.instanceQueue);
+    game_config.ui.instanceQueue.forEach((item) => { if (item.type == "special") instanceQueue.push(item); });
+    game_config.ui.instanceQueue.forEach((item) => { if (item.type == "normal") instanceQueue.push(item); });
+    game_config.ui.instanceQueue.forEach((item) => 
     {
-        instanceQueue = [];
-        console.log("get instance queue:" + game_config.ui.instanceQueue);
-        game_config.ui.instanceQueue.forEach((item) => { if (item.type == "special") instanceQueue.push(item); });
-        game_config.ui.instanceQueue.forEach((item) => { if (item.type == "normal") instanceQueue.push(item); });
-        game_config.ui.instanceQueue.forEach((item) => 
+        if (item.type == "wild")
         {
-            if (item.type == "wild")
-            {
-                let obj = JSON.parse(JSON.stringify(item));
-                obj.index = obj.index + 6;
-                instanceQueue.push(obj);
-            }
-        });
-    } catch (error)
-    {
-        alert("出现错误~", error);
-        java.lang.System.exit(0);
-    }
-
-
+            let obj = JSON.parse(JSON.stringify(item));
+            obj.index = obj.index + 6;
+            instanceQueue.push(obj);
+        }
+    });
+    return instanceQueue;
 };
-const AutoBattleCheck = function (shot)
+const AutoBattleCheck = (shot) =>
 {
     shot = shot || captureScreen();
 
-    const hasAutoBattle = images.findImage(shot, instanceImg.auto, { region: [1132, 513, 98, 101] });
-    if (hasAutoBattle) return;
-    const hasAutoGray = images.findImage(shot, instanceImg.auto_gray, { region: [1132, 513, 98, 101] });
-    if (hasAutoGray == null) return;
+    const autoBattle = ReadImg("icon/autoBattle");
+    const autoBattle_gray = ReadImg("icon/autoBattle_gray");
+    const hasAuto = images.findImage(shot, autoBattle, { region: [1132, 513, 98, 101] });
+    const hasAuto_gray = images.findImage(shot, autoBattle_gray, { region: [1132, 513, 98, 101] });
 
-    RandomPress([1161, 549, 35, 29]);
-    log("instance click Auto battle icon");
+    if (!hasAuto && hasAuto_gray)
+    {
+        RandomPress([1161, 549, 35, 29]);
+        console.log("auto battle");
+    }
+    else
+    {
+        console.log("had already auto battle");
+    }
 
-};
-
-// const isNeedEnterInstance = function () { };
-const InstanceCheck = function ()
-{
-    const shot = captureScreen();
-    AutoBattleCheck(shot);
-    // InstanceExceptionCheck(shot);
 };
 const NoMoneyEnterInstanceCheck = (level) =>
 {
@@ -118,204 +99,303 @@ const NoMoneyEnterInstanceCheck = (level) =>
     }
     return money;
 };
-function EnterInstanceZones()
-{
-    const menuIcon = ReadImg("menu_icon");
-    const hasMenuIcon = images.findImage(captureScreen(), menuIcon, { region: [1213, 4, 51, 53] });
-    menuIcon.recycle();
-    if (!hasMenuIcon) return;
-    Sleep(3000, 5000);
-    Daily();
-    Sleep();
-    GetInstanceQueue();
-    OpenMenu();
-    Sleep(3000, 5000);
-    RandomPress([958, 286, 27, 34]); //instance icon
-    Sleep(3000, 6000);
 
-    for (let i = 0; i < instanceQueue.length; i++)
+const EnemyNumberCheck = () =>
+{
+    let enemyNumber = 0;
+    const EnemyColor = [
+
+        ["#d5ceb8", [[5, 0, "#c5b895"], [4, 4, "#a3956e"], [5, 9, "#a09564"], [-3, 6, "#49402b"], [0, 12, "#6c6040"], [2, 14, "#7c6e3d"]]],
+        ["#cabea3", [[4, 0, "#bcad85"], [4, 4, "#ac9e74"], [-1, 4, "#6a5c41"], [2, 7, "#a59964"]]],
+        ["#dfdbcd", [[5, 4, "#b6a880"], [5, 4, "#b6a880"], [3, 7, "#b2a681"], [3, 12, "#5b5235"]]],
+        ["#c8bea0", [[3, 0, "#c4b591"], [4, 3, "#a0926c"], [-1, 4, "#b9ae8f"], [3, 9, "#9f935e"]]],
+        ["#dcd6c7", [[6, 0, "#cabb99"], [2, 3, "#bcae8a"], [3, 10, "#aea46b"]]],
+        ["#cfc5aa", [[2, -1, "#cbbe9f"], [7, 0, "#b6a785"], [2, 6, "#a1946d"]]],
+        ["#d3cbb3", [[2, 0, "#c5b997"], [4, 1, "#bcad87"], [3, 4, "#b1a47e"], [3, 9, "#948958"]]],
+        ["#d1c8af", [[1, 0, "#cdc2a6"], [5, 1, "#bdae87"], [1, 7, "#b0a67e"], [1, 9, "#aa9d67"]]],
+        ["#d3cab2", [[3, 0, "#c4b692"], [7, 0, "#b7a886"], [3, 4, "#afa27b"], [2, 7, "#9c9062"]]]
+    ];
+    const shot = captureScreen();
+    for (let i = 0; i < 5; i++)
     {
-        if (instanceQueue[i].type == "special")
+        for (let j = 0; j < 2; j++)
         {
-            RandomPress([176, 92, 57, 39]); //special zone page
-            Sleep();
-            curInstanceType = "special";
+            let hasEnemy = GetColorInMultiple(shot, EnemyColor, [924 + j * 160, 69 + i * 53, 51, 62]);
+            if (hasEnemy)
+            {
+                enemyNumber++;
+                console.log(hasEnemy);
+            }
         }
-        else if (instanceQueue[i].type == "normal")
-        {
-            RandomPress([45, 101, 82, 25]); //normal zone page
-            Sleep();
-            curInstanceType = "normal";
-        }
-        else if (instanceQueue[i].type == "wild")
-        {
-            RandomPress([1188, 20, 83, 28]);
-            HangUpWild(instanceQueue[i].index);
-            break;
-        }
-        let hasEntered = images.findImage(captureScreen(), instanceImg.finish, { region: [168 + parseInt(instanceQueue[i].index) * 250, 540, 93, 40] });
-        if (hasEntered) continue;
-
-        RandomPress(instancePos[instanceQueue[i].index]);
-        Sleep(2000, 4000);
-        NoMoneyEnterInstanceCheck(instanceQueue[i].level);
-        switch (instanceQueue[i].level)
-        {
-            case 0:
-                RandomPress(instanceLevel[0]);
-                break;
-            case 1:
-                RandomPress(instanceLevel[1]);
-                break;
-            case 2:
-                RandomPress(instanceLevel[2]);
-                break;
-            default:
-                RandomPress(instanceLevel[0]);
-                break;
-        }
-        Sleep();
-        const isInThisZone = images.findMultiColors(captureScreen(), "#4c4c4c", [[3, 7, "#4a4a4a"], [14, 4, "#96866d"], [30, 0, "#4c4c4c"], [26, 9, "#4a4a4a"]],
-            { region: [857, 124, 69, 52] });
-        if (isInThisZone)
-        {
-            RandomPress([876, 140, 34, 14]);
-            RandomPress([1178, 20, 90, 35]);
-            Sleep();
-            break;
-        }
-        Sleep(2000, 4000);
-        RandomPress([680, 469, 142, 24]); // confirm
-        console.log("Entering instance " + instanceQueue[i].type + " " + instanceQueue[i].index + " level " + instanceQueue[i].level);
-        Sleep(5000, 20000);
-        break;
     }
-
-    Sleep(8000, 20000);
-    AutoBattleCheck();
-    AbilityPointsFlow();
-    RandomPress([19, 449, 25, 14]);
-}
-const UseRandomTransformScroll = function ()
+    return enemyNumber;
+};
+const UseRandomTransformScroll = () =>
 {
-    const quickItem_randomTransformScroll = ReadImg("quickItem_randomTransformScroll");
-    const hasQuickItem = images.findImage(captureScreen(), quickItem_randomTransformScroll, { region: [719, 625, 66, 73] });
+    const quickItem_randomTransformScroll = ReadImg("quickItem/scroll_transformRandomly");
+    const randomTransformScroll = ReadImg("backpack/scroll/transformRandomly");
+    const hasQuickItem = images.findImage(captureScreen(), quickItem_randomTransformScroll, { region: [724, 634, 47, 50] });
     if (hasQuickItem == null)
     {
-        const randomTransformScroll = ReadImg("randomTransformScroll");
-        PressBackpack();
-        Sleep(3000, 5000);
-        RandomPress([1241, 285, 26, 32]); //props page
-        const hasScroll = images.findImage(captureScreen(), randomTransformScroll, { region: [892, 82, 333, 433] });
-        randomTransformScroll.recycle();
 
-        if (hasScroll == null) return;
+        OpenBackpack("props");
+        const hasScroll = images.findImage(captureScreen(), randomTransformScroll, { region: [892, 82, 333, 433] });
+
+        if (hasScroll == null)
+        {
+            ReturnHome();
+            GroceryFlow();
+            return;
+        }
         RandomPress([hasScroll.x, hasScroll.y, 25, 25]);
         RandomPress([731, 641, 37, 36]); // add to quick item
         RandomPress([hasScroll.x, hasScroll.y, 25, 25]); // use scroll
-        PressBackpack(); // close backpack
+        CloseBackpack();
     }
     else
     {
         RandomPress([731, 641, 37, 36]);
     }
     quickItem_randomTransformScroll.recycle();
+    randomTransformScroll.recycle();
 };
-const GoOutOfCity = function ()
+const CrowedCheck = () =>
 {
-    const groceryIcon = ReadImg("grocery");
-    for (let i = 0; i < 20; i++)
+    for (let i = 0; i < 5; i++)
     {
-        let hasCity = images.findImage(captureScreen(), groceryIcon, { region: [53, 249, 85, 76] });
-        if (hasCity)
+        Sleep();
+        RandomPress([1120, 507, 29, 29]);
+        let number = EnemyNumberCheck();
+        if (number < 6)
         {
+            Sleep();
             UseRandomTransformScroll();
         }
         else break;
-        Sleep();
     }
-    AutoBattleCheck();
-    Sleep();
-    groceryIcon.recycle();
 };
-function HangUpWild(number)
+/**
+ * 
+ * @param {*} number the map index
+ * @returns 
+ */
+const GoWild = (number) =>
 {
+    console.log("GoWild: " + number);
     number = number.toString().padStart(2, "0");
-    const CollectedCheck = function (shot)
+    const CollectedCheck = (shot) =>
     {
         const needCollected = images.findMultiColors(shot, "#d2a858", [[-4, 4, "#d0ac57"], [-4, 11, "#cba653"], [3, 10, "#c5a24f"]], { region: [958, 78, 54, 64] });
-        if (needCollected == null) RandomPress([977, 100, 20, 21]);
+        if (!needCollected) RandomPress([977, 100, 20, 21]);
+    };
+    const NoNeedTransformCheck = () => GetColorInMultiple(captureScreen(), DeepGreenBtn, [943, 641, 243, 60]);
+    const AlreadThereCheck = (img) =>
+    {
+        const positionIcon = [
+            ["#a54d0c", [[-1, 1, "#db9864"], [-3, 2, "#e8ac7f"], [-2, 5, "#a84500"], [-1, 7, "#ba4900"], [0, 9, "#832501"], [1, 4, "#a74800"]]]
+        ];
+        const shot = captureScreen();
+        const theIcon = GetColorInMultiple(shot, positionIcon, [76, 119, 90, 579]);
+        if (theIcon)
+        {
+            const isThere = images.findImage(shot, img, { region: [theIcon.x, theIcon.y - 10, 60, 40] });
+            if (isThere)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return false;
+    };
+    const NoMoneyGoWildCheck = () =>
+    {
+        const curMoney = NumberRecognition("amount", [730, 345, 112, 40]);
+        const transformCost = NumberRecognition("amount", [943, 641, 243, 60]);
+        if (curMoney < transformCost)
+        {
+            console.log("no money to go wild");
+            SaveShot();
+            alert("金币不足", "no money to go wild");
+        }
     };
     const mapName = WorldMap[number];
-    const hasMap = images.findMultiColors(captureScreen(), "#baa378", [[0, 11, "#a28858"], [20, -1, "#bba477"], [21, 4, "#8b7347"], [23, 16, "#3c311c"]],
-        { region: [179, 176, 48, 48] });
-    if (hasMap == null) return;
 
-    RandomPress([84, 121, 89, 80]);
+    RandomPress([84, 121, 89, 80]); //map icon
     Sleep(5000, 7000);
-    const map_numberImg = ReadImg(`map/${number}`);
-    let hasMapNumber = images.findImage(captureScreen(), map_numberImg, { region: [85, 136, 105, 567] });
-    if (hasMapNumber == null)
-    {
-        RandomPress([26, 228, 19, 21]); //collection page
-        Sleep();
-        hasMapNumber = images.findImage(captureScreen(), map_numberImg, { region: [85, 136, 105, 567] });
-        if (hasMapNumber == null)
-        {
-            RandomPress([21, 167, 24, 28]);
-            RandomPress([77, 91, 206, 13]);
-            setText(mapName);
-            RandomPress([1166, 641, 74, 35]); //keyboard confirm
-            RandomPress([89, 136, 242, 31]); //select
-            hasMapNumber = images.findImage(captureScreen(), map_numberImg, { region: [85, 136, 105, 567] });
-            // RandomPress([hasMapNumber.x + 10, hasMapNumber.y, 45, 15]);
-            CollectedCheck(captureScreen());
-        }
-        else
-        {
-            RandomPress([hasMapNumber.x + 10, hasMapNumber.y, 45, 15]);
-        }
-        RandomPress([967, 654, 201, 32]); //立即前往
-        RandomPress([678, 469, 143, 23]); //confrim
 
-        Sleep(8000, 16000);
-        RandomPress([1163, 552, 29, 28]); //auto battle
-        log("go to the wild: " + mapName);
+    const map_numberImg = ReadImg(`map/${number}`);
+
+    const isThere = AlreadThereCheck(map_numberImg);
+    if (isThere)
+    {
+        console.log("already there");
+        GoBack();
     }
     else
     {
-        RandomPress([hasMapNumber.x + 10, hasMapNumber.y, 45, 15]);
-        const mapShot = captureScreen();
-        const hasAlreadyInThere = images.findMultiColors(mapShot, "#1d221b", [[45, 1, "#65502f"], [60, 3, "#6c5733"], [137, 5, "#777a76"], [176, 6, "#191e16"], [196, 6, "#1c2119"]],
-            { region: [930, 637, 282, 67] });
-        if (hasAlreadyInThere)
+        let hasMapNumber = images.findImage(captureScreen(), map_numberImg, { region: [61, 123, 149, 568] });
+        if (hasMapNumber)
         {
-            RandomPress([1164, 24, 106, 23]); //press back
+            RandomPress([hasMapNumber.x + 10, hasMapNumber.y, 45, 15]);
+            CollectedCheck(captureScreen());
+            let noNeedTransfrom = NoNeedTransformCheck();
+            if (!noNeedTransfrom)
+            {
+                RandomPress([967, 654, 201, 32]); //立即前往
+                Sleep();
+                NoMoneyGoWildCheck();
+                RandomPress([678, 469, 143, 23]); //confirm
+                Sleep(8000, 16000);
+            }
+            else
+            {
+                GoBack();
+            }
         }
         else
         {
-            CollectedCheck(mapShot);
-            RandomPress([967, 654, 201, 32]); //立即前往
-            RandomPress([678, 469, 143, 23]); //confirm
-            Sleep(8000, 16000);
-            RandomPress([1163, 552, 29, 28]); //auto battle
-            log("go to the wild: " + mapName);
-        }
+            RandomPress([26, 228, 19, 21]); //collection page
+            Sleep();
+            hasMapNumber = images.findImage(captureScreen(), map_numberImg, { region: [61, 123, 149, 568] });
+            if (hasMapNumber == null)
+            {
+                RandomPress([21, 167, 24, 28]); //back to first page
+                RandomPress([77, 91, 206, 13]); //input 
+                setText(mapName);
+                Sleep();
+                RandomPress([1166, 641, 74, 35]); //keyboard confirm
+                Sleep();
+                RandomPress([89, 136, 242, 31]); //select
+                CollectedCheck(captureScreen());
+            }
+            else
+            {
+                RandomPress([hasMapNumber.x + 10, hasMapNumber.y, 45, 15]);
+            }
 
+            const noNeedTransfrom_collectionPage = NoNeedTransformCheck();
+            if (!noNeedTransfrom_collectionPage)
+            {
+                RandomPress([967, 654, 201, 32]); //立即前往
+                NoMoneyGoWildCheck();
+                RandomPress([678, 469, 143, 23]); //confrim
+                Sleep(8000, 16000);
+            }
+            else
+            {
+                GoBack();
+            }
+            log("go to the wild: " + number + mapName);
+        }
     }
     map_numberImg.recycle();
-}
-
-function testMap(number)
+};
+const EnterInstanceZones = () =>
 {
-    number = number.toString().padStart(2, "0");
-    const mapName = WorldMap[number];
-    // RandomPress([77, 91, 206, 13]);
-    // setText(mapName);
-    // RandomPress([1166, 641, 74, 35]); //keyboard confirm
-    // RandomPress([89, 136, 242, 31]); //select
-    log(mapName);
-}
-// log(NumberRecognition("amount", [634, 3, 101, 33]));
-module.exports = { AutoBattleCheck, EnterInstanceZones };
-// AutoBattleCheck();
+    Daily();
+    Sleep();
+    const instanceQueue = GetInstanceQueue();
+
+    // no special and normal instance check
+    const specialQueue = instanceQueue.filter(x => x.type === "special" || x.type === "normal");
+    const wildQueue = instanceQueue.filter(x => x.type === "wild");
+    if (specialQueue.length === 0 && wildQueue.length > 0)
+    {
+        for (let i = 0; i < wildQueue.length; i++)
+        {
+            let instance = wildQueue[i];
+            if (instance.type === "wild")
+            {
+                GoWild(instance.index);
+                break;
+            }
+        };
+
+    }
+    else if (specialQueue.length == 0 && wildQueue.length === 0)
+    {
+        alert("No instance to enter!");
+    }
+    else
+    {
+        OpenMenu();
+        Sleep(3000, 5000);
+        RandomPress([958, 286, 27, 34]); //instance icon
+        Sleep(3000, 6000);
+
+        const instanceFinish = ReadImg('icon/instance_finish');
+        for (let i = 0; i < instanceQueue.length; i++)
+        {
+            if (instanceQueue[i].type == "special")
+            {
+                RandomPress([176, 92, 57, 39]); //special zone page
+                Sleep();
+                curInstanceType = "special";
+            }
+            else if (instanceQueue[i].type == "normal")
+            {
+                RandomPress([45, 101, 82, 25]); //normal zone page
+                Sleep();
+                curInstanceType = "normal";
+            }
+            else if (instanceQueue[i].type == "wild")
+            {
+                RandomPress([1188, 20, 83, 28]);
+                GoWild(instanceQueue[i].index);
+                break;
+            }
+
+            let hasEntered = images.findImage(captureScreen(), instanceFinish, { region: [168 + parseInt(instanceQueue[i].index) * 250, 540, 93, 40] });
+
+            if (hasEntered) continue;
+
+            RandomPress(instancePos[instanceQueue[i].index]);
+            Sleep(2000, 4000);
+            NoMoneyEnterInstanceCheck(instanceQueue[i].level);
+            switch (instanceQueue[i].level)
+            {
+                case 0:
+                    RandomPress(instanceLevel[0]);
+                    break;
+                case 1:
+                    RandomPress(instanceLevel[1]);
+                    break;
+                case 2:
+                    RandomPress(instanceLevel[2]);
+                    break;
+                default:
+                    RandomPress(instanceLevel[0]);
+                    break;
+            }
+            Sleep();
+            const isInThisZone = images.findMultiColors(captureScreen(), "#4c4c4c", [[3, 7, "#4a4a4a"], [14, 4, "#96866d"], [30, 0, "#4c4c4c"], [26, 9, "#4a4a4a"]],
+                { region: [857, 124, 69, 52] });
+            if (isInThisZone)
+            {
+                RandomPress([876, 140, 34, 14]);
+                RandomPress([1178, 20, 90, 35]);
+                Sleep();
+                break;
+            }
+            Sleep(2000, 4000);
+            RandomPress([680, 469, 142, 24]); // confirm check if there has confirm
+            console.log("Entering instance " + instanceQueue[i].type + " " + instanceQueue[i].index + " level " + instanceQueue[i].level);
+            Sleep(5000, 20000);
+            break;
+        }
+        instanceFinish.recycle();
+    }
+    Sleep(8000, 20000);
+    CrowedCheck();
+    AutoBattleCheck();
+    AbilityPointsFlow();
+};
+
+module.exports = {
+    AutoBattleCheck,
+    EnterInstanceZones
+};
+// CrowedCheck();

@@ -1,5 +1,5 @@
 const { ReadImg, Sleep, RandomPress, GoBack, OpenMenu, } = require("./Utils.js");
-const { WearEquipment, OpenEquipmentBox, StrengthenPlayerEquipment } = require("./Backpack.js");
+const { WearEquipment, StrengthenPlayerEquipment } = require("./BackPack.js");
 const { AbilityPointsFlow, MissionAwardFlow } = require("./Common.js");
 const { Daily } = require("./Daily.js");
 

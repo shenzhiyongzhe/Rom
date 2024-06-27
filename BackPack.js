@@ -1,14 +1,15 @@
-const { ReadImg, Sleep, RandomPress, GoBack, PressBlank, NumberRecognition, TipPointCheck, ConvertTradeTime, NoMoneyAlert, GetColorInMultiple } = require("./Utils.js");
-const { icon } = require("./CONST.js");
-const { EmptyGrid, WhiteSquare, GreenSquare, BlueSquare, PurpleSquare, Equipped } = require("./Color.js");
+const { ReadImg, Sleep, RandomPress, GoBack, NumberRecognition, TipPointCheck, ConvertTradeTime, NoMoneyAlert, GetColorInMultiple, RandomHollow } = require("./Utils.js");
+const { EmptyGrid, WhiteSquare, GreenSquare, BlueSquare, PurpleSquare, Equipped, GreenBtn } = require("./Color.js");
+const { PropsCollectionFlow } = require("./PropsCollection.js");
 /**
  * @param {*} page "equipment" "props" "material"
  * @returns 
  */
 const OpenBackpack = (page) =>
 {
-
-    const hasBackpack = findImage(captureScreen(), icon.menu, { region: [1211, 2, 58, 57] });
+    const backPackIcon = ReadImg('icon/backpack_icon');
+    const hasBackpack = findImage(captureScreen(), backPackIcon, { region: [1075, 7, 56, 53] });
+    backPackIcon.recycle();
     if (!hasBackpack) return false;
     const backpack_close = ReadImg("icon/backpack_close");
     const hasBackpack_close = findImage(captureScreen(), backpack_close, { region: [1235, 57, 43, 40] });
@@ -18,17 +19,31 @@ const OpenBackpack = (page) =>
         RandomPress([1091, 21, 29, 28]);
         Sleep(3000, 4000);
     }
+    const CurrentPageCheck = (region) => images.findMultiColors(captureScreen(), "#cc6a2e", [[0, 2, "#cc6a2d"], [0, 9, "#cc692d"], [0, 17, "#cc692d"], [0, 25, "#cc6a2e"], [0, 31, "#cc6a2e"]], { region });
     if (page == "equipment")
     {
-        RandomPress([1237, 207, 19, 29]);
+        const isInEquipPage = CurrentPageCheck([1209, 196, 18, 53]);
+        if (!isInEquipPage)
+        {
+            RandomPress([1237, 207, 19, 29]);
+        }
     }
     else if (page == "props")
     {
-        RandomPress([1235, 285, 28, 28]);
+        const isInPropsPage = CurrentPageCheck([1210, 271, 16, 56]);
+        if (!isInPropsPage)
+        {
+            RandomPress([1235, 285, 28, 28]);
+        }
     }
     else if (page == "material")
     {
-        RandomPress([1232, 361, 24, 26]);
+        const isInMaterialPage = CurrentPageCheck([1210, 349, 16, 55]);
+        if (!isInMaterialPage)
+        {
+            RandomPress([1232, 361, 24, 26]);
+        }
+
     }
     backpack_close.recycle();
     Sleep();
@@ -61,6 +76,9 @@ const EquippedCheck = (shot, region) =>
 {
     return GetColorInMultiple(shot, Equipped, region);
 };
+
+
+// -------------------------------tool ---------------------------
 const ReturnHome = () =>
 {
     console.log('----------------return home----------------');
@@ -102,6 +120,157 @@ const ReturnHome = () =>
     quickItem_returnHome.recycle();
     log("return home to purchase potion");
 };
+
+// -------------------------------open box slab-----------------------------
+const HasNextPageCheck = () =>
+{
+    for (let i = 0; i < 5; i++)
+    {
+        Sleep();
+        let hasNextPage = images.findMultiColors(captureScreen(), "#695837", [[9, 0, "#665535"], [17, 0, "#4a3f26"], [25, 0, "#5f4f33"], [34, 2, "#73603c"], [45, 2, "#705f3b"]],
+            { region: [595, 163, 89, 44] });
+        if (hasNextPage)
+        {
+            RandomHollow([321, 309, 569, 77]);
+        }
+        else break;
+    }
+};
+const OpenEquipmentBox = () =>
+{
+    log("打开装备箱");
+    OpenBackpack("props");
+
+    let hadOpened = false;
+    const equipmentImg = ReadImg("backpack/props/equipmentBox/normalBox");
+    const hasEquipmentBox = images.findImage(captureScreen(), equipmentImg, { region: [885, 111, 327, 341] });
+    if (hasEquipmentBox)
+    {
+        RandomPress([hasEquipmentBox.x, hasEquipmentBox.y, 40, 30]);
+        RandomPress([hasEquipmentBox.x, hasEquipmentBox.y, 40, 30]);
+        const hasPopup = images.findMultiColors(captureScreen(), "#3c4538", [[0, 11, "#2b3327"], [80, -1, "#383f33"], [78, 12, "#333a2e"], [92, 10, "#2f362b"]],
+            { region: [646, 502, 120, 49] });
+        if (hasPopup)
+        {
+            RandomPress([655, 509, 99, 30]);
+        }
+        RandomPress([327, 400, 921, 198]); //blank
+        HasNextPageCheck();
+        hadOpened = true;
+    }
+    Sleep();
+    equipmentImg.recycle();
+    log("装备箱打开完成");
+    return hadOpened;
+};
+const OpenAllEquipmentBox = () =>
+{
+    for (let i = 0; i < 5; i++)
+    {
+        Sleep();
+        let hasOpened = OpenEquipmentBox();
+        if (!hasOpened) break;
+        Sleep();
+        WearEquipment();
+        Sleep();
+        PropsCollectionFlow();
+        Sleep();
+        DecomposeAll();
+    };
+};
+
+const OpenSlab = () =>
+{
+    console.log("----------------open slab----------------");
+    OpenBackpack("props");
+    const slabList = [];
+    for (let i = 0; i < 30; i++)
+    {
+        let img = ReadImg(`backpack/props/slab/${i}`);
+        if (!img) break;
+        slabList.push(img);
+    }
+    const shot = captureScreen();
+    let hasOpenSlab = false;
+    for (let i = 0; i < slabList.length; i++)
+    {
+        let hasSlab = images.findImage(shot, slabList[i], { region: [882, 122, 333, 333] });
+        if (hasSlab)
+        {
+            RandomPress([hasSlab.x - 10, hasSlab.y, 40, 30]);
+            Sleep();
+            RandomPress([hasSlab.x - 10, hasSlab.y, 40, 30]);
+            Sleep(2000, 4000);
+            let hasPopup = GetColorInMultiple(captureScreen(), GreenBtn, [641, 500, 125, 50]);
+            if (hasPopup)
+            {
+                RandomPress([663, 515, 86, 23]);
+            }
+            Sleep(6000, 8000);
+            let hasOpenBtn = GetColorInMultiple(captureScreen(), GreenBtn, [522, 617, 238, 70]);
+            if (hasOpenBtn)
+            {
+                RandomPress([545, 634, 191, 34]);
+                Sleep(3000, 5000);
+                hasOpenSlab = true;
+            }
+            break;
+        }
+    }
+    if (hasOpenSlab)
+    {
+        GoBack();
+    }
+    slabList.forEach(slab => slab.recycle());
+
+    console.log("open slab flow end; has open: " + hasOpenSlab);
+};
+const OpenNoOptionBox = () =>
+{
+    console.log("open no option box ----------------");
+    let hasOpened = false;
+    OpenBackpack("props");
+    const noOptionBoxList = [];
+    for (let i = 0; i < 10; i++)
+    {
+        let img = ReadImg(`backpack/props/box/${i}`);
+        if (!img) break;
+        noOptionBoxList.push(img);
+    }
+    const shot = captureScreen();
+    for (let i = 0; i < noOptionBoxList.length; i++)
+    {
+        let hasBox = images.findImage(shot, noOptionBoxList[i], { region: [883, 121, 329, 334] });
+        if (hasBox)
+        {
+            RandomPress([hasBox.x - 5, hasBox.y - 5, 30, 30]);
+            Sleep();
+            RandomPress([hasBox.x - 5, hasBox.y - 5, 30, 30]);
+            Sleep();
+            const hasPopup = GetColorInMultiple(captureScreen(), GreenBtn, [642, 497, 122, 54]);
+            if (hasPopup)
+            {
+                RandomPress([662, 512, 89, 26]);
+            }
+            Sleep();
+            HasNextPageCheck();
+            hasOpened = true;
+            break;
+        }
+    }
+    noOptionBoxList.forEach(box => box.recycle());
+    console.log("open box finished : has opened: " + hasOpened);
+    return hasOpened;
+};
+
+const OpenAllProps = () =>
+{
+    OpenSlab();
+    OpenNoOptionBox();
+    CloseBackpack();
+};
+// -----------------------strengthen equipment -------------------------
+
 const GetWeaponColor = (shot, region) =>
 {
     const ColorObj = {
@@ -119,6 +288,13 @@ const GetWeaponColor = (shot, region) =>
         }
     }
     return "unknown color";
+};
+const SortEquipment = function ()
+{
+    Sleep();
+    RandomPress([1075, 509, 22, 22]);
+    RandomPress([1041, 423, 90, 21]);
+    Sleep();
 };
 const WearEquipment = () =>
 {
@@ -170,10 +346,7 @@ const WearEquipment = () =>
     const isfewEquip = EmptyCheck(shot, [1145, 253, 64, 67]);
     if (!isfewEquip)
     {
-        RandomPress([1076, 508, 21, 22]);
-        Sleep();
-        RandomPress([1041, 422, 97, 18]);
-        Sleep();
+        SortEquipment();
         shot = captureScreen();
     }
     let clip = images.clip(shot, 905, 142, 25, 29);
@@ -237,7 +410,7 @@ const DecomposeAll = () =>
         if (isNoMoney)
         {
             RandomPress([455, 565, 132, 20]);
-            NoMoneyAlert("{{分解装备无金币}}");
+            // NoMoneyAlert("{{分解装备无金币}}");
             break;
         }
         else
@@ -247,7 +420,6 @@ const DecomposeAll = () =>
     }
     Sleep();
     RandomPress([1243, 69, 27, 15]);
-    CloseBackpack();
     console.log("分解道具完毕");
 };
 
@@ -308,61 +480,7 @@ const DecomposeAllGreenSuit = () =>
     RandomPress([1242, 69, 28, 15]); //close decompose window;
     return decomposeSuccess;
 };
-const OpenEquipmentBox = () =>
-{
-    log("打开装备箱");
-    const hasOpened = OpenBackpack("props");
-    if (!hasOpened) return false;
 
-    let hadOpened = false;
-    const equipmentImg = ReadImg("backpack/props/treasureBox_white_nomal_equipment_tied");
-    const hasEquipmentBox = images.findImage(captureScreen(), equipmentImg, { region: [885, 111, 327, 341] });
-    if (hasEquipmentBox)
-    {
-        RandomPress([hasEquipmentBox.x, hasEquipmentBox.y, 40, 30]);
-        RandomPress([hasEquipmentBox.x, hasEquipmentBox.y, 40, 30]);
-        const hasPopup = images.findMultiColors(captureScreen(), "#3c4538", [[0, 11, "#2b3327"], [80, -1, "#383f33"], [78, 12, "#333a2e"], [92, 10, "#2f362b"]],
-            { region: [646, 502, 120, 49] });
-        if (hasPopup)
-        {
-            RandomPress([655, 509, 99, 30]);
-        }
-        RandomPress([327, 400, 921, 198]); //blank
-        for (let i = 0; i < 5; i++)
-        {
-            Sleep();
-            let hasNextPage = images.findMultiColors(captureScreen(), "#695837", [[9, 0, "#665535"], [17, 0, "#4a3f26"], [25, 0, "#5f4f33"], [34, 2, "#73603c"], [45, 2, "#705f3b"]],
-                { region: [595, 163, 89, 44] });
-            if (hasNextPage)
-            {
-                RandomPress([327, 400, 921, 198]); //blank
-            }
-            else break;
-        }
-        hadOpened = true;
-    }
-    Sleep();
-
-    OpenBackpack();
-    equipmentImg.recycle();
-    log("装备箱打开完成");
-    return hadOpened;
-};
-const OpeningAllEquipmentBox = () =>
-{
-    for (let i = 0; i < 5; i++)
-    {
-        Sleep();
-        let hasOpened = OpenEquipmentBox();
-        if (!hasOpened) return;
-        Sleep();
-        WearEquipment();
-        Sleep();
-        PropsCollectionFlow();
-        Sleep();
-        DecomposeAll();
-    }
-};
 const FindScroll = (type) =>
 {
     const shot = captureScreen();
@@ -389,6 +507,20 @@ const NoScrollCheck = () =>
     ];
     return GetColorInMultiple(captureScreen(), noScrollArr, [348, 204, 79, 78]);
 };
+const GetWeaponType = function (shot)
+{
+    const weaponTypeList = {
+        "weapon": ReadImg("backpack/equipmentType/weapon"),
+        "armor": ReadImg("backpack/equipmentType/armor"),
+        "ornament": ReadImg("backpack/equipmentType/ornament")
+    };
+    for (let key in weaponTypeList)
+    {
+        let theType = images.findImage(shot, weaponTypeList[key], { region: [650, 109, 46, 48] });
+        if (theType) return key;
+    }
+    return "unknown equipment type";
+};
 const StrengthenPlayerEquipment = (type) =>
 {
     console.log("start strengthen player equipment ........");
@@ -400,6 +532,7 @@ const StrengthenPlayerEquipment = (type) =>
         for (let j = 0; j < 5; j++)
         {
             let isEquip = EquippedCheck(backpackShot, [929 + j * 65, 126 + i * 65, 19, 20]);
+
             if (isEquip)
             {
                 let strLevel = NumberRecognition("strengthen", [921 + j * 65, 163 + i * 65, 30, 29]);
@@ -407,10 +540,15 @@ const StrengthenPlayerEquipment = (type) =>
                 {
                     RandomPress([899 + j * 65, 139 + i * 65, 39, 38]); //click the equipment for detail
                     Sleep(2000, 4000);
-                    RandomPress([599, 465, 24, 17]); //enter strengthen page
-                    Sleep(4000, 6000);
-                    hadNeedStrengthen = true;
-                    break out;
+                    let equipmentType = GetWeaponType(captureScreen());
+                    if (type == equipmentType)
+                    {
+                        RandomPress([599, 465, 24, 17]); //enter strengthen page
+                        Sleep(4000, 6000);
+                        hadNeedStrengthen = true;
+                        break out;
+                    }
+
                 }
             }
         }
@@ -430,86 +568,13 @@ const StrengthenPlayerEquipment = (type) =>
                 Sleep(3000, 5000);
             }
         }
+        GoBack();
     }
-    GoBack();
+    else
+    {
+        CloseBackpack();
+    }
     console.log("strengthen player equipment finish");
-};
-const GetWeaponType = function (shot)
-{
-    const weaponTypeList = {
-        "weapon": ReadImg("backpack/equipmentType/weapon"),
-        "armor": ReadImg("backpack/equipmentType/armor"),
-        "ornament": ReadImg("backpack/equipmentType/ornament")
-    };
-    for (let key in weaponTypeList)
-    {
-        let theType = images.findImage(shot, weaponTypeList[key], { region: [650, 109, 46, 48] });
-        if (theType) return key;
-    }
-    return "unknown equipment type";
-};
-const ViewPrice = function ()
-{
-    let amount, price = 0;
-
-    amount = NumberRecognition("amount", [929, 177, 98, 40]);
-    if (amount > 200)
-    {
-        return [amount, 10];
-    }
-    RandomPress([277, 181, 958, 31]); // item detail
-    Sleep(2000, 4000);
-    const level_10 = ReadImg("number/trade_strengthenedLevel10");
-    const hasLevel10 = images.findImage(captureScreen(), level_10, { region: [232, 171, 103, 472] });
-    if (hasLevel10)
-    {
-        amount = NumberRecognition("amount", [905, hasLevel10.y, 145, 30]);
-        price = NumberRecognition("amount", [1075, hasLevel10.y, 125, 30]);
-    }
-    GoBack();
-    Sleep();
-    level_10.recycle();
-    return [amount, price];
-};
-const GetAllEquipmentPrice = function ()
-{
-    const priceList = [];
-    const shot = captureScreen();
-    let lastClip = images.clip(shot, 0, 0, 10, 10);
-    for (let i = 2; i < 5; i++)
-    {
-        for (let j = 0; j < 5; j++)
-        {
-            let curClip = images.findImage(shot, lastClip, { region: [885 + j * 65, 125 + i * 65, 60, 60] });
-            if (curClip == null)
-            {
-                lastClip = images.clip(shot, 895 + j * 65, 135 + i * 65, 40, 40);
-            }
-            else continue;
-            let equipmentColor = GetWeaponColor(shot, [885 + j * 65, 125 + i * 65, 60, 60]);
-            if (equipmentColor == "white")
-            {
-                RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
-                Sleep();
-                let detailShot = captureScreen();
-                let canSell = images.findMultiColors(detailShot, "#9e9e88", [[0, 7, "#8e8e7c"], [-3, 9, "#282829"], [4, 12, "#282929"], [11, 12, "#9d9d91"], [-11, 12, "#a0a08f"]],
-                    { region: [647, 453, 38, 43] });
-                if (canSell)
-                {
-                    let type = GetWeaponType(detailShot);
-                    if (type == "unknown equipment type") continue;
-                    RandomPress([654, 460, 24, 26]); // enter trade market;
-                    Sleep(3000, 5000);
-                    let [amount, price] = ViewPrice();
-                    let item = { row: i, col: j, amount: amount, price: price, type: type };
-                    priceList.push(item);
-                    Sleep();
-                    OpenBackpack("equipment");
-                }
-            }
-        }
-    }
-    return priceList;
 };
 const StrengthenToLevel_10 = function ()
 {
@@ -578,6 +643,73 @@ const StrengthenTradeEquipment = function (arr)
     GoBack();
     return strengthenSuccess;
 };
+
+// ---------------------------------trade ------------------------------
+const ViewPrice = function ()
+{
+    let amount, price = 0;
+
+    amount = NumberRecognition("amount", [929, 177, 98, 40]);
+    if (amount > 200)
+    {
+        return [amount, 10];
+    }
+    RandomPress([277, 181, 958, 31]); // item detail
+    Sleep(2000, 4000);
+    const level_10 = ReadImg("number/trade_strengthenedLevel10");
+    const hasLevel10 = images.findImage(captureScreen(), level_10, { region: [232, 171, 103, 472] });
+    if (hasLevel10)
+    {
+        amount = NumberRecognition("amount", [905, hasLevel10.y, 145, 30]);
+        price = NumberRecognition("amount", [1075, hasLevel10.y, 125, 30]);
+    }
+    GoBack();
+    Sleep();
+    level_10.recycle();
+    return [amount, price];
+};
+const GetAllEquipmentPrice = function ()
+{
+    const priceList = [];
+    const shot = captureScreen();
+    let lastClip = images.clip(shot, 0, 0, 10, 10);
+    for (let i = 2; i < 5; i++)
+    {
+        for (let j = 0; j < 5; j++)
+        {
+            let curClip = images.findImage(shot, lastClip, { region: [885 + j * 65, 125 + i * 65, 60, 60] });
+            if (curClip == null)
+            {
+                lastClip = images.clip(shot, 895 + j * 65, 135 + i * 65, 40, 40);
+            }
+            else continue;
+            let equipmentColor = GetWeaponColor(shot, [885 + j * 65, 125 + i * 65, 60, 60]);
+            if (equipmentColor == "white")
+            {
+                RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
+                Sleep();
+                let detailShot = captureScreen();
+                let canSell = images.findMultiColors(detailShot, "#9e9e88", [[0, 7, "#8e8e7c"], [-3, 9, "#282829"], [4, 12, "#282929"], [11, 12, "#9d9d91"], [-11, 12, "#a0a08f"]],
+                    { region: [647, 453, 38, 43] });
+                if (canSell)
+                {
+                    let type = GetWeaponType(detailShot);
+                    if (type == "unknown equipment type") continue;
+                    RandomPress([654, 460, 24, 26]); // enter trade market;
+                    Sleep(3000, 5000);
+                    let [amount, price] = ViewPrice();
+                    let item = { row: i, col: j, amount: amount, price: price, type: type };
+                    priceList.push(item);
+                    Sleep();
+                    OpenBackpack("equipment");
+                }
+            }
+        }
+    }
+    return priceList;
+};
+
+
 const SaleEquipment = function ()
 {
     let salePrice = 0;
@@ -766,8 +898,7 @@ const PutOnSale = function ()
         Sleep(2000, 3000);
         OpenBackpack("equipment");
     }
-    // log(priceList);  
-    DecomposeAllWhiteSuit();
+    DecomposeAll();
     Sleep();
     RandomPress([1024, 15, 28, 31]); // trade icon;
     Sleep(3000, 5000);
@@ -792,21 +923,18 @@ const PutOnSale = function ()
     GoBack();
     return hadSold;
 };
-const StrengthenOrnament = () =>
-{
-    console.log("start strengthen ornament");
-    const ornamentScroll = ReadImg("props/scroll/ornament");
-    const hasOrnamentScroll = images.findMultiColors(captureScreen(), ornamentScroll, { region: [880, 101, 338, 357] });
-    if (ornamentScroll)
-    {
-        RandomPress([]);
-    }
-};
+
 module.exports = {
-    OpeningAllEquipmentBox,
+    OpenBackpack,
+    CloseBackpack,
+    OpenAllEquipmentBox,
+    OpenAllProps,
     WearEquipment,
     StrengthenPlayerEquipment,
     DecomposeAll,
     ReturnHome,
     PutOnSale,
 };
+
+
+

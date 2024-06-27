@@ -3,8 +3,7 @@ const UI = require("./UI.js");
 UI();
 
 const { game_config, RWFile, } = require("./RomConfig.js");
-const { Sleep, GoBack } = require("./Utils.js");
-
+const { Sleep, GoBack, ReadImg } = require("./Utils.js");
 const { BeginnerFlow } = require("./Player.js");
 const { UnifyScreen, Exception, FirstOpenGameCheck } = require("./Exception.js");
 const { EnterInstanceZones } = require("./Instance.js");
@@ -13,10 +12,7 @@ console.setGlobalLogConfig({
     "file": "/sdcard/Rom/rom-log.txt",
     "filePattern": "%d{dd日}%m%n"
 });
-// const bird = "file://img/bird.png";
-/* <frame gravity="center">
-    <img src="{{bird}}" w="24" h="24" alpha="1" />
-</frame>; */
+
 const floaty_window = floaty.window(
     <frame gravity="center" id="switch" w="42" h="20" bg="#ffffff" alpha="1">
         <text id="settlement" textColor="#f44336">000</text>
@@ -25,7 +21,34 @@ const floaty_window = floaty.window(
 );
 
 floaty_window.setPosition(10, 650);
-let mainThread, gameMode;
+
+let gameMode;
+
+const StartMainTask = () =>
+{
+    return threads.start(function ()
+    {
+        const menu_icon = ReadImg('icon/menu_icon');
+        if (!images.findImage(images.captureScreen(), menu_icon, { region: [1216, 9, 45, 46] }))
+        {
+            Sleep(60000, 180000);
+        }
+        menu_icon.recycle();
+        Sleep();
+        if (gameMode == "instance") EnterInstanceZones();
+
+        setInterval(() =>
+        {
+            Exception();
+
+            if (gameMode == "mainStory")
+            {
+                MainStory();
+            }
+        }, 10000);
+        console.log("start new main thread");
+    });
+};
 floaty_window.switch.click(function ()
 {
     let alpha = floaty_window.switch.attr("alpha");
@@ -38,20 +61,7 @@ floaty_window.switch.click(function ()
     else
     {
         floaty_window.switch.attr("alpha", "1");
-        mainThread = threads.start(function ()
-        {
-            setInterval(() =>
-            {
-                Exception();
-
-                if (gameMode == "mainStory")
-                {
-                    MainStory();
-                }
-            }, 10000);
-            console.log("start new main thread");
-        }
-        );
+        StartMainTask();
     }
 });
 
@@ -59,7 +69,7 @@ floaty_window.switch.click(function ()
 
 const Main = function (data)
 {
-    let data = JSON.parse(data);
+    data = JSON.parse(data);
     RWFile('ui', data);
     game_config.ui = data;
 
@@ -74,21 +84,6 @@ const Main = function (data)
         UnifyScreen();
         Exception();
     }
-
-    Sleep(30000, 60000);
-    if (gameMode == "instance") EnterInstanceZones();
-    mainThread = threads.start(function ()
-    {
-        setInterval(() =>
-        {
-            Exception();
-
-            if (gameMode == "mainStory")
-            {
-                MainStory();
-            }
-        }, 10000);
-    }
-    );
+    StartMainTask();
 };
 // Main();

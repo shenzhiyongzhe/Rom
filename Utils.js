@@ -1,4 +1,5 @@
 const { baseUrl } = require("./CONST.js");
+const { TipPointArr } = require("./Color.js");
 const Sleep = (min, max) =>
 {
     min = min || 1000;
@@ -110,17 +111,11 @@ const NumberRecognition = function (directory, region)
 
 const TipPointCheck = function (region)
 {
-    const tipPointArr = [
-        ["#b9200f", [[-2, 2, "#b92211"], [0, 4, "#c02416"], [3, 2, "#b92315"]]],
-        ["#b8200e", [[-2, 2, "#c22314"], [2, 2, "#bb2415"], [0, 4, "#bf2416"]]],
-        ["#b32615", [[1, 3, "#c82817"], [-2, 3, "#ca2618"], [0, 6, "#b02215"]]],
-
-    ];
     const shot = captureScreen();
     let hasTipPoint;
-    for (let i = 0; i < tipPointArr.length; i++)
+    for (let i = 0; i < TipPointArr.length; i++)
     {
-        hasTipPoint = images.findMultiColors(shot, tipPointArr[i][0], tipPointArr[i][1], { region: region });
+        hasTipPoint = images.findMultiColors(shot, TipPointArr[i][0], TipPointArr[i][1], { region: region });
         if (hasTipPoint) break;
     }
     return hasTipPoint;

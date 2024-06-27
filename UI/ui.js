@@ -81,7 +81,7 @@ function InitUIData(data)
     }
     beginnerCheckBox.checked = ui.isBeginner;
     randomServerCheckBox.checked = ui.isRandomServer;
-    // version.innerHTML = `版本：${game_config.setting.time}`;
+
     ui.instanceQueue.forEach((queue) =>
     {
         if (queue.type == "normal")
@@ -97,9 +97,7 @@ function InitUIData(data)
             menuList[2].querySelectorAll(".option-list .option input[type=checkbox]")[queue.index].checked = true;
         }
     });
-    total.innerHTML = game_config.trade.total;
-    time.innerHTML = game_config.trade.time;
-    settlement.innerHTML = game_config.trade.settlement;
+
 }
 $autox.registerHandler("InitUIData", (data, callBack) =>
 {
@@ -113,10 +111,8 @@ $autox.registerHandler("InitUIData", (data, callBack) =>
 });
 $autox.registerHandler("updateTradeRecord", (data, callBack) =>
 {
-    const trade = JSON.parse(data);
-    total.innerHTML = trade.total;
-    time.innerHTML = trade.time;
-    settlement.innerHTML = trade.settlement;
+    console.log(data);
+
     callBack(data);
 });
 // updateGame.addEventListener("click", () =>

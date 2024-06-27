@@ -1,15 +1,15 @@
-// const { game_config } = require("./Global.js");
+
 const { ReadImg, Sleep, RandomPress, InCity, NoMoneyAlert, GetColorInMultiple, GoBack, SaveShot } = require("./Utils.js");
 const { DisconnectedGameArray, DisconnectedServerArray, MainUIArray, DeathPopupArray, LongTimeNoInputArray, StartGameArray } = require("./Color.js");
 const { RomApp, } = require("./CONST.js");
-const { ReturnHome, PutOnSale } = require("./Backpack.js");
-const { DeathFlow, GroceryFlow } = require("./Death.js");
+const { ReturnHome, PutOnSale } = require("./BackPack.js");
+const { DeathFlow, GroceryFlow, CrucifixFlow } = require("./Death.js");
 const { AutoBattleCheck, EnterInstanceZones } = require("./Instance.js");
 const { game_config } = require("./RomConfig.js");
 const { PropsCollectionFlow } = require("./PropsCollection.js");
 //断开连接
 const imgList = {
-    pageBack: ReadImg("back"),
+    pageBack: ReadImg("icon/back"),
     noPotion: ReadImg("exception/noPotion"),
     haltMode_noPotion: ReadImg("exception/haltMode_noPotion"),
     haltMode_backpack90: ReadImg("exception/haltMode_backpack90"),
@@ -205,6 +205,7 @@ function Exception()
     if (isNoPotion)
     {
         NoPotionFlow(shot);
+        CrucifixFlow();
         return;
     }
 
@@ -240,6 +241,7 @@ function Exception()
             PutOnSale();
             Sleep(10000, 20000);
             EnterInstanceZones();
+            CrucifixFlow();
             return;
         }
     }
@@ -271,7 +273,23 @@ function Exception()
         }
         else
         {
-            AutoBattleCheck(shot);
+            Sleep(4000, 6000);
+            const stillInCity = InCity(captureScreen());
+            if (stillInCity)
+            {
+                if (game_config.ui.gameMode == "instance")
+                {
+                    EnterInstanceZones();
+                }
+            }
+            else
+            {
+                if (game_config.ui.gameMode == "instance")
+                {
+                    AutoBattleCheck(shot);
+                }
+            }
+
         }
         const atMainUI = MainUICheck(shot);
         if (atMainUI)
@@ -385,9 +403,3 @@ const FirstOpenGameCheck = function ()
     }
 };
 module.exports = { Exception, UnifyScreen, FirstOpenGameCheck };
-// log(DisconnectedGameCheck(captureScreen()));
-// UnifyScreen();
-// log(images.findMultiColors(captureScreen(), "#454442", [[24, 1, "#373737"], [47, 4, "#535353"], [73, 1, "#515151"], [91, 1, "#494947"]], { region: [516, 172, 271, 250] }));
-// console.time("exception");
-// Exception();
-// console.timeEnd("exception");

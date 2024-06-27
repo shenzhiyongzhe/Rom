@@ -1,5 +1,5 @@
-const { WearEquipment, StrengthenPlayerEquipment } = require("./Backpack.js");
-const { BlueSquare } = require("./CONST.js");
+const { WearEquipment } = require("./BackPack.js");
+const { BlueSquare } = require("./Color.js");
 const { game_config, RWFile } = require("./RomConfig.js");
 const { ReadImg, Sleep, RandomPress, GoBack, NumberRecognition, GetColorInMultiple } = require("./Utils.js");
 
@@ -386,17 +386,6 @@ const BuyBlueEquipment = function ()
     console.log("购买蓝装操作结束");
 };
 
-module.exports = { BuyBlueEquipment };
-// const GetPlayerCombatEffectiveness = function ()
-// {
+module.exports = { BeginnerFlow, BuyBlueEquipment };
 
-// };
-// log(GetSquareColor(captureScreen(), [189, 170, 61, 62]));
-
-// BuyBlueEquipment();
-// log(GetAllEquipmentColor());
-// log(NumberRecognition("amount", [1146, 183, 44, 30]));
-// log(GetPlayerEquipmentColor(captureScreen(), [398, 358, 75, 54]));
-// module.exports = { BeginnerFlow };
-// log(NumberRecognition("equipmentPower", [539, 211, 46, 35]))
 

@@ -6,7 +6,9 @@ const { MissionAwardFlow } = require("./Common.js");
 
 const CrucifixFlow = function () 
 {
-    let needToEquip = false;
+    const hasIcon = images.findMultiColors(captureScreen(), "#aa8155", [[5, 0, "#bb9f81"], [11, 0, "#744629"], [14, 0, "#89684b"], [18, 0, "#86715d"], [23, 0, "#67523a"], [12, -13, "#8b6242"],
+    [13, -8, "#7a5436"], [13, -3, "#a07452"], [13, 5, "#6e5030"], [14, 9, "#a17544"], [13, 16, "#825d39"]], { region: [881, 11, 45, 48] });
+    if (!hasIcon) return;
     Sleep(3000, 5000);
     RandomPress([894, 20, 21, 31]);
     Sleep(3000, 5000);
@@ -63,12 +65,8 @@ const CrucifixFlow = function ()
         Sleep();
         let equipPopExist = images.findMultiColors(captureScreen(), "#383838", [[105, -2, "#383838"], [105, 19, "#323232"], [5, 21, "#2a2a2a"]], { region: [447, 458, 183, 59] });
         if (equipPopExist) RandomPress([476, 475, 131, 26]); // cancel popup
-
-        needToEquip = true;
     }
     RandomPress([355, 71, 26, 14]);
-
-    return needToEquip;
 };
 
 const RandomSwipe = function ([x1, y1, w1, h1], [x2, y2, w2, h2])
@@ -146,5 +144,6 @@ function DeathFlow()
 };
 
 
-module.exports = { DeathFlow, GroceryFlow };
+module.exports = { CrucifixFlow, DeathFlow, GroceryFlow };
+// CrucifixFlow()
 

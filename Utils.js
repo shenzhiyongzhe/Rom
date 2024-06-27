@@ -1,5 +1,5 @@
 const { baseUrl } = require("./CONST.js");
-const { TipPointArr } = require("./Color.js");
+const { TipPointArr, GreenBtn } = require("./Color.js");
 const Sleep = (min, max) =>
 {
     min = min || 1000;
@@ -236,6 +236,8 @@ const SaveShot = () =>
     files.create(baseUrl + "/shot/");
     images.save(moneyClip, `${baseUrl}/shot/${time}.png`);
 };
+const GreenBtnClickableCheck = (region) => GetColorInMultiple(captureScreen(), GreenBtn, region);
+
 module.exports = {
     Sleep,
     RandomPress,

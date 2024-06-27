@@ -2,6 +2,7 @@ const { Sleep, RandomPress, GoBack, PressBlank, OpenMenu, NumberRecognition, Ran
 const { OpenAllEquipmentBox, OpenAllProps, StrengthenPlayerEquipment, } = require("./BackPack.js");
 const { ForgeMaterial } = require("./Manufacture.js");
 const { game_config, RWFile } = require("./RomConfig.js");
+const { GreenBtn } = require("./Color.js");
 
 const MenuTipPointCheck = () => TipPointCheck([1242, 2, 22, 25]);
 
@@ -283,15 +284,35 @@ const BulkBuy = function ()
 
 const GetDelegate = () =>
 {
-    const missionIcon = images.findMultiColors(captureScreen(), "#776f53", [[-5, 4, "#887559"], [-8, 11, "#5b221b"], [-13, 14, "#a3966e"], [-19, 16, "#c0b293"], [-21, 18, "#bdae89"]]);
-    if (!missionIcon) return false;
+    // const missionIcon = images.findMultiColors(captureScreen(), "#776f53", [[-5, 4, "#887559"], [-8, 11, "#5b221b"], [-13, 14, "#a3966e"], [-19, 16, "#c0b293"], [-21, 18, "#bdae89"]]);
+    // if (!missionIcon) return false;
 
-    RandomPress([1155, 18, 30, 32]);
-    Sleep(4000, 6000);
-    RandomPress([419, 97, 66, 28]);
-    Sleep(2000, 4000);
+    const purpleColorList = [
+        ["#7c4e96", [[6, 1, "#905dae"], [10, 0, "#82549d"], [15, 1, "#8f5da5"]]],
+        ["#8c59a9", [[2, 3, "#82559d"], [5, 0, "#915fb0"], [9, 3, "#8a5aa6"], [15, 2, "#8f5da5"]]],
+        ["#8c57ad", [[6, -1, "#80519a"], [11, 0, "#8858a4"], [13, 3, "#905cae"], [20, 1, "#9461ab"]]],
+        ["#7b4e97", [[6, 0, "#83569e"], [12, 2, "#955fb4"], [19, 0, "#7d5190"]]]
+    ];
+    const checkedColor = [
+        ["#0e0c0c", [[4, -2, "#f6d07d"], [6, 0, "#cca75d"], [10, -3, "#c9a760"], [14, -6, "#cca864"]]],
 
+    ];
+    const PurpleDelegateCheck = () => GetColorInMultiple(captureScreen(), purpleColorList, [18, 140, 39, 40]);
 
+    // RandomPress([1155, 18, 30, 32]);
+    // Sleep(4000, 6000);
+    // RandomPress([419, 97, 66, 28]);
+    // Sleep(2000, 4000);
+
+    let delegateCount = 0;
+    for (let i = 0; i < 5; i++)
+    {
+        let isPurpleDelegate = PurpleDelegateCheck();
+        if(isPurpleDelegate){
+            
+        }
+    }
+    console.log(PurpleDelegateCheck());
 };
 const Daily = function ()
 {
@@ -327,6 +348,7 @@ const Daily = function ()
     }
 };
 
-// GetDelegate();
-module.exports = { Daily };
+GetDelegate();
+// module.exports = { Daily };
+// console.log(GetColorInMultiple(captureScreen(), GreenBtn, [1056, 649, 213, 63]));
 

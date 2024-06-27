@@ -115,13 +115,7 @@ $autox.registerHandler("updateTradeRecord", (data, callBack) =>
 
     callBack(data);
 });
-// updateGame.addEventListener("click", () =>
-// {
-//     $autox.callHandler("updateGame", "Update Game Package", (callBackData) =>
-//     {
-//         console.log(callBackData);
-//     });
-// });
+
 function MenuSelect(menu, type)
 {
     const select = menu.querySelector(".select");

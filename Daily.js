@@ -308,8 +308,9 @@ const GetDelegate = () =>
     for (let i = 0; i < 5; i++)
     {
         let isPurpleDelegate = PurpleDelegateCheck();
-        if(isPurpleDelegate){
-            
+        if (isPurpleDelegate)
+        {
+
         }
     }
     console.log(PurpleDelegateCheck());
@@ -348,7 +349,7 @@ const Daily = function ()
     }
 };
 
-GetDelegate();
+// GetDelegate();
 // module.exports = { Daily };
 // console.log(GetColorInMultiple(captureScreen(), GreenBtn, [1056, 649, 213, 63]));
 

@@ -1,6 +1,6 @@
 
 const { game_config, RWFile } = require("./RomConfig.js");
-const { ReadImg, Sleep, RandomPress, GoBack, NumberRecognition } = require("./Utils.js");
+const { ReadImg, Sleep, RandomPress, GoBack, GetNumber } = require("./Utils.js");
 const { Daily } = require("./Daily.js");
 const { MissionAwardFlow } = require("./Common.js");
 
@@ -96,7 +96,7 @@ const GroceryFlow = function ()
     potion.recycle();
     Sleep();
     let setting = game_config.setting;
-    const isZero = NumberRecognition("amount", [1130, 658, 108, 34]);
+    const isZero = GetNumber("amount", [1130, 658, 108, 34]);
     if (setting.autoGrocery == false || setting.autoGrocery == undefined || isZero == 0)
     {
         // set auto purchase;

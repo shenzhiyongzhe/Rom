@@ -1,5 +1,5 @@
 const { baseUrl } = require("./CONST.js");
-const { TipPointArr, GreenBtn } = require("./Color.js");
+const { TipPointArr, GreenBtn, GrayBtn, PageBackColorList, MenuIconColorList, MenuCloseColorList, CheckMarkColorList, HaltModeColorList } = require("./Color.js");
 const Sleep = (min, max) =>
 {
     min = min || 1000;
@@ -15,31 +15,20 @@ const RandomPress = ([startX, startY, w, h]) =>
     Sleep();
 };
 const ReadImg = (name) => images.read(`./img/${name}.png`);
-const GoBack = () =>
-{
-    const backIcon = ReadImg('icon/back');
-    const hasBack = images.findImage(captureScreen(), backIcon, { region: [1217, 10, 42, 43] });
-    if (hasBack)
-    {
-        RandomPress([1125, 18, 141, 35]);
-    }
-    backIcon.recycle();
-};
+const GoBack = () => FindMultiColors(PageBackColorList, [1224, 9, 43, 49]) && RandomPress([1159, 14, 115, 40]);
+
 const PressBlank = () => RandomPress([270, 96, 647, 502]);
 const OpenMenu = () =>
 {
     console.log("打开菜单");
-    const menu_icon = ReadImg("menu_icon");
-    const menu_close = ReadImg("menu_close");
-    const shot = captureScreen();
-    const hasIcon = images.findImage(shot, menu_icon, { region: [1217, 10, 42, 43] });
-    const hasClose = images.findImage(shot, menu_close, { region: [1217, 10, 42, 43] });
-    if (hasIcon)
+    const hasIcon = FindMultiColors(MenuIconColorList, [1217, 11, 41, 44]);
+    const hasClose = FindMultiColors(MenuCloseColorList, [1219, 13, 39, 43]);
+    if (hasIcon && !hasClose)
     {
         RandomPress([1221, 15, 33, 33]);
         Sleep(2000, 4000);
     }
-    else if (hasClose)
+    else if (!hasIcon && hasClose)
     {
         Sleep();
     }
@@ -47,12 +36,30 @@ const OpenMenu = () =>
     {
         console.log("当前页面没有菜单按钮");
     }
-    menu_icon.recycle();
-    menu_close.recycle();
+
+};
+const CloseMenu = () =>
+{
+    console.log("关闭菜单");
+    const hasIcon = FindMultiColors(MenuIconColorList, [1217, 11, 41, 44]);
+    const hasClose = FindMultiColors(MenuCloseColorList, [1219, 13, 39, 43]);
+    if (!hasIcon && hasClose)
+    {
+        RandomPress([1221, 15, 33, 33]);
+        Sleep(2000, 4000);
+    }
+    else if (hasIcon && !hasClose)
+    {
+        Sleep();
+    }
+    else
+    {
+        console.log("当前页面没有菜单按钮");
+    }
 };
 const PressBackpack = () => RandomPress([1094, 24, 22, 27]);
 
-const NumberRecognition = function (directory, region)
+const GetNumber = function (directory, region)
 {
     const numberArr = [];
     for (let i = 0; i < 10; i++)
@@ -109,26 +116,20 @@ const NumberRecognition = function (directory, region)
     return parseInt(finalNumber);
 };
 
-const TipPointCheck = function (region)
-{
-    const shot = captureScreen();
-    let hasTipPoint;
-    for (let i = 0; i < TipPointArr.length; i++)
-    {
-        hasTipPoint = images.findMultiColors(shot, TipPointArr[i][0], TipPointArr[i][1], { region: region });
-        if (hasTipPoint) break;
-    }
-    return hasTipPoint;
-};
 
-const InCity = function ()
+const IsInCity = function ()
 {
-    const groceryIcon = ReadImg("grocery");
+    const groceryIcon = ReadImg("icon/grocery_icon");
     const hasGrocery = images.findImage(captureScreen(), groceryIcon, { region: [65, 259, 65, 58] });
     groceryIcon.recycle();
     return hasGrocery;
 };
-
+const ExitHaltMode = () =>
+{
+    console.log("---ExitHaltMode---");
+    RandomSwipe([585, 209, 114, 51], [585, 323, 115, 30]);
+    Sleep(3000, 5000);
+};
 const NoMoneyAlert = function (money)
 {
     const curMoney = money || "---";
@@ -161,14 +162,14 @@ const GetCurrentDate = function (sign)
     const second = time.getSeconds();
     return `${year}-${month}-${day} ${hour}${s}${minute}${s}${second}`;
 };
-const GetColorInMultiple = function (shot, colorArr, region)
+const FindMultiColors = (colorArr, region) =>
 {
     let hasColor = false;
+    const shot = captureScreen();
     for (let i = 0; i < colorArr.length; i++)
     {
-        let color = colorArr[i][0];
-        let position = colorArr[i][1];
-        hasColor = images.findMultiColors(shot, color, position, { region: region });
+        let [color, position] = colorArr[i];
+        hasColor = images.findMultiColors(shot, color, position, { region });
         if (hasColor) break;
     }
     return hasColor;
@@ -205,7 +206,19 @@ const RandomSwipe = function ([x1, y1, w1, h1], [x2, y2, w2, h2])
     let y2 = random() * h2 + y2;
     const duration = random() * 100 + 400;
     swipe(x1, y1, x2, y2, duration);
-    Sleep(2000, 3000);
+    Sleep(4000, 6000);
+};
+const SwipToBottom = (clipRegion, findRegion, swipFrom, swipTo) =>
+{
+    const [x1, y1, w1, h1] = clipRegion;
+    let clip = images.clip(captureScreen(), x1, y1, w1, h1);
+    for (let i = 0; i < 5; i++)
+    {
+        RandomSwipe(swipFrom, swipTo);
+        let isBottom = images.findImage(captureScreen(), clip, { region: findRegion });
+        if (isBottom) break;
+        clip = images.clip(captureScreen(), x1, y1, w1, h1);
+    }
 };
 const UpdateConfig = (type) =>
 {
@@ -236,7 +249,13 @@ const SaveShot = () =>
     files.create(baseUrl + "/shot/");
     images.save(moneyClip, `${baseUrl}/shot/${time}.png`);
 };
-const GreenBtnClickableCheck = (region) => GetColorInMultiple(captureScreen(), GreenBtn, region);
+const FindGreenBtn = (region) => FindMultiColors(GreenBtn, region);
+const FindGrayBtn = (region) => FindMultiColors(GrayBtn, region);
+const FindTipPoint = (region) => FindMultiColors(TipPointArr, region);
+const FindCheckMark = (region) => FindMultiColors(CheckMarkColorList, region);
+const IsHaltMode = () => FindMultiColors(HaltModeColorList, [550, 182, 180, 193]);
+const HasPageBack = () => FindMultiColors(PageBackColorList, [1225, 12, 42, 44]);
+const HasMenu = () => FindMultiColors(MenuIconColorList, [1214, 12, 47, 42]);
 
 module.exports = {
     Sleep,
@@ -245,16 +264,24 @@ module.exports = {
     GoBack,
     PressBlank,
     OpenMenu,
+    CloseMenu,
     PressBackpack,
-    NumberRecognition,
-    TipPointCheck,
-    InCity,
+    GetNumber,
+    IsInCity,
     NoMoneyAlert,
     ConvertTradeTime,
     GetCurrentDate,
-    GetColorInMultiple,
+    FindMultiColors,
     RandomSwipe,
     RandomHollow,
-    SaveShot
+    SaveShot,
+    FindTipPoint,
+    FindGreenBtn,
+    FindGrayBtn,
+    FindCheckMark,
+    IsHaltMode,
+    ExitHaltMode,
+    SwipToBottom,
+    HasPageBack,
+    HasMenu
 };
-// log(baseUrl);

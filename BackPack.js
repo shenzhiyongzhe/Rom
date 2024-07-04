@@ -1,6 +1,6 @@
-const { ReadImg, Sleep, RandomPress, GoBack, NumberRecognition, TipPointCheck, ConvertTradeTime, NoMoneyAlert, GetColorInMultiple, RandomHollow } = require("./Utils.js");
+const { ReadImg, Sleep, RandomPress, GoBack, GetNumber, FindTipPoint, ConvertTradeTime, NoMoneyAlert, FindMultiColors, RandomHollow, FindGreenBtn, OpenMenu } = require("./Utils.js");
 const { EmptyGrid, WhiteSquare, GreenSquare, BlueSquare, PurpleSquare, Equipped, GreenBtn } = require("./Color.js");
-const { PropsCollectionFlow } = require("./PropsCollection.js");
+const { PropsCollectionFlow } = require("./Common");
 /**
  * @param {*} page "equipment" "props" "material"
  * @returns 
@@ -68,14 +68,9 @@ const CloseBackpack = () =>
     backpack_close.recycle();
 
 };
-const EmptyCheck = (shot, region) =>
-{
-    return GetColorInMultiple(shot, EmptyGrid, region);
-};
-const EquippedCheck = (shot, region) =>
-{
-    return GetColorInMultiple(shot, Equipped, region);
-};
+const EmptyCheck = (region) => FindMultiColors(EmptyGrid, region);
+
+const EquippedCheck = (region) => FindMultiColors(Equipped, region);
 
 
 // -------------------------------tool ---------------------------
@@ -200,27 +195,27 @@ const OpenSlab = () =>
             RandomPress([hasSlab.x - 10, hasSlab.y, 40, 30]);
             Sleep();
             RandomPress([hasSlab.x - 10, hasSlab.y, 40, 30]);
-            Sleep(2000, 4000);
-            let hasPopup = GetColorInMultiple(captureScreen(), GreenBtn, [641, 500, 125, 50]);
-            if (hasPopup)
+            Sleep(5000, 8000);
+
+            hasOpenSlab = true;
+
+            if (FindGreenBtn([641, 500, 125, 50]))
             {
                 RandomPress([663, 515, 86, 23]);
             }
-            Sleep(6000, 8000);
-            let hasOpenBtn = GetColorInMultiple(captureScreen(), GreenBtn, [522, 617, 238, 70]);
-            if (hasOpenBtn)
+            Sleep(8000, 12000);
+            for (let i = 0; i < 3; i++)
             {
-                RandomPress([545, 634, 191, 34]);
-                Sleep(3000, 5000);
-                hasOpenSlab = true;
+                if (FindGreenBtn([526, 624, 226, 56]))
+                {
+                    RandomPress([545, 634, 191, 34]);
+                    Sleep(3000, 5000);
+                }
             }
             break;
         }
     }
-    if (hasOpenSlab)
-    {
-        GoBack();
-    }
+    GoBack();
     slabList.forEach(slab => slab.recycle());
 
     console.log("open slab flow end; has open: " + hasOpenSlab);
@@ -247,7 +242,7 @@ const OpenNoOptionBox = () =>
             Sleep();
             RandomPress([hasBox.x - 5, hasBox.y - 5, 30, 30]);
             Sleep();
-            const hasPopup = GetColorInMultiple(captureScreen(), GreenBtn, [642, 497, 122, 54]);
+            const hasPopup = FindMultiColors(GreenBtn, [642, 497, 122, 54]);
             if (hasPopup)
             {
                 RandomPress([662, 512, 89, 26]);
@@ -263,11 +258,91 @@ const OpenNoOptionBox = () =>
     return hasOpened;
 };
 
+const GetSlabColor = (region) =>
+{
+    const SlabColorList = {
+        "white": [
+            ["#515150", [[2, -14, "#4a4a48"], [55, -40, "#646f74"], [58, -40, "#c4c6c5"], [56, -38, "#1e2425"], [57, -38, "#79807f"], [44, -5, "#2f2f2f"], [57, -37, "#737d7b"]]],
+            ["#444442", [[-5, 14, "#434343"], [3, 9, "#565655"], [54, -27, "#4a555c"], [56, -28, "#c9cfcf"], [57, -26, "#808280"], [56, -25, "#737d7b"], [12, -19, "#494946"]]]
+        ],
+        "green": [
+            ["#2f4c2b", [[-6, 5, "#243a20"], [-8, 19, "#2a4526"], [53, -27, "#19590f"], [57, -27, "#8ed188"], [55, -30, "#4ea03c"], [54, -25, "#033301"], [57, -25, "#469f39"]]],
+            ["#273f24", [[-1, 8, "#2b4326"], [-5, 18, "#263d23"], [59, -34, "#9fe68d"], [57, -31, "#1c5a18"], [59, -31, "#a1c99a"], [60, -31, "#8ed188"], [59, -28, "#2a8922"]]],
+            ["#2f4b2a", [[-5, 8, "#2c4728"], [-7, 20, "#304c2c"], [53, -28, "#1e5c0b"], [56, -28, "#5f8e4e"], [58, -28, "#81c47c"], [56, -30, "#399130"], [56, -26, "#073106"]]],
+            ["#1a2918", [[1, 16, "#294025"], [-4, 24, "#21341f"], [56, -23, "#1e6b1c"], [58, -23, "#8dc783"], [59, -23, "#7dc276"], [55, -21, "#0a3a04"], [58, -20, "#34892c"]]]
+        ],
+        "blue": [
+            ["#173543", [[-7, 9, "#132934"], [-7, 22, "#152f3c"], [52, -26, "#13408e"], [54, -26, "#607ca7"], [56, -26, "#80b3d6"], [54, -28, "#266dbc"], [54, -24, "#072058"]]],
+            ["#183646", [[10, -6, "#163644"], [23, -4, "#1d475d"], [46, -12, "#1b5abb"], [50, -12, "#addaed"], [48, -13, "#306bc0"], [47, -9, "#012463"], [49, -9, "#2d77bf"]]],
+            ["#112e3c", [[-3, 13, "#1a4054"], [-5, 22, "#183c4e"], [56, -22, "#13408e"], [59, -22, "#91bada"], [59, -24, "#84b0db"], [57, -20, "#011e5f"], [60, -20, "#3a7dd2"]]]
+
+        ],
+        "purple": [
+            ["#221728", [[12, 7, "#503560"], [18, -21, "#462e52"], [32, -12, "#3e294a"], [59, -28, "#592168"], [63, -28, "#a97cb5"], [62, -30, "#f5c2fa"], [61, -26, "#471054"]]],
+            ["#271a2e", [[5, 2, "#3f2a49"], [17, -22, "#482f56"], [58, -30, "#6b2e73"], [60, -30, "#884c94"], [62, -30, "#d1a0d7"], [60, -32, "#a15ba4"], [60, -28, "#460c56"]]]
+        ]
+    };
+    for (let key in SlabColorList)
+    {
+        let colorList = SlabColorList[key];
+        let isTheColor = FindMultiColors(colorList, region);
+        if (isTheColor) return key;
+    }
+    return "null";
+};
+const WearBestSlab = (type) =>
+{
+    console.log("^^WearBestSlab");
+    OpenMenu();
+    if (type == "suit")
+    {
+        RandomPress([962, 122, 21, 27]);
+    }
+    else if (type == "guardian")
+    {
+        RandomPress([1025, 118, 28, 27]);
+    }
+    Sleep(5000, 8000);
+    const curSlab = GetSlabColor([126, 565, 86, 82]);
+    const nextSlab = GetSlabColor([216, 565, 84, 85]);
+
+    let hasWearNewSlab = false;
+
+    if (FindGreenBtn([1019, 498, 156, 56]))
+    {
+        RandomPress([1037, 508, 119, 31]);
+        hasWearNewSlab = true;
+    }
+    if ((curSlab == "white" && (nextSlab == "green" || nextSlab == "blue" || nextSlab == "purple")) || (curSlab == "green" && (nextSlab == "blue" || nextSlab == "purple")))
+    {
+        RandomPress([228, 587, 60, 96]);
+        Sleep();
+        if (FindGreenBtn([1019, 498, 156, 56]))
+        {
+            RandomPress([1037, 508, 119, 31]);
+            hasWearNewSlab = true;
+        }
+    }
+    if (!hasWearNewSlab)
+    {
+        GoBack();
+    }
+    console.log("curSlab: " + curSlab);
+    console.log("nextSlab: " + nextSlab);
+};
+// WearBestSlab("suit");
+// console.log(GetSlabColor([126, 565, 83, 88]));
+// console.log(GetSlabColor([216, 567, 84, 85]));
+
 const OpenAllProps = () =>
 {
     OpenSlab();
     OpenNoOptionBox();
     CloseBackpack();
+    WearBestSlab("suit");
+    Sleep();
+    WearBestSlab("guardian");
+
 };
 // -----------------------strengthen equipment -------------------------
 
@@ -334,8 +409,8 @@ const WearEquipment = () =>
             ["#252626", [[5, 0, "#c3570f"], [8, 0, "#8a4415"], [6, -3, "#262626"], [6, 2, "#31251f"]]],
             ["#242526", [[3, 0, "#c3570f"], [4, 0, "#cc590b"], [6, 0, "#8a4415"], [3, -3, "#262626"], [4, 4, "#262626"]]]
         ];
-        const isPlus = GetColorInMultiple(shot, plusArr, { region: [815, 156, 56, 37] });
-        const isSub = GetColorInMultiple(shot, subArr, { region: [815, 156, 56, 37] });
+        const isPlus = FindMultiColors(plusArr, { region: [815, 156, 56, 37] });
+        const isSub = FindMultiColors(subArr, { region: [815, 156, 56, 37] });
         if (isPlus) return true;
         else if (isSub) return false;
         else return false;
@@ -343,7 +418,7 @@ const WearEquipment = () =>
     log("开始穿戴装备");
     OpenBackpack("equipment");
     let shot = captureScreen();
-    const isfewEquip = EmptyCheck(shot, [1145, 253, 64, 67]);
+    const isfewEquip = EmptyCheck([1145, 253, 64, 67]);
     if (!isfewEquip)
     {
         SortEquipment();
@@ -354,8 +429,8 @@ const WearEquipment = () =>
     {
         for (let j = 0; j < 5; j++)
         {
-            let isEquip = EquippedCheck(shot, [920 + j * 65, 110 + i * 65, 40, 40]);
-            let isBlank = EmptyCheck(shot, [890 + j * 65, 125 + i * 65, 50, 50]);
+            let isEquip = EquippedCheck([920 + j * 65, 110 + i * 65, 40, 40]);
+            let isBlank = EmptyCheck([890 + j * 65, 125 + i * 65, 50, 50]);
             let isSame = images.findImage(shot, clip, { region: [887 + j * 65, 128 + i * 65, 60, 58] });
             clip = images.clip(shot, 905 + j * 65, 142 + i * 65, 25, 29);
             if (isBlank)
@@ -400,7 +475,7 @@ const DecomposeAll = () =>
     RandomPress([1018, 511, 14, 16]); // green btn;
     for (let i = 0; i < 3; i++)
     {
-        let isZeroItem = NumberRecognition("strengthen", [1170, 504, 20, 27]);
+        let isZeroItem = GetNumber("strengthen", [1170, 504, 20, 27]);
         if (isZeroItem == 0) break;
         RandomPress([1120, 508, 122, 22]); //decompose
 
@@ -505,7 +580,7 @@ const NoScrollCheck = () =>
         ["#1a1b1b", [[19, 9, "#32322f"], [39, 2, "#202020"], [47, 25, "#202021"], [18, 21, "#2f302b"], [9, 32, "#3f3f3c"], [2, 48, "#191b1b"], [41, 41, "#1d1d1e"]]],
         ["#1a1b1b", [[4, 17, "#1b1b1b"], [0, 37, "#1d1d1d"], [19, 41, "#3c3d3a"], [24, 20, "#2b2c27"], [41, 11, "#222323"], [40, 38, "#1d1e1f"], [33, 27, "#212122"]]]
     ];
-    return GetColorInMultiple(captureScreen(), noScrollArr, [348, 204, 79, 78]);
+    return FindMultiColors(noScrollArr, [348, 204, 79, 78]);
 };
 const GetWeaponType = function (shot)
 {
@@ -531,11 +606,11 @@ const StrengthenPlayerEquipment = (type) =>
     {
         for (let j = 0; j < 5; j++)
         {
-            let isEquip = EquippedCheck(backpackShot, [929 + j * 65, 126 + i * 65, 19, 20]);
+            let isEquip = EquippedCheck([929 + j * 65, 126 + i * 65, 19, 20]);
 
             if (isEquip)
             {
-                let strLevel = NumberRecognition("strengthen", [921 + j * 65, 163 + i * 65, 30, 29]);
+                let strLevel = GetNumber("strengthen", [921 + j * 65, 163 + i * 65, 30, 29]);
                 if (strLevel < 7)
                 {
                     RandomPress([899 + j * 65, 139 + i * 65, 39, 38]); //click the equipment for detail
@@ -561,7 +636,7 @@ const StrengthenPlayerEquipment = (type) =>
         else
         {
             RandomPress([hadFind.x - 10, hadFind.y - 5, 30, 30]);
-            let next_strLevel = NumberRecognition("amount", [1084, 605, 58, 34]);
+            let next_strLevel = GetNumber("amount", [1084, 605, 58, 34]);
             if (next_strLevel <= 7)
             {
                 RandomPress([936, 672, 281, 29]); //strengthen btn;
@@ -583,8 +658,8 @@ const StrengthenToLevel_10 = function ()
     for (let n = 0; n < 4; n++)
     {
         let strenghten_shot = captureScreen();
-        isUpToLevel_10 = NumberRecognition("amount", [1089, 607, 49, 31]);
-        if (isUpToLevel_10) break;
+        isUpToLevel_10 = GetNumber("amount", [1089, 607, 49, 31]);
+        if (isUpToLevel_10 > 10) break;
         let hasFailed = images.findMultiColors(strenghten_shot, "#1d1d1f", [[13, 1, "#202020"], [29, 0, "#1e1e1f"], [29, 20, "#202021"],
         [28, 43, "#1e1f20"], [-7, 53, "#1a1a1b"], [-31, 54, "#19191b"], [-35, 32, "#19191b"]], { region: [85, 203, 78, 81] });
         if (hasFailed) break;
@@ -592,7 +667,11 @@ const StrengthenToLevel_10 = function ()
         [61, 24, "#1f1f20"], [61, 54, "#1d1d1e"], [31, 59, "#171718"], [1, 59, "#191919"], [-2, 28, "#191919"], [26, 13, "#2e2f2c"],
         [41, 18, "#40403b"], [27, 26, "#2d2e29"], [17, 35, "#3d3d3a"], [32, 44, "#393a37"]], { region: [350, 206, 74, 76] });
         if (isUseOut_2) break;
-        RandomPress([937, 675, 280, 28]);// strengthen btn;
+        if (FindGreenBtn([912, 658, 320, 56]))
+        {
+            RandomPress([937, 675, 280, 28]);// strengthen btn;  
+        }
+        else break;
 
         Sleep(5000, 8000);
         RandomPress([459, 142, 390, 533]); // click to see result;
@@ -649,7 +728,7 @@ const ViewPrice = function ()
 {
     let amount, price = 0;
 
-    amount = NumberRecognition("amount", [929, 177, 98, 40]);
+    amount = GetNumber("amount", [929, 177, 98, 40]);
     if (amount > 200)
     {
         return [amount, 10];
@@ -660,8 +739,8 @@ const ViewPrice = function ()
     const hasLevel10 = images.findImage(captureScreen(), level_10, { region: [232, 171, 103, 472] });
     if (hasLevel10)
     {
-        amount = NumberRecognition("amount", [905, hasLevel10.y, 145, 30]);
-        price = NumberRecognition("amount", [1075, hasLevel10.y, 125, 30]);
+        amount = GetNumber("amount", [905, hasLevel10.y, 145, 30]);
+        price = GetNumber("amount", [1075, hasLevel10.y, 125, 30]);
     }
     GoBack();
     Sleep();
@@ -726,7 +805,7 @@ const SaleEquipment = function ()
             {
                 RandomPress([887 + j * 65, 188 + i * 65, 40, 35]); // click the equipment
                 Sleep(1000, 3000);
-                let price = NumberRecognition("amount", [925, 385, 132, 33]);
+                let price = GetNumber("amount", [925, 385, 132, 33]);
                 if (price > 10)
                 {
                     RandomPress([680, 644, 125, 22]); // sell btn;
@@ -763,7 +842,7 @@ const SaleMaterials = function ()
             {
                 RandomPress([887 + j * 65, 188 + i * 65, 40, 35]); // click the equipment
                 Sleep(1000, 3000);
-                price = NumberRecognition("amount", [925, 385, 132, 33]);
+                price = GetNumber("amount", [925, 385, 132, 33]);
                 log("sale price: " + price);
                 if (price > 10)
                 {
@@ -789,12 +868,12 @@ const GetSettlement = function ()
 {
     console.log("Start Today Settlement");
     Sleep(2000, 3000);
-    const hadSettlement = TipPointCheck([366, 83, 40, 32]);
+    const hadSettlement = FindTipPoint([366, 83, 40, 32]);
     if (hadSettlement)
     {
         RandomPress([298, 95, 75, 31]); // settlement icon;
         Sleep(2000, 4000);
-        let settlement = NumberRecognition("amount", [997, 672, 103, 34]);
+        let settlement = GetNumber("amount", [997, 672, 103, 34]);
         if (settlement == null)
         {
             settlement = 0;
@@ -834,12 +913,12 @@ const GetSettlement = function ()
             todaySettlementTimes = 0;
         }
         settlement = settlement + lastSettlement;
-        const lastTime = ConvertTradeTime(NumberRecognition("amount", [1050, 670, 44, 36]));
+        const lastTime = ConvertTradeTime(GetNumber("amount", [1050, 670, 44, 36]));
 
         RandomPress([1118, 674, 127, 30]); //settlement btn;
         Sleep();
 
-        const total = NumberRecognition("amount", [504, 3, 113, 32]);
+        const total = GetNumber("amount", [504, 3, 113, 32]);
         console.log("Today earnings: " + settlement + " 钻石");
         player.trade.total = total;
         player.trade.settlement = settlement;
@@ -921,6 +1000,7 @@ const PutOnSale = function ()
     Sleep();
     GetSettlement();
     GoBack();
+    Sleep();
     return hadSold;
 };
 

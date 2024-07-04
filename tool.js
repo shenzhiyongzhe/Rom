@@ -5,3 +5,4 @@ const GetCaptureScreenPermission = () =>
     const img = captureScreen();
     log(img.getWidth(), img.getHeight());
 };
+GetCaptureScreenPermission();

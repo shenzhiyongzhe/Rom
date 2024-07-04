@@ -22,6 +22,25 @@ const version = document.querySelector("#version");
 const total = document.querySelector("#total");
 const time = document.querySelector("#time");
 const settlement = document.querySelector("#settlement");
+
+//分页
+const pages = document.querySelectorAll(".page");
+const tabs = document.querySelectorAll(".tab");
+
+pages[1].setAttribute("style", "display:none;");
+pages[2].setAttribute("style", "display:none;");
+tabs.forEach((item, index) => item.addEventListener("click", () =>
+{
+    console.log(index);
+    pages[index].setAttribute("style", "display:block;");
+    for (let i = 0; i < pages.length; i++)
+    {
+        if (i != index)
+        {
+            pages[i].setAttribute("style", "display:none;");
+        }
+    }
+}));
 //复选框
 beginnerCheckBox.addEventListener("click", () =>
 {
@@ -116,6 +135,24 @@ $autox.registerHandler("updateTradeRecord", (data, callBack) =>
     callBack(data);
 });
 
+$autox.registerHandler("getConfigFile", (data, callBack) =>
+{
+    pages[1].innerHTML = data;
+    setTimeout(() =>
+    {
+        //回调安卓
+        callBack("success");
+    }, 1000);
+});
+$autox.registerHandler("getLogFile", (data, callBack) =>
+{
+    pages[2].innerHTML = data;
+    setTimeout(() =>
+    {
+        //回调安卓
+        callBack("success");
+    }, 1000);
+});
 function MenuSelect(menu, type)
 {
     const select = menu.querySelector(".select");

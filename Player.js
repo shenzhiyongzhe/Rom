@@ -1,7 +1,10 @@
 const { WearEquipment } = require("./BackPack.js");
 const { BlueSquare } = require("./Color.js");
+const { CheckDelegate } = require("./Daily.js");
+const { EnterInstanceZones } = require("./Instance.js");
+const { MainStory } = require("./MainStory.js");
 const { game_config, RWFile } = require("./RomConfig.js");
-const { ReadImg, Sleep, RandomPress, GoBack, NumberRecognition, GetColorInMultiple } = require("./Utils.js");
+const { ReadImg, Sleep, RandomPress, GoBack, GetNumber, FindMultiColors } = require("./Utils.js");
 
 const BeginnerImg = {
     skip: ReadImg("mainStory_skip"),
@@ -275,7 +278,7 @@ const GetAllEquipmentColor = () =>
 };
 const GetSquareColor = function (shot, colorArr, region)
 {
-    const color = GetColorInMultiple(shot, colorArr, region);
+    const color = FindMultiColors(colorArr, region);
     return color;
 };
 const BuyBestBlueEquipment = (shot) =>
@@ -287,11 +290,11 @@ const BuyBestBlueEquipment = (shot) =>
         let color = GetSquareColor(shot, BlueSquare, [188, 170 + i * 65, 63, 61]);
         if (color)
         {
-            let price = NumberRecognition("amount", [1105, 181 + i * 65, 86, 37]);
+            let price = GetNumber("amount", [1105, 181 + i * 65, 86, 37]);
             if (price < 20)
             {
                 RandomPress([195, 178 + i * 65, 43, 42]);
-                let power = NumberRecognition("equipmentPower", [539, 210, 55, 37]);
+                let power = GetNumber("equipmentPower", [539, 210, 55, 37]);
                 let price_performance_ratio = power / price;
                 equimentList.push({ position: color, ratio: price_performance_ratio });
                 Sleep();
@@ -303,14 +306,14 @@ const BuyBestBlueEquipment = (shot) =>
     RandomPress([761, 123, 30, 15]); //close the detail popup 
     RandomPress([equimentList[0].position.x + 70, equimentList[0].position.y, 830, 40]); //enter the sale page
     Sleep(3000, 5000);
-    let theBlueEquipmentPrice = NumberRecognition("amount", [1106, 177, 90, 41]);
+    let theBlueEquipmentPrice = GetNumber("amount", [1106, 177, 90, 41]);
     if (theBlueEquipmentPrice < 20)
     {
         RandomPress([267, 181, 893, 35]);
         Sleep(3000, 5000);
         RandomPress([265, 181, 616, 34]);
         Sleep(3000, 5000);
-        const theFinalDealPrice = NumberRecognition("amount", [1082, 551, 88, 36]);
+        const theFinalDealPrice = GetNumber("amount", [1082, 551, 88, 36]);
         console.log("购买蓝装，性价比指数：" + equimentList[0].ratio + "最终购买价格为：" + theFinalDealPrice);
         RandomPress([1014, 633, 127, 25]); // buy btn 
         Sleep(8000, 12000);
@@ -334,7 +337,7 @@ const BuyBlueEquipment = function ()
     //进入任务页，识别当前钻石数量
     RandomPress([1157, 20, 26, 31]);
     Sleep(4000, 7000);
-    const totalDiamod = NumberRecognition("amount", [468, 3, 84, 30]);
+    const totalDiamod = GetNumber("amount", [468, 3, 84, 30]);
     if (totalDiamod < 20)
     {
         console.log("钻石不足，暂时不买");
@@ -385,7 +388,22 @@ const BuyBlueEquipment = function ()
     }
     console.log("购买蓝装操作结束");
 };
-
-module.exports = { BeginnerFlow, BuyBlueEquipment };
+const GoOnTask = () =>
+{
+    switch (game_config.ui.gameMode)
+    {
+        case "mainStory":
+            MainStory();
+            break;
+        case "instance":
+            EnterInstanceZones();
+            break;
+        case "delegate":
+            CheckDelegate();
+        default:
+            break;
+    }
+};
+module.exports = { BeginnerFlow, BuyBlueEquipment, GoOnTask };
 
 

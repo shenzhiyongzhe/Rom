@@ -60,6 +60,10 @@ const UpdateScript = function ()
     });
 };
 
+const GetConfigFile = () =>
+{
+
+};
 const UpdateGame = function ()
 {
     // threads.start(function ()
@@ -131,6 +135,18 @@ const UI = () =>
         {
             toastLog("更新数据成功");
         });
+        const config = files.read("/sdcard/Rom/game_config.json");
+        const logFile = files.read("/sdcard/Rom/rom-log.txt");
+        ui.web.jsBridge.callHandler("getConfigFile", config, (data) =>
+        {
+            toastLog("获取配置成功");
+        }
+        );
+        ui.web.jsBridge.callHandler("getLogFile", logFile, (data) =>
+        {
+            toastLog("获取日志成功");
+        }
+        );
         ui.run(function ()
         {
             floaty_window.settlement.setText(`${game_config.player.trade == undefined ? 0 : game_config.player.trade.settlement}`);

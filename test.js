@@ -1,24 +1,52 @@
-// "ui";
-const { baseUrl } = require("./Color.js");
-const { Sleep, ReadImg, RandomPress, NumberRecognition, GetCurrentDate } = require("./Utils.js");
 
-// "nodejs";
-// class Test
+const { Sleep, ReadImg, RandomPress, GetNumber, GetCurrentDate, FindMultiColors, FindGreenBtn, FindCheckMark, RandomSwipe, FindTipPoint } = require("./Utils.js");
+
+
+const NumberPool = { "amount": [], "equipmentPower": [] };
+
+const RecycleImg = (second) =>
+{
+    setTimeout(() =>
+    {
+        for (let key in NumberPool)
+        {
+            NumberPool[key].forEach(arr => arr.forEach(img => img.recycle()));
+            NumberPool[key] = [];
+        }
+        console.log("RecycleImg");
+    }, second);
+};
+
+const PoolTest = () =>
+{
+    const regionList = [
+        [1120, 176, 70, 44],
+        [1124, 245, 70, 41],
+        [1128, 316, 63, 33],
+        [1131, 375, 63, 45],
+        [1124, 449, 74, 34],
+        [1127, 513, 66, 37],
+        [1131, 580, 67, 34]
+    ];
+    for (let i = 0; i < regionList.length; i++)
+    {
+        let region = regionList[i];
+        console.log(GetNumber("amount", region));
+    }
+};
+
+// console.time("getNumber");
+// PoolTest();
+// console.timeEnd("getNumber");
+// console.log(GetNumber("amount", [1062, 293, 22, 25]));
+// for (let i = 0; i < 4; i++)
 // {
-//     constructor()
+//     RandomSwipe([93, 508, 294, 60], [90, 144, 295, 77]);
+//     let hasReachedBottom = GetNumber("amount", [368, 472, 28, 28]);
+//     if (hasReachedBottom == 0)
 //     {
-//         this.test = 1;
-//     }
-//     test()
-//     {
-//         console.log("test");
+//         console.log("hasReachedBottom");
+//         break;
 //     }
 // }
-// const a = new Test();
-// a.test();
-// let a;
-// for (let i = 0; i < 5; i++)
-// {
-//     a = i;
-//     console.log(a);
-// }
+console.log(GetNumber("amount", [1166, 507, 35, 27]));

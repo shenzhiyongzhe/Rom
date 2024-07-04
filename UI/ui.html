@@ -11,221 +11,229 @@
 
 <body>
   <div id="appbar">Rom</div>
-  <div class="info-box">
-    <div class="avatar"></div>
-    <div class="info">
-      <div class="character-level">
-        <div>角色等级：<span>57</span></div>
-        <div>总钻石：<span id="total">00</span></div>
-      </div>
-      <div class="account">
-        <input type="text" placeholder="账号" />
-        <input type="text" placeholder="密码" />
-        <!-- <input type="text" placeholder="辅助邮箱" /> -->
-      </div>
-    </div>
+  <div id="container">
+    <div class="page">
+      <div class="info-box">
+        <div class="avatar"></div>
+        <div class="info">
+          <div class="character-level">
+            <div>角色等级：<span>57</span></div>
+            <div>总钻石：<span id="total">00</span></div>
+          </div>
+          <div class="account">
+            <input type="text" placeholder="账号" />
+            <input type="text" placeholder="密码" />
+            <!-- <input type="text" placeholder="辅助邮箱" /> -->
+          </div>
+        </div>
 
-  </div>
-  <div class="card-box neumorphism" style="width: 100%;">
-    <label class="cyberpunk-checkbox-label"><input type="checkbox" class="cyberpunk-checkbox"
-        name="isBeginner" />创建角色</label>
-    <label class="cyberpunk-checkbox-label"><input type="checkbox" class="cyberpunk-checkbox"
-        name="isRandomServer" />选区</label>
+      </div>
+      <div class="card-box neumorphism" style="width: 100%;">
+        <label class="cyberpunk-checkbox-label"><input type="checkbox" class="cyberpunk-checkbox"
+            name="isBeginner" />创建角色</label>
+        <label class="cyberpunk-checkbox-label"><input type="checkbox" class="cyberpunk-checkbox"
+            name="isRandomServer" />选区</label>
 
-    <label class="cyberpunk-checkbox-label"><input type="radio" class="cyberpunk-radio" name="gameMode"
-        value="mainStory" />推主线</label>
-    <label class="cyberpunk-checkbox-label"><input type="radio" class="cyberpunk-radio" name="gameMode"
-        value="instance" />挂副本</label>
-  </div>
-  <div class="card-box select-menu neumorphism">
-    <div class="select" style="width: 100%;">
-      <span>普通副本：</span>
-      <div class="arrow-box">
-        <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
-        <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+        <label class="cyberpunk-checkbox-label"><input type="radio" class="cyberpunk-radio" name="gameMode"
+            value="mainStory" />推主线</label>
+        <label class="cyberpunk-checkbox-label"><input type="radio" class="cyberpunk-radio" name="gameMode"
+            value="instance" />挂副本</label>
       </div>
-    </div>
-    <div class="option-list">
-      <div class="option flex">
-        <label class="cyberpunk-checkbox-label"><input type="checkbox" class="cyberpunk-checkbox" />远古迷宫</label>
-        <div class="second-select-menu">
-          <div class="second-select">等级</div>
-          <div class="second-option-list ">
-            <div class="second-option">1级</div>
-            <div class="second-option">44级</div>
-            <div class="second-option">62级</div>
+      <div class="card-box select-menu neumorphism">
+        <div class="select" style="width: 100%;">
+          <span>普通副本：</span>
+          <div class="arrow-box">
+            <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
+            <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+          </div>
+        </div>
+        <div class="option-list">
+          <div class="option flex">
+            <label class="cyberpunk-checkbox-label"><input type="checkbox" class="cyberpunk-checkbox" />远古迷宫</label>
+            <div class="second-select-menu">
+              <div class="second-select">等级</div>
+              <div class="second-option-list ">
+                <div class="second-option">1级</div>
+                <div class="second-option">44级</div>
+                <div class="second-option">62级</div>
+              </div>
+            </div>
+          </div>
+          <div class="option flex">
+            <label><input type="checkbox" />地下墓穴</label>
+            <div class="second-select-menu">
+              <div class="second-select">等级</div>
+              <div class="second-option-list">
+                <div class="second-option">28级</div>
+                <div class="second-option">47级</div>
+                <div class="second-option">62级</div>
+              </div>
+            </div>
+          </div>
+          <div class="option flex">
+            <label><input type="checkbox" />迪贝格</label>
+            <div class="second-select-menu">
+              <div class="second-select">等级</div>
+              <div class="second-option-list">
+                <div class="second-option">50级</div>
+                <div class="second-option">67级</div>
+                <div class="second-option">75级</div>
+              </div>
+            </div>
+          </div>
+          <div class="option flex">
+            <label><input type="checkbox" />沙漠洞穴</label>
+            <div class="second-select-menu">
+              <div class="second-select">等级</div>
+              <div class="second-option-list">
+                <div class="second-option">67级</div>
+                <div class="second-option">79级</div>
+              </div>
+            </div>
+          </div>
+          <div class="option flex">
+            <label><input type="checkbox" />地下神殿</label>
+            <div class="second-select-menu">
+              <div class="second-select">等级</div>
+              <div class="second-option-list">
+                <div class="second-option">70级</div>
+                <div class="second-option">72级</div>
+                <div class="second-option">75级</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="option flex">
-        <label><input type="checkbox" />地下墓穴</label>
-        <div class="second-select-menu">
-          <div class="second-select">等级</div>
-          <div class="second-option-list">
-            <div class="second-option">28级</div>
-            <div class="second-option">47级</div>
-            <div class="second-option">62级</div>
+      <div class="card-box select-menu neumorphism">
+        <div class="select" style="width: 100%;">
+          <span>特殊副本：</span>
+          <div class="arrow-box">
+            <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
+            <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+          </div>
+        </div>
+        <div class="option-list">
+          <div class="option flex">
+            <label><input type="checkbox" /><span>精灵矿山</span></label>
+            <div class="second-select-menu">
+              <div class="second-select">60级解锁</div>
+              <div class="second-option-list">
+                <div class="second-option">67级</div>
+                <div class="second-option">79级</div>
+              </div>
+            </div>
+          </div>
+          <div class="option flex">
+            <label><input type="checkbox" /><span>幻影遗迹</span></label>
+            <div class="second-select-menu">
+              <div class="second-select">等级</div>
+              <div class="second-option-list">
+                <div class="second-option">30级</div>
+                <div class="second-option">40级</div>
+                <div class="second-option">50级</div>
+              </div>
+            </div>
+          </div>
+          <div class="option flex">
+            <label><input type="checkbox" /><span>时间迷宫</span></label>
+            <div class="second-select-menu">
+              <div class="second-select">等级</div>
+              <div class="second-option-list">
+                <div class="second-option">30级</div>
+                <div class="second-option">40级</div>
+                <div class="second-option">50级</div>
+              </div>
+            </div>
+          </div>
+          <div class="option flex">
+            <label><input type="checkbox" /><span>寒冰神殿</span></label>
+            <div class="second-select-menu">
+              <div class="second-select">等级</div>
+              <div class="second-option-list">
+                <div class="second-option">30级</div>
+                <div class="second-option">40级</div>
+                <div class="second-option">50级</div>
+              </div>
+            </div>
+          </div>
+          <div class="option flex">
+            <label><input type="checkbox" /><span>混沌城堡</span></label>
+            <div class="second-select-menu">
+              <div class="second-select">等级</div>
+              <div class="second-option-list">
+                <div class="second-option">30级</div>
+                <div class="second-option">40级</div>
+                <div class="second-option">50级</div>
+              </div>
+            </div>
+          </div>
+          <div class="option flex">
+            <label><input type="checkbox" /><span>精灵城堡</span></label>
+            <div class="second-select-menu">
+              <div class="second-select">无等级选项</div>
+              <div class="second-option-list">
+                <div class="second-option">67级</div>
+                <div class="second-option">79级</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="option flex">
-        <label><input type="checkbox" />迪贝格</label>
-        <div class="second-select-menu">
-          <div class="second-select">等级</div>
-          <div class="second-option-list">
-            <div class="second-option">50级</div>
-            <div class="second-option">67级</div>
-            <div class="second-option">75级</div>
-          </div>
-        </div>
-      </div>
-      <div class="option flex">
-        <label><input type="checkbox" />沙漠洞穴</label>
-        <div class="second-select-menu">
-          <div class="second-select">等级</div>
-          <div class="second-option-list">
-            <div class="second-option">67级</div>
-            <div class="second-option">79级</div>
-          </div>
-        </div>
-      </div>
-      <div class="option flex">
-        <label><input type="checkbox" />地下神殿</label>
-        <div class="second-select-menu">
-          <div class="second-select">等级</div>
-          <div class="second-option-list">
-            <div class="second-option">70级</div>
-            <div class="second-option">72级</div>
-            <div class="second-option">75级</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="card-box select-menu neumorphism">
-    <div class="select" style="width: 100%;">
-      <span>特殊副本：</span>
-      <div class="arrow-box">
-        <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
-        <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
-      </div>
-    </div>
-    <div class="option-list">
-      <div class="option flex">
-        <label><input type="checkbox" /><span>精灵矿山</span></label>
-        <div class="second-select-menu">
-          <div class="second-select">60级解锁</div>
-          <div class="second-option-list">
-            <div class="second-option">67级</div>
-            <div class="second-option">79级</div>
-          </div>
-        </div>
-      </div>
-      <div class="option flex">
-        <label><input type="checkbox" /><span>幻影遗迹</span></label>
-        <div class="second-select-menu">
-          <div class="second-select">等级</div>
-          <div class="second-option-list">
-            <div class="second-option">30级</div>
-            <div class="second-option">40级</div>
-            <div class="second-option">50级</div>
-          </div>
-        </div>
-      </div>
-      <div class="option flex">
-        <label><input type="checkbox" /><span>时间迷宫</span></label>
-        <div class="second-select-menu">
-          <div class="second-select">等级</div>
-          <div class="second-option-list">
-            <div class="second-option">30级</div>
-            <div class="second-option">40级</div>
-            <div class="second-option">50级</div>
-          </div>
-        </div>
-      </div>
-      <div class="option flex">
-        <label><input type="checkbox" /><span>寒冰神殿</span></label>
-        <div class="second-select-menu">
-          <div class="second-select">等级</div>
-          <div class="second-option-list">
-            <div class="second-option">30级</div>
-            <div class="second-option">40级</div>
-            <div class="second-option">50级</div>
-          </div>
-        </div>
-      </div>
-      <div class="option flex">
-        <label><input type="checkbox" /><span>混沌城堡</span></label>
-        <div class="second-select-menu">
-          <div class="second-select">等级</div>
-          <div class="second-option-list">
-            <div class="second-option">30级</div>
-            <div class="second-option">40级</div>
-            <div class="second-option">50级</div>
-          </div>
-        </div>
-      </div>
-      <div class="option flex">
-        <label><input type="checkbox" /><span>精灵城堡</span></label>
-        <div class="second-select-menu">
-          <div class="second-select">无等级选项</div>
-          <div class="second-option-list">
-            <div class="second-option">67级</div>
-            <div class="second-option">79级</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class=" card-box select-menu neumorphism">
-    <div class="select" style="width: 100%;">
-      <span>野外地图</span>
-      <div class="arrow-box">
-        <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
-        <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+      <div class=" card-box select-menu neumorphism">
+        <div class="select" style="width: 100%;">
+          <span>野外地图</span>
+          <div class="arrow-box">
+            <img class="arrow" src="../img/svg/down_arrow.svg" alt="选择" />
+            <img class="arrow arrow-hidden" src="../img/svg/up_arrow.svg" alt="选择" />
+          </div>
+        </div>
+        <div class="option-list" style="overflow-y: auto;">
+          <div class="option"><label><input type="checkbox" /><span>06</span>林斯特</label></div>
+          <div class="option"><label><input type="checkbox" /><span>07</span>地下墓穴B1</label></div>
+          <div class="option"><label><input type="checkbox" /><span>08</span>火之平原</label></div>
+          <div class="option"><label><input type="checkbox" /><span>09</span>塞巴绿洲</label></div>
+          <div class="option"><label><input type="checkbox" /><span>10</span>鳄鱼森林</label></div>
+          <div class="option"><label><input type="checkbox" /><span>11</span>林波特</label></div>
+          <div class="option"><label><input type="checkbox" /><span>12</span>迷雾之谷</label></div>
+          <div class="option"><label><input type="checkbox" /><span>13</span>远古迷宫B2</label></div>
+          <div class="option"><label><input type="checkbox" /><span>14</span>凯伦火山</label></div>
+          <div class="option"><label><input type="checkbox" /><span>15</span>地下墓穴B2</label></div>
+          <div class="option"><label><input type="checkbox" /><span>16</span>迪贝格</label></div>
+          <div class="option"><label><input type="checkbox" /><span>17</span>克雷默湖</label></div>
+          <div class="option"><label><input type="checkbox" /><span>18</span>雷恩湾</label></div>
+          <div class="option"><label><input type="checkbox" /><span>19</span>阿卡玛盐漠</label></div>
+          <div class="option"><label><input type="checkbox" /><span>20</span>远古迷宫B3</label></div>
+          <div class="option"><label><input type="checkbox" /><span>21</span>寒冰港口</label></div>
+          <div class="option"><label><input type="checkbox" /><span>22</span>地下墓穴B3</label></div>
+          <div class="option"><label><input type="checkbox" /><span>23</span>塞巴废墟</label></div>
+          <div class="option"><label><input type="checkbox" /><span>24</span>沙漠洞穴B1</label></div>
+          <div class="option"><label><input type="checkbox" /><span>25</span>迪贝格B1</label></div>
+          <div class="option"><label><input type="checkbox" /><span>26</span>无尽森林</label></div>
+          <div class="option"><label><input type="checkbox" /><span>27</span>埃斯克尔</label></div>
+          <div class="option"><label><input type="checkbox" /><span>28</span>利贝尔遗迹</label></div>
+          <div class="option"><label><input type="checkbox" /><span>29</span>地下神殿</label></div>
+          <div class="option"><label><input type="checkbox" /><span>30</span>迪贝格B2</label></div>
+        </div>
+      </div>
+      <div class="temp">
+        <button id="startScript" class="neumorphism">Start</button>
+        <button id="updateScript" class="neumorphism">更新脚本</button>
+        <div id="version">版本：<span style="color: rgb(150, 112, 8);">2024/7/4 11:00</span></div>
       </div>
     </div>
-    <div class="option-list" style="overflow-y: auto;">
-      <div class="option"><label><input type="checkbox" /><span>06</span>林斯特</label></div>
-      <div class="option"><label><input type="checkbox" /><span>07</span>地下墓穴B1</label></div>
-      <div class="option"><label><input type="checkbox" /><span>08</span>火之平原</label></div>
-      <div class="option"><label><input type="checkbox" /><span>09</span>塞巴绿洲</label></div>
-      <div class="option"><label><input type="checkbox" /><span>10</span>鳄鱼森林</label></div>
-      <div class="option"><label><input type="checkbox" /><span>11</span>林波特</label></div>
-      <div class="option"><label><input type="checkbox" /><span>12</span>迷雾之谷</label></div>
-      <div class="option"><label><input type="checkbox" /><span>13</span>远古迷宫B2</label></div>
-      <div class="option"><label><input type="checkbox" /><span>14</span>凯伦火山</label></div>
-      <div class="option"><label><input type="checkbox" /><span>15</span>地下墓穴B2</label></div>
-      <div class="option"><label><input type="checkbox" /><span>16</span>迪贝格</label></div>
-      <div class="option"><label><input type="checkbox" /><span>17</span>克雷默湖</label></div>
-      <div class="option"><label><input type="checkbox" /><span>18</span>雷恩湾</label></div>
-      <div class="option"><label><input type="checkbox" /><span>19</span>阿卡玛盐漠</label></div>
-      <div class="option"><label><input type="checkbox" /><span>20</span>远古迷宫B3</label></div>
-      <div class="option"><label><input type="checkbox" /><span>21</span>寒冰港口</label></div>
-      <div class="option"><label><input type="checkbox" /><span>22</span>地下墓穴B3</label></div>
-      <div class="option"><label><input type="checkbox" /><span>23</span>塞巴废墟</label></div>
-      <div class="option"><label><input type="checkbox" /><span>24</span>沙漠洞穴B1</label></div>
-      <div class="option"><label><input type="checkbox" /><span>25</span>迪贝格B1</label></div>
-      <div class="option"><label><input type="checkbox" /><span>26</span>无尽森林</label></div>
-      <div class="option"><label><input type="checkbox" /><span>27</span>埃斯克尔</label></div>
-      <div class="option"><label><input type="checkbox" /><span>28</span>利贝尔遗迹</label></div>
-      <div class="option"><label><input type="checkbox" /><span>29</span>地下神殿</label></div>
-      <div class="option"><label><input type="checkbox" /><span>30</span>迪贝格B2</label></div>
+    <div class="page">
+      <h1>配置</h1>
+    </div>
+    <div class="page">
+      <h1>日志</h1>
     </div>
   </div>
-  <div class="temp">
-    <button id="startScript" class="neumorphism">Start</button>
-    <button id="updateScript" class="neumorphism">更新脚本</button>
-
-    <div id="version">版本：<span style="color: rgb(236, 214, 116);">2024/6/26 17:45</span></div>
-    <!-- <button id="updateGame" class="neumorphism">更新游戏包</button> -->
-  </div>
-  <div class="tab-bar">
-    <div class="tab-item active" data-tab="tab1">首页</div>
-    <div class="tab-item" data-tab="tab2">统计</div>
-    <div class="tab-item" data-tab="tab3">日志</div>
-  </div>
+  <footer class="footer">
+    <div class="tab" id="tab1">首页</div>
+    <div class="tab" id="tab2">配置</div>
+    <div class="tab" id="tab3">日志</div>
+  </footer>
   <script src="./ui.js"></script>
 </body>
 

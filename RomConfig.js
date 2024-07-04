@@ -37,6 +37,7 @@ let game_config = {
         "propLogin": false,
         "storeMax": false,
         "autoGrocery": false,
+        "date": 0
     }
 };
 const jsonFile = "/sdcard/Rom/game_config.json";
@@ -73,7 +74,7 @@ function RWFile(type, obj)
     }
 }
 game_config = RWFile();
-game_config.setting.time = GetLocalTime();
+
 
 
 function GetLocalTime()
@@ -85,10 +86,6 @@ function GetLocalTime()
     let minutes = date.getMinutes();
     return `${month}月${day}日${hours}:${minutes}`;
 };
-// setInterval(() =>
-// {
-//     game_config.setting.time = GetLocalTime();
-// }, 1000);
 
 log("Global.js 加载完成");
 module.exports = {

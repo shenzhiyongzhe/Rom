@@ -1,9 +1,11 @@
-const { ReadImg, RandomPress, Sleep, GetColorInMultiple, NumberRecognition, SaveShot, GoBack, OpenMenu } = require("./Utils");
+const { ReadImg, RandomPress, Sleep, FindMultiColors, GetNumber, SaveShot, GoBack, OpenMenu, IsHaltMode, ExitHaltMode } = require("./Utils");
 const { ReturnHome, OpenBackpack, CloseBackpack } = require("./BackPack");
 const { Daily } = require("./Daily");
 const { AbilityPointsFlow } = require("./Common");
 const { GreenBtn, DeepGreenBtn } = require("./Color");
 const { GroceryFlow } = require("./Death");
+
+
 
 const WorldMap = {
     "06": "림스트", //林斯特
@@ -76,11 +78,6 @@ const AutoBattleCheck = (shot) =>
         RandomPress([1161, 549, 35, 29]);
         console.log("auto battle");
     }
-    else
-    {
-        console.log("had already auto battle");
-    }
-
 };
 const NoMoneyEnterInstanceCheck = (level) =>
 {
@@ -89,8 +86,8 @@ const NoMoneyEnterInstanceCheck = (level) =>
         [693, 289, 105, 42],
         [700, 356, 90, 37],
     ];
-    let money = NumberRecognition("amount", [628, 5, 110, 30]);
-    let enterFare = NumberRecognition("amount", levelArr[level]);
+    let money = GetNumber("amount", [628, 5, 110, 30]);
+    let enterFare = GetNumber("amount", levelArr[level]);
     if (money < enterFare)
     {
         SaveShot();
@@ -102,6 +99,7 @@ const NoMoneyEnterInstanceCheck = (level) =>
 
 const EnemyNumberCheck = () =>
 {
+    console.log("EnemyNumberCheck...");
     let enemyNumber = 0;
     const EnemyColor = [
 
@@ -120,14 +118,14 @@ const EnemyNumberCheck = () =>
     {
         for (let j = 0; j < 2; j++)
         {
-            let hasEnemy = GetColorInMultiple(shot, EnemyColor, [924 + j * 160, 69 + i * 53, 51, 62]);
+            let hasEnemy = FindMultiColors(EnemyColor, [924 + j * 160, 69 + i * 53, 51, 62]);
             if (hasEnemy)
             {
                 enemyNumber++;
-                console.log(hasEnemy);
             }
         }
     }
+    console.log("enemyNumber: " + enemyNumber);
     return enemyNumber;
 };
 const UseRandomTransformScroll = () =>
@@ -188,14 +186,14 @@ const GoWild = (number) =>
         const needCollected = images.findMultiColors(shot, "#d2a858", [[-4, 4, "#d0ac57"], [-4, 11, "#cba653"], [3, 10, "#c5a24f"]], { region: [958, 78, 54, 64] });
         if (!needCollected) RandomPress([977, 100, 20, 21]);
     };
-    const NoNeedTransformCheck = () => GetColorInMultiple(captureScreen(), DeepGreenBtn, [943, 641, 243, 60]);
+    const NoNeedTransformCheck = () => FindMultiColors(DeepGreenBtn, [943, 641, 243, 60]);
     const AlreadThereCheck = (img) =>
     {
         const positionIcon = [
             ["#a54d0c", [[-1, 1, "#db9864"], [-3, 2, "#e8ac7f"], [-2, 5, "#a84500"], [-1, 7, "#ba4900"], [0, 9, "#832501"], [1, 4, "#a74800"]]]
         ];
         const shot = captureScreen();
-        const theIcon = GetColorInMultiple(shot, positionIcon, [76, 119, 90, 579]);
+        const theIcon = FindMultiColors(positionIcon, [76, 119, 90, 579]);
         if (theIcon)
         {
             const isThere = images.findImage(shot, img, { region: [theIcon.x, theIcon.y - 10, 60, 40] });
@@ -212,8 +210,8 @@ const GoWild = (number) =>
     };
     const NoMoneyGoWildCheck = () =>
     {
-        const curMoney = NumberRecognition("amount", [730, 345, 112, 40]);
-        const transformCost = NumberRecognition("amount", [943, 641, 243, 60]);
+        const curMoney = GetNumber("amount", [730, 345, 112, 40]);
+        const transformCost = GetNumber("amount", [943, 641, 243, 60]);
         if (curMoney < transformCost)
         {
             console.log("no money to go wild");
@@ -295,6 +293,12 @@ const GoWild = (number) =>
 };
 const EnterInstanceZones = () =>
 {
+    console.log("enter instance zones...");
+    const isHaltMode = IsHaltMode();
+    if (isHaltMode)
+    {
+        ExitHaltMode();
+    }
     Daily();
     Sleep();
     const instanceQueue = GetInstanceQueue();
@@ -398,4 +402,3 @@ module.exports = {
     AutoBattleCheck,
     EnterInstanceZones
 };
-// CrowedCheck();

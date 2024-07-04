@@ -1,10 +1,10 @@
-const { Sleep, RandomPress, GoBack, PressBlank, OpenMenu, NumberRecognition, RandomSwipe, TipPointCheck, RandomHollow, GetColorInMultiple, ReadImg } = require("./Utils.js");
+const { Sleep, RandomPress, GoBack, PressBlank, OpenMenu, GetNumber, RandomSwipe, FindTipPoint, RandomHollow, FindMultiColors, ReadImg, FindGreenBtn, FindGrayBtn, SwipToBottom, HasPageBack } = require("./Utils.js");
 const { OpenAllEquipmentBox, OpenAllProps, StrengthenPlayerEquipment, } = require("./BackPack.js");
-const { ForgeMaterial } = require("./Manufacture.js");
+const { ForgeMaterial, MakeComsumables } = require("./Manufacture.js");
 const { game_config, RWFile } = require("./RomConfig.js");
-const { GreenBtn } = require("./Color.js");
 
-const MenuTipPointCheck = () => TipPointCheck([1242, 2, 22, 25]);
+
+const MenuTipPointCheck = () => FindTipPoint([1242, 2, 22, 25]);
 
 const overMaxNumber = () =>
 {
@@ -22,7 +22,7 @@ const overMaxNumber = () =>
 const GetSignIn = function ()
 {
     OpenMenu();
-    const canSignIn = TipPointCheck([977, 536, 21, 27]);
+    const canSignIn = FindTipPoint([977, 536, 21, 27]);
     if (!canSignIn) return;
     RandomPress([961, 555, 26, 30]);
     Sleep(2000, 4000);
@@ -31,7 +31,7 @@ const GetSignIn = function ()
     for (let i = 0; i < 4; i++)
     {
         Sleep();
-        let hasTipPoint = TipPointCheck([142 + 166 * i, 77, 55, 28]);
+        let hasTipPoint = FindTipPoint([142 + 166 * i, 77, 55, 28]);
         isCurPage = images.findMultiColors(captureScreen(), "#c38e4d", [[13, 0, "#d29950"], [20, 0, "#d49a50"], [30, 0, "#d59a4f"]], { region: [40 + 162 * i, 120, 140, 15] });
         if (hasTipPoint)
         {
@@ -55,7 +55,7 @@ const GetSignIn = function ()
 const GetEmail = function ()
 {
     OpenMenu();
-    const hasEmail = TipPointCheck([1045, 536, 21, 25]);
+    const hasEmail = FindTipPoint([1045, 536, 21, 25]);
     if (!hasEmail) return false;
 
     console.log("get email");
@@ -66,7 +66,7 @@ const GetEmail = function ()
     for (let i = 0; i < 4; i++)
     {
         Sleep();
-        hasTipPoint = TipPointCheck([100 + 125 * i, 80, 100, 40]);
+        hasTipPoint = FindTipPoint([100 + 125 * i, 80, 100, 40]);
         isCurPage = images.findMultiColors(captureScreen(), "#cb9f63", [[4, 0, "#d0a262"], [10, 0, "#d8a867"], [21, 0, "#dca966"]], { region: [30 + 125 * i, 115, 140, 15] });
         if (hasTipPoint)
         {
@@ -80,7 +80,7 @@ const GetEmail = function ()
             if (canGetAward)
             {
                 RandomPress([1078, 659, 154, 33]);
-                Sleep(4000, 6000);
+                Sleep(8000, 12000);
                 let isOverMax = overMaxNumber();
                 if (isOverMax == false) PressBlank();
             }
@@ -91,7 +91,6 @@ const GetEmail = function ()
     GoBack();
     console.log("get email end");
 };
-
 
 const GetDuty = function ()
 {
@@ -175,16 +174,16 @@ const GetDuty = function ()
 };
 const BulkBuy = function ()
 {
-    console.log("bulk buy");
+    console.log("开始每日购买");
     const pressMaxScroll = () =>
     {
-        if (NumberRecognition("amount", [879, 265, 38, 39]) != 5)
+        if (GetNumber("amount", [879, 265, 38, 39]) != 5)
         {
             RandomPress([1031, 271, 20, 23]);
             RandomPress([652, 440, 40, 40]); //max 
             RandomPress([658, 511, 94, 26]); // confirm
         }
-        if (NumberRecognition("amount", [881, 337, 38, 40]) != 5)
+        if (GetNumber("amount", [881, 337, 38, 40]) != 5)
         {
             RandomPress([1030, 343, 21, 22]);
             RandomPress([652, 440, 40, 40]); //max 
@@ -194,7 +193,7 @@ const BulkBuy = function ()
     };
     RandomPress([961, 21, 22, 26]); //shop icon
     Sleep(6000, 12000);
-    const totalMoney = NumberRecognition("amount", [590, 3, 121, 35]);
+    const totalMoney = GetNumber("amount", [590, 3, 121, 35]);
     if (totalMoney < 700000)
     {
         console.log("当前金币为：" + totalMoney + " not enough money to buy anything");
@@ -223,7 +222,7 @@ const BulkBuy = function ()
     Sleep(2000, 4000);
     for (let i = 0; i < 3; i++)
     {
-        let isBottom = NumberRecognition("amount", [704, 486, 71, 33]) == 193110;
+        let isBottom = GetNumber("amount", [704, 486, 71, 33]) == 222010;
         if (!isBottom)
         {
             RandomSwipe([277, 444, 795, 64], [271, 194, 802, 65]);
@@ -278,14 +277,44 @@ const BulkBuy = function ()
     }
     console.log("bulk buy finished");
     Sleep();
+    const hasGrayBtn = FindGrayBtn([421, 561, 202, 58]);
+    if (hasGrayBtn)
+    {
+        RandomPress([445, 576, 159, 26]);
+        Sleep();
+    }
     GoBack();
+    Sleep();
     return true;
 };
 
+const EnterDelegatePage = () =>
+{
+    const missionIcon = images.findMultiColors(captureScreen(), "#776f53", [[-5, 4, "#887559"], [-8, 11, "#5b221b"], [-13, 14, "#a3966e"], [-19, 16, "#c0b293"], [-21, 18, "#bdae89"]]);
+    if (!missionIcon) return false;
+    RandomPress([1155, 18, 30, 32]);
+    Sleep(4000, 6000);
+    RandomPress([419, 97, 66, 28]);
+    Sleep(2000, 4000);
+    return true;
+};
+
+const MarkCheck = (region) =>
+{
+    const checkedColor = [
+        ["#0e0c0c", [[4, -2, "#f6d07d"], [6, 0, "#cca75d"], [10, -3, "#c9a760"], [14, -6, "#cca864"]]],
+        ["#d4a960", [[2, 1, "#d8b267"], [5, 0, "#9c8442"], [7, -2, "#a37d47"], [10, -5, "#c39c5d"]]],
+        ["#d2a765", [[2, 2, "#cfa75b"], [5, -1, "#e9ca82"], [7, -3, "#d5bb73"], [10, -5, "#deb868"]]],
+        ["#c39c63", [[3, 2, "#d1a960"], [7, 0, "#977944"], [9, -3, "#daba70"], [10, -57, "#cfb069"]]],
+        ["#d9b166", [[1, 2, "#d8a95a"], [3, 3, "#cea85c"], [7, 0, "#aa884a"], [9, -2, "#dcb26d"]]]
+    ];
+    return FindMultiColors(checkedColor, region);
+};
 const GetDelegate = () =>
 {
-    // const missionIcon = images.findMultiColors(captureScreen(), "#776f53", [[-5, 4, "#887559"], [-8, 11, "#5b221b"], [-13, 14, "#a3966e"], [-19, 16, "#c0b293"], [-21, 18, "#bdae89"]]);
-    // if (!missionIcon) return false;
+    console.log("GetDelegate...");
+    const hasEntered = EnterDelegatePage();
+    if (!hasEntered) return;
 
     const purpleColorList = [
         ["#7c4e96", [[6, 1, "#905dae"], [10, 0, "#82549d"], [15, 1, "#8f5da5"]]],
@@ -293,27 +322,181 @@ const GetDelegate = () =>
         ["#8c57ad", [[6, -1, "#80519a"], [11, 0, "#8858a4"], [13, 3, "#905cae"], [20, 1, "#9461ab"]]],
         ["#7b4e97", [[6, 0, "#83569e"], [12, 2, "#955fb4"], [19, 0, "#7d5190"]]]
     ];
-    const checkedColor = [
-        ["#0e0c0c", [[4, -2, "#f6d07d"], [6, 0, "#cca75d"], [10, -3, "#c9a760"], [14, -6, "#cca864"]]],
+    const PurpleDelegateCheck = () => FindMultiColors(purpleColorList, [18, 140, 39, 40]);
+    const hasMarked = MarkCheck([249, 571, 35, 41]);
 
-    ];
-    const PurpleDelegateCheck = () => GetColorInMultiple(captureScreen(), purpleColorList, [18, 140, 39, 40]);
-
-    // RandomPress([1155, 18, 30, 32]);
-    // Sleep(4000, 6000);
-    // RandomPress([419, 97, 66, 28]);
-    // Sleep(2000, 4000);
-
-    let delegateCount = 0;
-    for (let i = 0; i < 5; i++)
+    if (!hasMarked)
     {
+        RandomPress([258, 581, 58, 20]);
+    }
+    let delegateCount = 0;
+    for (let i = 0; i < 20; i++)
+    {
+        if (delegateCount == 5) break;
+        let isClickable = FindGreenBtn([1063, 652, 203, 59]);
+        if (!isClickable) break;
+
         let isPurpleDelegate = PurpleDelegateCheck();
+
         if (isPurpleDelegate)
         {
+            RandomPress([1080, 666, 170, 30]);
+            Sleep(8000, 12000);
+            delegateCount++;
+        }
+        else
+        {
+            RandomPress([115, 668, 164, 30]);
+            let hasPopup = FindGreenBtn([657, 430, 183, 51]);
+            if (hasPopup)
+            {
+                RandomPress([672, 443, 154, 27]);
+            }
+        }
+        Sleep();
+    }
+    GoBack();
+    console.log("get delegate : " + delegateCount);
+    if (delegateCount > 0)
+    {
+        game_config.ui.gameMode = "delegate";
+        console.log("get delegate:" + game_config.ui.gameMode);
+    }
+};
 
+const StartDelegate = () =>
+{
+    console.log("start delegate...");
+    const greenCircleColorList = [
+        ["#76624e", [[25, 1, "#685a49"], [5, 0, "#556b13"], [19, 1, "#688612"], [13, 7, "#67821a"], [13, -6, "#85b013"], [12, 0, "#222222"], [8, -4, "#6c9009"]]],
+        ["#735f4b", [[26, 1, "#695746"], [13, 7, "#617c16"], [13, -6, "#6c9015"], [7, 0, "#6b870f"], [20, 0, "#6c8c11"], [14, 0, "#222222"], [17, -5, "#85a801"]]],
+        ["#78634e", [[23, 0, "#2d2925"], [5, 0, "#556b13"], [19, -1, "#6f9212"], [11, -7, "#7db60d"], [9, 6, "#61820d"], [15, -5, "#80ae0a"], [12, 0, "#222222"]]]
+    ];
+    const hasEntered = HasPageBack();
+    if (!hasEntered)
+    {
+        EnterDelegatePage();
+    }
+    SwipToBottom([71, 462, 66, 22], [59, 449, 90, 48], [23, 452, 405, 46], [28, 176, 402, 52]);
+    const shot = captureScreen();
+
+    for (let i = 0; i < 5; i++)
+    {
+        let hasOnGoing = FindMultiColors(greenCircleColorList, [393, 263 + i * 53, 36, 32]);
+        if (hasOnGoing)
+        {
+            RandomPress([61, 265 + i * 53, 321, 29]);
+            if (FindGreenBtn([1065, 652, 202, 58]))
+            {
+                RandomPress([1079, 665, 172, 32]);
+                break;
+            }
+            else break;
         }
     }
-    console.log(PurpleDelegateCheck());
+};
+const CheckDelegate = () =>
+{
+    console.log("检查委托......");
+    let isFinished = false;
+    EnterDelegatePage();
+    const canFinishedNum = GetNumber("amount", [393, 527, 23, 30]);
+    if (canFinishedNum == 0 || null)
+    {
+        console.log("今日委托已做完，切换模式为副本模式");
+        game_config.ui.gameMode = "instance";
+        isFinished = true;
+    }
+    else
+    {
+        console.log("今日委托未做完，切换模式为委托模式");
+        game_config.ui.gameMode = "delegate";
+    }
+    console.log("当前模式为： " + game_config.ui.gameMode);
+    for (let i = 0; i < 5; i++)
+    {
+        let canGetAward = FindGreenBtn([1058, 652, 210, 57]);
+        if (canGetAward)
+        {
+            RandomPress([1085, 668, 162, 27]);
+            Sleep(7000, 10000);
+        } else break;
+    }
+    Sleep();
+    if (!isFinished)
+    {
+        StartDelegate();
+        Sleep();
+    }
+
+    GoBack();
+    Sleep(2000, 4000);
+};
+const EnterPageCheck = () =>
+{
+    let isEntered = false;
+    const backIcon = ReadImg("icon/back");
+    for (let i = 0; i < 10; i++)
+    {
+        Sleep();
+        let hasEntered = images.findImage(captureScreen(), backIcon, { region: [1212, 5, 63, 58] });
+        if (hasEntered)
+        {
+            isEntered = true;
+        };
+    }
+    backIcon.recycle();
+    Sleep();
+    return isEntered;
+};
+const MergeIntoSlab = (type) =>
+{
+    console.log("开始融合石板： " + type);
+    OpenMenu();
+    if (type == "suit")
+    {
+        RandomPress([963, 122, 19, 24]);
+    }
+    else if (type == "guardian")
+    {
+        RandomPress([1028, 118, 25, 32]);
+    }
+
+    const hasEntered = EnterPageCheck();
+    if (!hasEntered) return;
+    RandomPress([168, 97, 75, 27]);
+    for (let i = 0; i < 10; i++)
+    {
+        let canAutoSelect = FindGreenBtn([936, 495, 157, 59]);
+        if (!canAutoSelect) break;
+        RandomPress([954, 509, 123, 29]);
+        let canMerge = FindGreenBtn([1105, 496, 151, 55]);
+        if (!canMerge) break;
+        RandomPress([1118, 508, 126, 31]);
+        Sleep();
+        let isMergePage = EnterPageCheck();
+        if (!isMergePage) break;
+        let hasJumpAnim = MarkCheck([1096, 638, 37, 32]);
+        if (!hasJumpAnim)
+        {
+            RandomPress([1104, 647, 87, 16]);
+        }
+        Sleep();
+        let hasOpenBtn = FindGreenBtn([525, 623, 232, 60]);
+        if (hasOpenBtn)
+        {
+            RandomPress([545, 634, 191, 35]);
+        }
+        Sleep();
+        let hasGrayBtn = FindGrayBtn([525, 623, 232, 60]);
+        if (hasGrayBtn)
+        {
+            RandomPress([545, 634, 191, 35]);
+        }
+    }
+    Sleep();
+    GoBack();
+    console.log("融合" + type + "完成");
 };
 const Daily = function ()
 {
@@ -325,14 +508,18 @@ const Daily = function ()
         GetSignIn();
         GetEmail();
     }
-
+    CheckDelegate();
     if (date != setting.date)
     {
         setting.date = date;
         console.log("今天" + date + "号");
         RWFile("setting", setting);
+        GetDelegate();
+        StartDelegate();
+        Sleep(10000, 15000);
         GetDuty();
         Sleep();
+        MakeComsumables();
         OpenAllEquipmentBox();
         Sleep();
         OpenAllProps();
@@ -345,11 +532,16 @@ const Daily = function ()
         Sleep();
         StrengthenPlayerEquipment("armor");
         Sleep();
+        MergeIntoSlab("suit");
+        Sleep();
+        MergeIntoSlab("guardian");
         // ForgeMaterial();
     }
 };
 
-// GetDelegate();
-// module.exports = { Daily };
-// console.log(GetColorInMultiple(captureScreen(), GreenBtn, [1056, 649, 213, 63]));
+module.exports = { CheckDelegate, Daily };
+
+
+
+
 

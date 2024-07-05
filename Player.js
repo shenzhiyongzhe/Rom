@@ -390,6 +390,7 @@ const BuyBlueEquipment = function ()
 };
 const GoOnTask = () =>
 {
+
     switch (game_config.ui.gameMode)
     {
         case "mainStory":
@@ -405,5 +406,6 @@ const GoOnTask = () =>
     }
 };
 module.exports = { BeginnerFlow, BuyBlueEquipment, GoOnTask };
+
 
 

@@ -1,4 +1,4 @@
-const { ReadImg, RandomPress, Sleep, FindMultiColors, FindGreenBtn, FindTipPoint, IsInCity, IsHaltMode, RandomSwipe, GetNumber, GoBack, CloseMenu, ExitHaltMode } = require("./Utils");
+const { ReadImg, RandomPress, Sleep, FindMultiColors, FindGreenBtn, FindTipPoint, IsInCity, IsHaltMode, RandomSwipe, GetNumber, GoBack, CloseMenu, ExitHaltMode, FindCheckMark, UseRandomTransformScroll } = require("./Utils");
 const { HasNoPotion, HasMainUI, CanPickExpOrEquipment } = require("./ExceptionCheck");
 const { PropsCollectionFlow } = require("./Common");
 const { ReturnHome, PutOnSale } = require("./BackPack");
@@ -50,7 +50,7 @@ const MainUIFlow = () =>
 
 const PickUpExpOrEquipment = () =>
 {
-    console.log("PickUpExpAndEquipment");
+    console.log("PickUpExpAndEquipment...");
     const expColorList = [
         ["#e7e7ce", [[0, 3, "#ecead4"], [0, 12, "#857c6a"], [18, 9, "#cfcfb2"], [26, 8, "#f1ecd4"], [35, 9, "#d2d0b9"], [44, 7, "#232323"], [127, 3, "#232323"]]]
     ];
@@ -72,13 +72,18 @@ const PickUpExpOrEquipment = () =>
         else break;
     }
 
+    const hasCheckMark = FindCheckMark([94, 509, 55, 54]);
+    if (!hasCheckMark)
+    {
+        RandomPress([110, 526, 52, 18]);
+    }
     if (FindGreenBtn())
     {
         RandomPress([104, 595, 192, 22]); //confirm
         Sleep(2000, 4000);
     }
 
-    if (FindGreenBtn())
+    if (FindGreenBtn() && GetNumber("amount", []))
     {
         RandomPress([674, 474, 133, 23]); // popup confirm
     }
@@ -216,7 +221,7 @@ const PageBackFlow = () => GoBack();
 
 const MenuCloseFlow = () => CloseMenu();
 
-const StartGameFlow = () => RandomPress([1102, 656, 145, 27]);
+const StartGameFlow = () => { RandomPress([1102, 656, 145, 27]); Sleep(30000, 6000); };
 
 const LongTimeNoInputFlow = () =>
 {
@@ -238,14 +243,12 @@ const BackpackFullFlow = () =>
 
     PropsCollectionFlow();
     PutOnSale();
-    CanPickExpOrEquipment() && PickUpExpOrEquipment();
     GoOnTask();
 };
 
 const InCityFlow = () =>
 {
     console.log("当前在城内");
-    CanPickExpOrEquipment() && PickUpExpOrEquipment();
     const isNoPotion = HasNoPotion();
     if (isNoPotion)
     {
@@ -276,7 +279,15 @@ const NoPotionFlow = () =>
     InCityFlow();
 };
 
+const AttackedFlow = () =>
+{
+    console.log("attacked by others");
+    UseRandomTransformScroll();
+    GoOnTask();
+};
 module.exports = {
     ExitHaltMode, MainUIFlow, DeathFlow, DisconnectionFlow, PageBackFlow, MenuCloseFlow, StartGameFlow,
-    LongTimeNoInputFlow, BackpackFullFlow, InCityFlow, NoExpFlow, NoPotionFlow
+    LongTimeNoInputFlow, BackpackFullFlow, InCityFlow, NoExpFlow, NoPotionFlow, PickUpExpOrEquipment,
+    AttackedFlow
 };
+

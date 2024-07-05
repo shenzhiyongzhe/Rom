@@ -1,5 +1,5 @@
 
-const { Sleep, ReadImg, RandomPress, GetNumber, GetCurrentDate, FindMultiColors, FindGreenBtn, FindCheckMark, RandomSwipe, FindTipPoint } = require("./Utils.js");
+const { Sleep, ReadImg, RandomPress, GetNumber, GetCurrentDate, FindMultiColors, FindGreenBtn, FindCheckMark, RandomSwipe, FindTipPoint, } = require("./Utils.js");
 
 
 const NumberPool = { "amount": [], "equipmentPower": [] };
@@ -49,4 +49,7 @@ const PoolTest = () =>
 //         break;
 //     }
 // }
-console.log(GetNumber("amount", [1166, 507, 35, 27]));
+// console.log(GetNumber("amount", [752, 556, 142, 47]));
+
+// console.log(FindGreenBtn([5, 513, 201, 66]));
+toast("hello");

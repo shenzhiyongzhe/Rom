@@ -1,4 +1,4 @@
-const { ReadImg, RandomPress, Sleep, FindMultiColors, GetNumber, SaveShot, GoBack, OpenMenu, IsHaltMode, ExitHaltMode } = require("./Utils");
+const { ReadImg, RandomPress, Sleep, FindMultiColors, GetNumber, SaveShot, GoBack, OpenMenu, IsHaltMode, ExitHaltMode, UseRandomTransformScroll } = require("./Utils");
 const { ReturnHome, OpenBackpack, CloseBackpack } = require("./BackPack");
 const { Daily } = require("./Daily");
 const { AbilityPointsFlow } = require("./Common");
@@ -128,35 +128,7 @@ const EnemyNumberCheck = () =>
     console.log("enemyNumber: " + enemyNumber);
     return enemyNumber;
 };
-const UseRandomTransformScroll = () =>
-{
-    const quickItem_randomTransformScroll = ReadImg("quickItem/scroll_transformRandomly");
-    const randomTransformScroll = ReadImg("backpack/scroll/transformRandomly");
-    const hasQuickItem = images.findImage(captureScreen(), quickItem_randomTransformScroll, { region: [724, 634, 47, 50] });
-    if (hasQuickItem == null)
-    {
 
-        OpenBackpack("props");
-        const hasScroll = images.findImage(captureScreen(), randomTransformScroll, { region: [892, 82, 333, 433] });
-
-        if (hasScroll == null)
-        {
-            ReturnHome();
-            GroceryFlow();
-            return;
-        }
-        RandomPress([hasScroll.x, hasScroll.y, 25, 25]);
-        RandomPress([731, 641, 37, 36]); // add to quick item
-        RandomPress([hasScroll.x, hasScroll.y, 25, 25]); // use scroll
-        CloseBackpack();
-    }
-    else
-    {
-        RandomPress([731, 641, 37, 36]);
-    }
-    quickItem_randomTransformScroll.recycle();
-    randomTransformScroll.recycle();
-};
 const CrowedCheck = () =>
 {
     for (let i = 0; i < 5; i++)

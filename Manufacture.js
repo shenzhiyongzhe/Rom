@@ -114,7 +114,6 @@ const MakeComsumables = function ()
     Sleep(2000, 4000);
     console.log("end: make comsumables");
 };
-// MakeComsumables();
 
 module.exports = {
     ForgeMaterial,

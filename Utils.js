@@ -1,5 +1,6 @@
 const { baseUrl } = require("./CONST.js");
 const { TipPointArr, GreenBtn, GrayBtn, PageBackColorList, MenuIconColorList, MenuCloseColorList, CheckMarkColorList, HaltModeColorList } = require("./Color.js");
+const { OpenBackpack } = require("./BackPack.js");
 const Sleep = (min, max) =>
 {
     min = min || 1000;
@@ -65,7 +66,7 @@ const GetNumber = function (directory, region)
     for (let i = 0; i < 10; i++)
     {
         let arr = [];
-        for (let j = 0; j < 10; j++)
+        for (let j = 0; j < 20; j++)
         {
             let img = ReadImg(`number/${directory}/${i}/${j}`);
             if (img == null) break;
@@ -256,32 +257,56 @@ const FindCheckMark = (region) => FindMultiColors(CheckMarkColorList, region);
 const IsHaltMode = () => FindMultiColors(HaltModeColorList, [550, 182, 180, 193]);
 const HasPageBack = () => FindMultiColors(PageBackColorList, [1225, 12, 42, 44]);
 const HasMenu = () => FindMultiColors(MenuIconColorList, [1214, 12, 47, 42]);
+const WaitUntil = (iconColorList, region) =>
+{
+    let hasIcon;
+    for (let i = 0; i < 10; i++)
+    {
+        Sleep();
+        hasIcon = FindMultiColors(iconColorList, region);
+        if (hasIcon) break;
+    }
+    return hasIcon;
+};
+const WaitUntilPageBack = () => WaitUntil(PageBackColorList, [1225, 12, 42, 44]);
+const WaitUntilMenu = () => { GoBack(); return WaitUntil(MenuIconColorList, [1214, 12, 47, 42]); };
+const UseRandomTransformScroll = () =>
+{
+    const quickItem_randomTransformScroll = ReadImg("quickItem/scroll_transformRandomly");
+    const randomTransformScroll = ReadImg("backpack/scroll/transformRandomly");
+    const hasQuickItem = images.findImage(captureScreen(), quickItem_randomTransformScroll, { region: [724, 634, 47, 50] });
+    if (hasQuickItem == null)
+    {
 
+        OpenBackpack("props");
+        const hasScroll = images.findImage(captureScreen(), randomTransformScroll, { region: [892, 82, 333, 433] });
+
+        if (hasScroll == null)
+        {
+            ReturnHome();
+            GroceryFlow();
+            return;
+        }
+        RandomPress([hasScroll.x, hasScroll.y, 25, 25]);
+        RandomPress([731, 641, 37, 36]); // add to quick item
+        RandomPress([hasScroll.x, hasScroll.y, 25, 25]); // use scroll
+        CloseBackpack();
+    }
+    else
+    {
+        RandomPress([731, 641, 37, 36]);
+    }
+    quickItem_randomTransformScroll.recycle();
+    randomTransformScroll.recycle();
+};
 module.exports = {
-    Sleep,
-    RandomPress,
-    ReadImg,
-    GoBack,
-    PressBlank,
-    OpenMenu,
-    CloseMenu,
-    PressBackpack,
-    GetNumber,
-    IsInCity,
-    NoMoneyAlert,
-    ConvertTradeTime,
-    GetCurrentDate,
-    FindMultiColors,
-    RandomSwipe,
-    RandomHollow,
-    SaveShot,
-    FindTipPoint,
-    FindGreenBtn,
-    FindGrayBtn,
-    FindCheckMark,
-    IsHaltMode,
-    ExitHaltMode,
-    SwipToBottom,
-    HasPageBack,
-    HasMenu
+    Sleep, ReadImg,
+    RandomPress, RandomSwipe, RandomHollow, SwipToBottom,
+    GoBack, PressBlank, OpenMenu, CloseMenu, PressBackpack,
+    GetNumber, IsInCity, NoMoneyAlert, ConvertTradeTime, GetCurrentDate,
+    FindMultiColors, FindTipPoint,
+    FindGreenBtn, FindGrayBtn, FindCheckMark, IsHaltMode, SaveShot,
+    ExitHaltMode, HasPageBack, HasMenu,
+    WaitUntilPageBack, WaitUntilMenu,
+    UseRandomTransformScroll
 };

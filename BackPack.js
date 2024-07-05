@@ -330,9 +330,6 @@ const WearBestSlab = (type) =>
     console.log("curSlab: " + curSlab);
     console.log("nextSlab: " + nextSlab);
 };
-// WearBestSlab("suit");
-// console.log(GetSlabColor([126, 565, 83, 88]));
-// console.log(GetSlabColor([216, 567, 84, 85]));
 
 const OpenAllProps = () =>
 {
@@ -346,7 +343,7 @@ const OpenAllProps = () =>
 };
 // -----------------------strengthen equipment -------------------------
 
-const GetWeaponColor = (shot, region) =>
+const GetWeaponColor = (region) =>
 {
     const ColorObj = {
         "white": WhiteSquare,
@@ -356,11 +353,8 @@ const GetWeaponColor = (shot, region) =>
     };
     for (let key in ColorObj)
     {
-        for (let color in ColorObj[key])
-        {
-            let hasColor = images.findMultiColors(shot, ColorObj[key][color][0], ColorObj[key][color][1], { region: region });
-            if (hasColor) return key;
-        }
+        let hasColor = FindMultiColors(ColorObj[key], region);
+        if (hasColor) return key;
     }
     return "unknown color";
 };
@@ -441,7 +435,7 @@ const WearEquipment = () =>
             if (isEquip || isSame) continue;
             if (i > 2)
             {
-                let isWhite = GetWeaponColor(shot, [870 + j * 65, 120 + i * 65, 80, 20]);
+                let isWhite = GetWeaponColor([870 + j * 65, 120 + i * 65, 80, 20]);
                 if (isWhite == "white") continue;
             }
             RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
@@ -453,7 +447,12 @@ const WearEquipment = () =>
                 "#262626", [[19, 3, "#252626"], [4, 18, "#242526"], [31, 18, "#242526"],],
                 { region: [176, 192, 60, 132] }
             );
-            if (isQualityBetter_result == true || isPlus || newEquip == null)
+            if (isQualityBetter_result == true)
+            {
+                RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
+                Sleep();
+            }
+            else if (isPlus || newEquip == null)
             {
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
                 Sleep();
@@ -512,7 +511,7 @@ const DecomposeGreenSuit = () =>
     {
         for (let j = 0; j < 5; j++)
         {
-            let itemColor = GetWeaponColor(shot, [885 + j * 65, 125 + i * 65, 60, 60]);
+            let itemColor = GetWeaponColor([885 + j * 65, 125 + i * 65, 60, 60]);
             if (itemColor != "green") continue;
             for (let k = 0; k < reservedList.length; k++)
             {
@@ -558,20 +557,22 @@ const DecomposeAllGreenSuit = () =>
 
 const FindScroll = (type) =>
 {
-    const shot = captureScreen();
     const scroll = ReadImg(`backpack/scroll/${type}`);
+    let scrollPos = false;
     for (let i = 0; i < 5; i++)
     {
-        let isBind = GetWeaponColor(shot, [919 + i * 64, 524, 50, 50]);
-        if (isBind == "white")
+        let isWhiteBG = FindMultiColors(WhiteSquare, [913 + i * 64, 520, 60, 55]);
+        if (isWhiteBG)
         {
-            let hasScroll = images.findImage(captureScreen(), scroll, { region: [899, 518, 303, 71] });
-            if (hasScroll) return hasScroll;
+            let hasScroll = images.findImage(captureScreen(), scroll, { region: [913 + i * 64, 520, 60, 55] });
+            if (hasScroll)
+            {
+                scrollPos = hasScroll;
+            }
         }
     }
-
     scroll.recycle();
-    return false;
+    return scrollPos;
 };
 
 const NoScrollCheck = () =>
@@ -582,7 +583,7 @@ const NoScrollCheck = () =>
     ];
     return FindMultiColors(noScrollArr, [348, 204, 79, 78]);
 };
-const GetWeaponType = function (shot)
+const GetWeaponType = () =>
 {
     const weaponTypeList = {
         "weapon": ReadImg("backpack/equipmentType/weapon"),
@@ -591,17 +592,21 @@ const GetWeaponType = function (shot)
     };
     for (let key in weaponTypeList)
     {
-        let theType = images.findImage(shot, weaponTypeList[key], { region: [650, 109, 46, 48] });
+        let theType = images.findImage(captureScreen(), weaponTypeList[key], { region: [650, 109, 46, 48] });
         if (theType) return key;
     }
     return "unknown equipment type";
 };
+/**
+ * 
+ * @param {*} type "weapon" "armor" "ornament" 
+ * @returns 
+ */
 const StrengthenPlayerEquipment = (type) =>
 {
     console.log("start strengthen player equipment ........");
     OpenBackpack("equipment");
     let hadNeedStrengthen = false;
-    const backpackShot = captureScreen();
     out: for (let i = 0; i < 3; i++)
     {
         for (let j = 0; j < 5; j++)
@@ -615,7 +620,7 @@ const StrengthenPlayerEquipment = (type) =>
                 {
                     RandomPress([899 + j * 65, 139 + i * 65, 39, 38]); //click the equipment for detail
                     Sleep(2000, 4000);
-                    let equipmentType = GetWeaponType(captureScreen());
+                    let equipmentType = GetWeaponType();
                     if (type == equipmentType)
                     {
                         RandomPress([599, 465, 24, 17]); //enter strengthen page
@@ -632,14 +637,17 @@ const StrengthenPlayerEquipment = (type) =>
     {
         RandomPress([1028, 497, 58, 14]); //cancel not bind
         const hadFind = FindScroll(type);
-        if (!hadFind) return false;
-        else
+        if (hadFind)
         {
             RandomPress([hadFind.x - 10, hadFind.y - 5, 30, 30]);
             let next_strLevel = GetNumber("amount", [1084, 605, 58, 34]);
-            if (next_strLevel <= 7)
+            if (next_strLevel < 8)
             {
-                RandomPress([936, 672, 281, 29]); //strengthen btn;
+                if (FindGreenBtn([913, 657, 323, 61]))
+                {
+                    RandomPress([936, 672, 281, 29]); //strengthen btn;
+                }
+
                 Sleep(3000, 5000);
             }
         }
@@ -705,7 +713,7 @@ const StrengthenTradeEquipment = function (arr)
     const shot = captureScreen();
     for (let i = 0; i < 5; i++)
     {
-        let isWhite = GetWeaponColor(shot, [920 + i * 63, 525, 55, 55]);
+        let isWhite = GetWeaponColor([920 + i * 63, 525, 55, 55]);
         if (isWhite == "white")
         {
             let hasScroll = images.findImage(shot, scroll, { region: [920 + i * 63, 525, 55, 55] });
@@ -762,7 +770,7 @@ const GetAllEquipmentPrice = function ()
                 lastClip = images.clip(shot, 895 + j * 65, 135 + i * 65, 40, 40);
             }
             else continue;
-            let equipmentColor = GetWeaponColor(shot, [885 + j * 65, 125 + i * 65, 60, 60]);
+            let equipmentColor = GetWeaponColor([885 + j * 65, 125 + i * 65, 60, 60]);
             if (equipmentColor == "white")
             {
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
@@ -772,7 +780,7 @@ const GetAllEquipmentPrice = function ()
                     { region: [647, 453, 38, 43] });
                 if (canSell)
                 {
-                    let type = GetWeaponType(detailShot);
+                    let type = GetWeaponType();
                     if (type == "unknown equipment type") continue;
                     RandomPress([654, 460, 24, 26]); // enter trade market;
                     Sleep(3000, 5000);
@@ -800,7 +808,7 @@ const SaleEquipment = function ()
         for (let j = 0; j < 5; j++)
         {
             Sleep();
-            let color = GetWeaponColor(shot, [875 + j * 65, 175 + i * 65, 60, 60]);
+            let color = GetWeaponColor([875 + j * 65, 175 + i * 65, 60, 60]);
             if (color == "white" || color == "green" || color == "blue" || color == "purple")
             {
                 RandomPress([887 + j * 65, 188 + i * 65, 40, 35]); // click the equipment
@@ -837,7 +845,7 @@ const SaleMaterials = function ()
         for (let j = 0; j < 5; j++)
         {
             Sleep();
-            let color = GetWeaponColor(shot, [875 + j * 65, 175 + i * 65, 60, 60]);
+            let color = GetWeaponColor([875 + j * 65, 175 + i * 65, 60, 60]);
             if (color == "purple" || color == "blue" || color == "green")
             {
                 RandomPress([887 + j * 65, 188 + i * 65, 40, 35]); // click the equipment
@@ -1016,5 +1024,7 @@ module.exports = {
     PutOnSale,
 };
 
+// StrengthenPlayerEquipment("ornament");
 
+// console.log(FindMultiColors(WhiteSquare, [1040, 521, 65, 61]));
 

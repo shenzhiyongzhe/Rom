@@ -3,9 +3,9 @@ const UI = require("./UI.js");
 UI();
 
 const { game_config, RWFile, } = require("./RomConfig.js");
-const { Sleep, GoBack, ReadImg, HasMenu } = require("./Utils.js");
+const { Sleep, GoBack, ReadImg, HasMenu, WaitUntilMenu, IsHaltMode, ExitHaltMode } = require("./Utils.js");
 const { BeginnerFlow } = require("./Player.js");
-const { UnifyScreen, Exception, FirstOpenGameCheck } = require("./Exception.js");
+const { Exception, } = require("./Exception.js");
 const { EnterInstanceZones } = require("./Instance.js");
 const { Daily, CheckDelegate } = require("./Daily.js");
 const { MainStory } = require("./MainStory.js");
@@ -26,21 +26,36 @@ floaty_window.setPosition(10, 650);
 
 let delegateTimer = 0;
 let instanceTimer = 719;
+const FirstInGame = () =>
+{
+    const blackSreenColorList = [
+        []
+    ];
+};
+const KeepGameScreen = () =>
+{
+    let hasInGameScreen;
+
+    for (let i = 0; i < 10; i++)
+    {
+        Sleep();
+        Exception();
+
+        IsHaltMode() && ExitHaltMode();
+    }
+    hasInGameScreen = WaitUntilMenu();
+
+    return hasInGameScreen;
+};
 const StartMainTask = () =>
 {
+
     return threads.start(function ()
     {
-        const hasMenu = HasMenu();
-        if (!hasMenu)
-        {
-            Sleep(60000, 180000);
-            Exception();
-        }
-        Sleep();
-        Daily();
-
+        KeepGameScreen();
         console.log("/****** start main task ******/");
         console.log("gameMode: " + game_config.ui.gameMode);
+        Daily();
 
         setInterval(() =>
         {
@@ -103,15 +118,6 @@ const Main = function (data)
     // setting.autoGrocery = false;
     // RWFile('setting', setting);
 
-    Sleep(3000, 4000);
-    FirstOpenGameCheck();
-    for (let i = 0; i < 5; i++)
-    {
-        Exception();
-        Sleep(3000, 5000);
-        let isInGame = UnifyScreen();
-        if (isInGame) break;
-    }
     StartMainTask();
+
 };
-// Main();

@@ -3,12 +3,10 @@ const UI = require("./UI.js");
 UI();
 
 const { game_config, RWFile, } = require("./RomConfig.js");
-const { Sleep, GoBack, ReadImg, HasMenu, WaitUntilMenu, IsHaltMode, ExitHaltMode } = require("./Utils.js");
-const { BeginnerFlow } = require("./Player.js");
-const { Exception, } = require("./Exception.js");
-const { EnterInstanceZones } = require("./Instance.js");
-const { Daily, CheckDelegate } = require("./Daily.js");
-const { MainStory } = require("./MainStory.js");
+
+const { Exception, MakeSureInGame } = require("./Exception.js");
+
+const { Sleep } = require("./Utils.js");
 
 console.setGlobalLogConfig({
     "file": "/sdcard/Rom/rom-log.txt",
@@ -24,69 +22,8 @@ const floaty_window = floaty.window(
 
 floaty_window.setPosition(10, 650);
 
-let delegateTimer = 0;
-let instanceTimer = 719;
-const FirstInGame = () =>
-{
-    const blackSreenColorList = [
-        []
-    ];
-};
-const KeepGameScreen = () =>
-{
-    let hasInGameScreen;
 
-    for (let i = 0; i < 10; i++)
-    {
-        Sleep();
-        Exception();
 
-        IsHaltMode() && ExitHaltMode();
-    }
-    hasInGameScreen = WaitUntilMenu();
-
-    return hasInGameScreen;
-};
-const StartMainTask = () =>
-{
-
-    return threads.start(function ()
-    {
-        KeepGameScreen();
-        console.log("/****** start main task ******/");
-        console.log("gameMode: " + game_config.ui.gameMode);
-        Daily();
-
-        setInterval(() =>
-        {
-            Exception();
-
-            if (game_config.ui.gameMode == "mainStory")
-            {
-                MainStory();
-            }
-            else if (game_config.ui.gameMode == "instance")
-            {
-                instanceTimer++;
-                if (instanceTimer > 720)
-                {
-                    EnterInstanceZones();
-                    instanceTimer = 0;
-                }
-            }
-            else if (game_config.ui.gameMode == "delegate")
-            {
-                delegateTimer++;
-                if (delegateTimer > 360)
-                {
-                    console.log("检查委托进度及领取奖励");
-                    CheckDelegate();
-                    delegateTimer = 0;
-                }
-            }
-        }, 10000);
-    });
-};
 floaty_window.switch.click(function ()
 {
     let alpha = floaty_window.switch.attr("alpha");
@@ -104,14 +41,25 @@ floaty_window.switch.click(function ()
 });
 
 
-
+const StartMainTask = () =>
+{
+    return threads.start(function ()
+    {
+        console.log("/****** start main task ******/");
+        MakeSureInGame();
+        Sleep();
+        console.log("gameMode: " + game_config.ui.gameMode);
+        setInterval(() =>
+        {
+            Exception();
+        }, 5000);
+    });
+};
 const Main = function (data)
 {
     data = JSON.parse(data);
     RWFile('ui', data);
     game_config.ui = data;
-
-    game_config.ui.isBeginner == true && BeginnerFlow(data.isRandomServer);
 
     // **** 修改配置 **** 仅临时使用 //
     // const setting = game_config.setting;

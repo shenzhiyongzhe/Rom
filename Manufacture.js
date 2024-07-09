@@ -1,11 +1,11 @@
-const { Sleep, RandomPress, GoBack, OpenMenu, ReadImg, FindMultiColors, GetNumber } = require("./Utils.js");
+const { Sleep, RandomPress, GoBack, OpenMenu, ReadImg, FindMultiColors, GetNumber, WaitUntilPageBack, FindGreenBtn } = require("./Utils.js");
 
 const EnterManufacturePage = () =>
 {
     console.log("EnterManufacturePage");
     OpenMenu();
     RandomPress([957, 198, 29, 31]);
-    Sleep(3000, 6000);
+    WaitUntilPageBack();
 };
 const CanMake = (region) =>
 {
@@ -16,15 +16,14 @@ const CanMake = (region) =>
     ];
     return FindMultiColors(whiteBGList, region);
 };
-const NeedClickMinusBtn = () =>
+const AutoClickMinusBtn = () =>
 {
-    const curNum = GetNumber("amount", [711, 663, 37, 32]);
-    const maxNum = GetNumber("amount", [744, 665, 33, 27]);
-    if (curNum <= maxNum)
+    Sleep();
+    const maxNum = GetNumber("amount", [738, 661, 34, 36]);
+    if (maxNum != 1)
     {
-        return true;
+        RandomPress([649, 670, 23, 17]);
     }
-    return false;
 };
 const ForgeMaterial = function ()
 {
@@ -48,11 +47,33 @@ const ForgeMaterial = function ()
         }
     }
     GoBack();
+    console.log("end: forge material");
 };
-const MakeComsumables = function ()
+const MakeActivitiesBox = () =>
+{
+    console.log("start: make activities box...");
+    RandomPress([17, 210, 143, 34]);
+    const royalBox = ReadImg("manufacture/activities/royalLegacyBox");
+    const hasRoyalBox = images.findImage(captureScreen(), royalBox, { region: [208, 127, 85, 512] });
+    if (hasRoyalBox)
+    {
+        RandomPress([hasRoyalBox.x, hasRoyalBox.y, 250, 30]);
+        Sleep();
+        if (FindGreenBtn([1040, 646, 216, 61]))
+        {
+            AutoClickMinusBtn();
+            RandomPress([1066, 662, 169, 29]);
+            Sleep(6000, 8000);
+            RandomPress([140, 91, 1046, 526]);
+        }
+    }
+    royalBox.recycle();
+    console.log("End: make activities box");
+    Sleep();
+};
+const MakeComsumables = () =>
 {
     console.log("start: make comsumables...");
-
     const MakeSlab = (type) =>
     {
         if (type == "guardian")
@@ -70,20 +91,21 @@ const MakeComsumables = function ()
             if (canMake)
             {
                 RandomPress([233, 149, 270, 43]);
-                let needClickMinusBtn = NeedClickMinusBtn();
-                if (needClickMinusBtn)
+                AutoClickMinusBtn();
+                if (FindGreenBtn([1040, 646, 214, 67]))
                 {
-                    RandomPress([649, 667, 25, 20]);
+                    RandomPress([1061, 662, 175, 30]); //make btn
+                    Sleep(10000, 14000);
+                    RandomPress([174, 71, 1000, 586]); // press blank
                 }
-                RandomPress([1061, 662, 175, 30]); //make btn
-                Sleep(10000, 14000);
-                RandomPress([174, 71, 1000, 586]); // press blank
+
             }
         }
         Sleep();
     };
 
     EnterManufacturePage();
+    MakeActivitiesBox();
     RandomPress([163, 104, 86, 16]); // comsumables, scroll page
     Sleep(2000, 4000);
     const ornamentScroll = ReadImg("manufacture/ornamentScroll");
@@ -95,14 +117,14 @@ const MakeComsumables = function ()
         if (canMake)
         {
             RandomPress([hasOrnamentScroll.x - 10, hasOrnamentScroll.y - 10, 290, 40]);
-            const needClickMinusBtn = NeedClickMinusBtn();
-            if (needClickMinusBtn)
+            if (FindGreenBtn([1041, 650, 213, 56]))
             {
-                RandomPress([649, 667, 25, 20]);
+                AutoClickMinusBtn();
+                RandomPress([1061, 662, 175, 30]); //make btn
+                Sleep(10000, 14000);
+                RandomPress([174, 71, 1000, 586]); // press blank
             }
-            RandomPress([1061, 662, 175, 30]); //make btn
-            Sleep(10000, 14000);
-            RandomPress([174, 71, 1000, 586]); // press blank
+
         }
     };
     Sleep();
@@ -115,7 +137,9 @@ const MakeComsumables = function ()
     console.log("end: make comsumables");
 };
 
-module.exports = {
-    ForgeMaterial,
-    MakeComsumables
-};
+// module.exports = {
+//     ForgeMaterial,
+//     MakeComsumables
+// };
+
+MakeComsumables();

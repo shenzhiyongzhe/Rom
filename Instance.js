@@ -1,9 +1,9 @@
-const { ReadImg, RandomPress, Sleep, FindMultiColors, GetNumber, SaveShot, GoBack, OpenMenu, IsHaltMode, ExitHaltMode, UseRandomTransformScroll } = require("./Utils");
-const { ReturnHome, OpenBackpack, CloseBackpack } = require("./BackPack");
-const { Daily } = require("./Daily");
+const { ReadImg, RandomPress, Sleep, FindMultiColors, GetNumber, SaveShot, GoBack, OpenMenu, IsHaltMode, ExitHaltMode,
+    UseRandomTransformScroll } = require("./Utils");
+
+
 const { AbilityPointsFlow } = require("./Common");
 const { GreenBtn, DeepGreenBtn } = require("./Color");
-const { GroceryFlow } = require("./Death");
 
 
 
@@ -271,8 +271,6 @@ const EnterInstanceZones = () =>
     {
         ExitHaltMode();
     }
-    Daily();
-    Sleep();
     const instanceQueue = GetInstanceQueue();
 
     // no special and normal instance check

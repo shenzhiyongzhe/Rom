@@ -27,17 +27,11 @@ let game_config = {
         "isBeginner": false,
         "isRandomServer": false,
         "instanceQueue": [],
-        "exception": {
-            "shop": false
-        }
     },
     "setting": {
-        "time": "2024-05-09T12:00:00.000Z",
-        "decompose": false,
-        "propLogin": false,
-        "storeMax": false,
-        "autoGrocery": false,
-        "date": 0
+        "date": 0,
+        "hasDailyBuy": false,
+        "hasFinishedDelegate": false
     }
 };
 const jsonFile = "/sdcard/Rom/game_config.json";

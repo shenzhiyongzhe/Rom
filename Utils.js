@@ -1,6 +1,6 @@
-const { baseUrl } = require("./CONST.js");
+
 const { TipPointArr, GreenBtn, GrayBtn, PageBackColorList, MenuIconColorList, MenuCloseColorList, CheckMarkColorList, HaltModeColorList } = require("./Color.js");
-const { OpenBackpack } = require("./BackPack.js");
+const baseUrl = "/sdcard/Rom";
 const Sleep = (min, max) =>
 {
     min = min || 1000;
@@ -58,7 +58,73 @@ const CloseMenu = () =>
         console.log("当前页面没有菜单按钮");
     }
 };
-const PressBackpack = () => RandomPress([1094, 24, 22, 27]);
+/**
+ * @param {*} page "equipment" "props" "material"
+ * @returns 
+ */
+const OpenBackpack = (page) =>
+{
+    const backPackIcon = ReadImg('icon/backpack_icon');
+    const hasBackpack = findImage(captureScreen(), backPackIcon, { region: [1075, 7, 56, 53] });
+    backPackIcon.recycle();
+    if (!hasBackpack) return false;
+    const backpack_close = ReadImg("icon/backpack_close");
+    const hasBackpack_close = findImage(captureScreen(), backpack_close, { region: [1235, 57, 43, 40] });
+    if (!hasBackpack_close)
+    {
+        log(page == undefined ? "open backpack" : "open backpack: " + page);
+        RandomPress([1091, 21, 29, 28]);
+        Sleep(3000, 4000);
+    }
+    const CurrentPageCheck = (region) => images.findMultiColors(captureScreen(), "#cc6a2e", [[0, 2, "#cc6a2d"], [0, 9, "#cc692d"], [0, 17, "#cc692d"], [0, 25, "#cc6a2e"], [0, 31, "#cc6a2e"]], { region });
+    if (page == "equipment")
+    {
+        const isInEquipPage = CurrentPageCheck([1209, 196, 18, 53]);
+        if (!isInEquipPage)
+        {
+            RandomPress([1237, 207, 19, 29]);
+        }
+    }
+    else if (page == "props")
+    {
+        const isInPropsPage = CurrentPageCheck([1210, 271, 16, 56]);
+        if (!isInPropsPage)
+        {
+            RandomPress([1235, 285, 28, 28]);
+        }
+    }
+    else if (page == "material")
+    {
+        const isInMaterialPage = CurrentPageCheck([1210, 349, 16, 55]);
+        if (!isInMaterialPage)
+        {
+            RandomPress([1232, 361, 24, 26]);
+        }
+
+    }
+    backpack_close.recycle();
+    Sleep();
+    return true;
+};
+const CloseBackpack = () =>
+{
+    const backpack_close = ReadImg("icon/backpack_close");
+    const hasBackpack_close = findImage(captureScreen(), backpack_close, { region: [1235, 57, 43, 40] });
+    if (hasBackpack_close)
+    {
+        console.log('close backpack');
+        if (random() > 0.5)
+        {
+            RandomPress([1241, 69, 27, 16]);
+        }
+        else
+        {
+            RandomPress([1092, 24, 28, 21]);
+        }
+    }
+    backpack_close.recycle();
+
+};
 
 const GetNumber = function (directory, region)
 {
@@ -205,9 +271,9 @@ const RandomSwipe = function ([x1, y1, w1, h1], [x2, y2, w2, h2])
     let y1 = random() * h1 + y1;
     let x2 = random() * w2 + x2;
     let y2 = random() * h2 + y2;
-    const duration = random() * 100 + 400;
+    const duration = random(1, 2) * 100 + 300;
     swipe(x1, y1, x2, y2, duration);
-    Sleep(4000, 6000);
+    Sleep(2000, 4000);
 };
 const SwipToBottom = (clipRegion, findRegion, swipFrom, swipTo) =>
 {
@@ -257,19 +323,62 @@ const FindCheckMark = (region) => FindMultiColors(CheckMarkColorList, region);
 const IsHaltMode = () => FindMultiColors(HaltModeColorList, [550, 182, 180, 193]);
 const HasPageBack = () => FindMultiColors(PageBackColorList, [1225, 12, 42, 44]);
 const HasMenu = () => FindMultiColors(MenuIconColorList, [1214, 12, 47, 42]);
+const HasCloseMenu = () => FindMultiColors(MenuCloseColorList, [1214, 12, 47, 42]);
 const WaitUntil = (iconColorList, region) =>
 {
     let hasIcon;
     for (let i = 0; i < 10; i++)
     {
-        Sleep();
         hasIcon = FindMultiColors(iconColorList, region);
         if (hasIcon) break;
+        Sleep();
     }
+    Sleep();
     return hasIcon;
 };
 const WaitUntilPageBack = () => WaitUntil(PageBackColorList, [1225, 12, 42, 44]);
 const WaitUntilMenu = () => { GoBack(); return WaitUntil(MenuIconColorList, [1214, 12, 47, 42]); };
+const ReturnHome = () =>
+{
+    console.log('----------------return home----------------');
+    const quickItem_returnHome = ReadImg("quickItem/scroll_returnHome");
+    const hasQuickReturnHome = images.findImage(captureScreen(), quickItem_returnHome, { region: [647, 624, 71, 68] });
+    if (hasQuickReturnHome)
+    {
+        RandomPress([670, 642, 30, 35]);
+        Sleep(10000, 15000);
+    }
+    else
+    {
+        OpenBackpack("props");
+        const returnHomeIcon = ReadImg("backpack/scroll/returnHome");
+        const hasReturnHome = images.findImage(captureScreen(), returnHomeIcon, { region: [883, 104, 344, 401] });
+        returnHomeIcon.recycle();
+
+        if (hasReturnHome)
+        {
+            RandomPress([hasReturnHome.x - 10, hasReturnHome.y - 6, 30, 30]);
+            RandomPress([670, 642, 30, 35]); //添加到快捷栏
+            RandomPress([hasReturnHome.x - 10, hasReturnHome.y - 6, 30, 30]);
+            Sleep(10000, 15000);
+        }
+        else
+        {
+            RandomPress([955, 19, 35, 30]); // 商城
+            Sleep(4000, 6000);
+            RandomPress([296, 98, 72, 28]); //第三页 普通页
+            Sleep(2000, 4000);
+            RandomPress([17, 211, 173, 37]); // 消耗品分页
+            Sleep(2000, 4000);
+            RandomPress([529, 164, 227, 236]); //return home scroll
+            RandomPress([686, 578, 151, 24]); //confrim
+            GoBack();
+            RandomPress([668, 644, 37, 32]);
+        }
+    }
+    quickItem_returnHome.recycle();
+    log("return home to purchase potion");
+};
 const UseRandomTransformScroll = () =>
 {
     const quickItem_randomTransformScroll = ReadImg("quickItem/scroll_transformRandomly");
@@ -281,16 +390,14 @@ const UseRandomTransformScroll = () =>
         OpenBackpack("props");
         const hasScroll = images.findImage(captureScreen(), randomTransformScroll, { region: [892, 82, 333, 433] });
 
-        if (hasScroll == null)
+        if (hasScroll)
         {
-            ReturnHome();
-            GroceryFlow();
-            return;
+            RandomPress([hasScroll.x, hasScroll.y, 25, 25]);
+            RandomPress([731, 641, 37, 36]); // add to quick item
+            RandomPress([hasScroll.x, hasScroll.y, 25, 25]); // use scroll
+            CloseBackpack();
         }
-        RandomPress([hasScroll.x, hasScroll.y, 25, 25]);
-        RandomPress([731, 641, 37, 36]); // add to quick item
-        RandomPress([hasScroll.x, hasScroll.y, 25, 25]); // use scroll
-        CloseBackpack();
+
     }
     else
     {
@@ -302,11 +409,13 @@ const UseRandomTransformScroll = () =>
 module.exports = {
     Sleep, ReadImg,
     RandomPress, RandomSwipe, RandomHollow, SwipToBottom,
-    GoBack, PressBlank, OpenMenu, CloseMenu, PressBackpack,
+    HasPageBack, GoBack, PressBlank,
+    HasMenu, OpenMenu, CloseMenu, HasCloseMenu,
+    OpenBackpack, CloseBackpack,
     GetNumber, IsInCity, NoMoneyAlert, ConvertTradeTime, GetCurrentDate,
     FindMultiColors, FindTipPoint,
-    FindGreenBtn, FindGrayBtn, FindCheckMark, IsHaltMode, SaveShot,
-    ExitHaltMode, HasPageBack, HasMenu,
+    FindGreenBtn, FindGrayBtn, FindCheckMark, SaveShot,
+    IsHaltMode, ExitHaltMode,
     WaitUntilPageBack, WaitUntilMenu,
-    UseRandomTransformScroll
+    UseRandomTransformScroll, ReturnHome
 };

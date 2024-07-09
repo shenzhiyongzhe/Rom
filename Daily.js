@@ -2,9 +2,11 @@ const { Sleep, RandomPress, GoBack, PressBlank, OpenMenu, GetNumber, RandomSwipe
     FindMultiColors, ReadImg, FindGreenBtn, FindGrayBtn, SwipToBottom, HasPageBack, WaitUntilMenu, WaitUntilPageBack, FindCheckMark,
     CloseMenu } = require("./Utils.js");
 const { OpenAllEquipmentBox, OpenAllProps, StrengthenPlayerEquipment, } = require("./BackPack.js");
-const { ForgeMaterial, MakeComsumables } = require("./Manufacture.js");
+
+
 const { game_config, RWFile } = require("./RomConfig.js");
-const { CanPickExpOrEquipment } = require("./ExceptionCheck.js");
+const { MakeComsumables } = require("./Manufacture.js");
+const { EnterInstanceZones } = require("./Instance.js");
 
 
 const MenuTipPointCheck = () => FindTipPoint([1242, 2, 22, 25]);
@@ -177,13 +179,12 @@ const GetDuty = function ()
 };
 const BulkBuy = function ()
 {
-    console.log("start: 开始商城购买");
-    const hasDailyBuy = game_config.setting.dailyBuy;
-    if (hasDailyBuy == true)
+    if (game_config.setting.hasDailyBuy == true)
     {
-        console.log("今天已经购买，返回");
+        console.log("今天已经商城购买，返回");
         return;
     }
+    console.log("start: 开始商城购买");
     const pressMaxScroll = () =>
     {
         if (GetNumber("amount", [879, 265, 38, 39]) != 5)
@@ -204,8 +205,8 @@ const BulkBuy = function ()
     if (!hasInGame) return;
 
     RandomPress([961, 21, 22, 26]); //shop icon
-    Sleep(6000, 12000);
-
+    WaitUntilPageBack();
+    Sleep(2000, 4000);
     const totalMoney = GetNumber("amount", [590, 3, 121, 35]);
     if (totalMoney < 700000)
     {
@@ -246,6 +247,8 @@ const BulkBuy = function ()
         console.log("今天已经购买，返回");
         RandomPress([1069, 117, 29, 15]);
         GoBack();
+        game_config.setting.hasDailyBuy = true;
+        RWFile("setting", game_config.setting);
         return;
     }
 
@@ -280,7 +283,7 @@ const BulkBuy = function ()
     {
         RandomPress([900, 565, 148, 26]); // buy btn 
         const setting = game_config.setting;
-        setting.dailyBuy = true;
+        setting.hasDailyBuy = true;
         RWFile("setting", setting);
     }
     Sleep(12000, 15000);
@@ -373,7 +376,7 @@ const StartDelegate = () =>
         ["#3d362e", [[6, -1, "#55622a"], [11, -8, "#89a63a"], [15, -8, "#85a631"], [20, -1, "#667c29"], [14, 4, "#5c6c2b"], [12, -1, "#222222"], [16, -1, "#21211f"]]]
     ];
 
-    SwipToBottom([71, 462, 66, 22], [59, 449, 90, 48], [23, 452, 405, 46], [28, 176, 402, 52]);
+    SwipToBottom([71, 462, 66, 22], [59, 449, 90, 48], [66, 427, 329, 57], [67, 164, 315, 62]);
 
     for (let i = 0; i < 5; i++)
     {
@@ -392,6 +395,11 @@ const StartDelegate = () =>
 };
 const CheckDelegate = () =>
 {
+    if (game_config.setting.hasFinishedDelegate == true)
+    {
+        console.log("^^今日委托已做完");
+        return;
+    }
     console.log("检查委托......");
 
     let isFinished = false;
@@ -408,6 +416,10 @@ const CheckDelegate = () =>
     {
         console.log("今日委托已做完，切换模式为副本模式");
         game_config.ui.gameMode = "instance";
+        GoBack();
+        EnterInstanceZones();
+        game_config.setting.hasFinishedDelegate = true;
+        RWFile("setting", game_config.setting);
         isFinished = true;
     }
     else
@@ -430,7 +442,12 @@ const CheckDelegate = () =>
     const onGoingDelegateNum = GetNumber("amount", [108, 528, 22, 28]);
     if (isFinished == false && onGoingDelegateNum <= canFinishedNum)
     {
-        GetDelegate();
+        let canGetBtn = FindGreenBtn([1058, 649, 212, 67]);
+        if (canGetBtn)
+        {
+            GetDelegate();
+        }
+
     }
     Sleep();
     if (!isFinished)
@@ -441,72 +458,8 @@ const CheckDelegate = () =>
     GoBack();
     Sleep(2000, 4000);
 };
-const EnterPageCheck = () =>
-{
-    let isEntered = false;
-    const backIcon = ReadImg("icon/back");
-    for (let i = 0; i < 10; i++)
-    {
-        Sleep();
-        let hasEntered = images.findImage(captureScreen(), backIcon, { region: [1212, 5, 63, 58] });
-        if (hasEntered)
-        {
-            isEntered = true;
-        };
-    }
-    backIcon.recycle();
-    Sleep();
-    return isEntered;
-};
-const MergeIntoSlab = (type) =>
-{
-    console.log("开始融合石板： " + type);
-    OpenMenu();
-    if (type == "suit")
-    {
-        RandomPress([963, 122, 19, 24]);
-    }
-    else if (type == "guardian")
-    {
-        RandomPress([1028, 118, 25, 32]);
-    }
 
-    const hasEntered = EnterPageCheck();
-    if (!hasEntered) return;
-    RandomPress([168, 97, 75, 27]);
-    for (let i = 0; i < 10; i++)
-    {
-        let canAutoSelect = FindGreenBtn([936, 495, 157, 59]);
-        if (!canAutoSelect) break;
-        RandomPress([954, 509, 123, 29]);
-        let canMerge = FindGreenBtn([1105, 496, 151, 55]);
-        if (!canMerge) break;
-        RandomPress([1118, 508, 126, 31]);
-        Sleep();
-        let isMergePage = EnterPageCheck();
-        if (!isMergePage) break;
-        let hasJumpAnim = FindCheckMark([1096, 638, 37, 32]);
-        if (!hasJumpAnim)
-        {
-            RandomPress([1104, 647, 87, 16]);
-        }
-        Sleep();
-        let hasOpenBtn = FindGreenBtn([525, 623, 232, 60]);
-        if (hasOpenBtn)
-        {
-            RandomPress([545, 634, 191, 35]);
-        }
-        Sleep();
-        let hasGrayBtn = FindGrayBtn([525, 623, 232, 60]);
-        if (hasGrayBtn)
-        {
-            RandomPress([545, 634, 191, 35]);
-        }
-    }
-    Sleep();
-    GoBack();
-    console.log("融合" + type + "完成");
-};
+
 const Daily = function ()
 {
     const setting = game_config.setting;
@@ -521,7 +474,8 @@ const Daily = function ()
     if (date != setting.date)
     {
         setting.date = date;
-        setting.dailyBuy = false;
+        game_config.setting.hasDailyBuy = false;
+        game_config.setting.hasFinishedDelegate = false;
 
         console.log("今天" + date + "号");
         RWFile("setting", setting);
@@ -539,18 +493,19 @@ const Daily = function ()
         Sleep();
         StrengthenPlayerEquipment("ornament");
         Sleep();
-        MergeIntoSlab("suit");
-        Sleep();
-        MergeIntoSlab("guardian");
         // ForgeMaterial();
     }
     CloseMenu();
-    BulkBuy();
+    GoBack();
     CheckDelegate();
-
+    if (game_config.setting.hasFinishedDelegate == true)
+    {
+        EnterInstanceZones();
+    }
+    BulkBuy();
 };
 
-module.exports = { CheckDelegate, Daily };
+module.exports = { CheckDelegate, BulkBuy, Daily };
 
 
 

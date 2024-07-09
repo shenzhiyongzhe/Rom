@@ -1,85 +1,21 @@
+const { ReadImg, Sleep, RandomPress, GoBack, GetNumber, FindMultiColors, FindGreenBtn, FindCheckMark,FindTipPoint } = require("./Utils.js");
 const { WearEquipment } = require("./BackPack.js");
 const { BlueSquare } = require("./Color.js");
-const { CheckDelegate } = require("./Daily.js");
+
 const { EnterInstanceZones } = require("./Instance.js");
-const { MainStory } = require("./MainStory.js");
+
 const { game_config, RWFile } = require("./RomConfig.js");
-const { ReadImg, Sleep, RandomPress, GoBack, GetNumber, FindMultiColors } = require("./Utils.js");
+const { CheckDelegate } = require("./Daily.js");
 
-const BeginnerImg = {
-    skip: ReadImg("mainStory_skip"),
-    goldenSkip: ReadImg("goldenSkip"),
-    profession: ReadImg("beginner_profession"),
-    animate_skip: ReadImg("beginner_animateSkip"),
-    close: ReadImg("beginner_close"),
-};
-const BeginnerPos = {
-    skip: [1160, 3, 115, 59],
-    goldenSkip: [1158, 675, 86, 22],
-    profession: [583, 205, 133, 373],
-    animate_skip: [1182, 32, 70, 22],
-    continue: [1104, 651, 139, 27],
-    nameInput: [497, 331, 297, 15],
-    keyboard_confirm: [1168, 643, 65, 27],
-    create_confirm: [574, 435, 131, 26],
-    startGame: [1105, 658, 132, 20]
-};
 
-const BeginnerCheckPos = {
-    skip: [1151, 7, 81, 63],
-    goldenSkip: [1142, 661, 114, 50],
-    profession: [576, 402, 138, 127],
-    animate_skip: [1150, 8, 104, 70],
-    close: [786, 209, 86, 70]
-};
-
-const CharDiction = ['a', "b", "c", "d", "e", "f", "g", "h", "i", "j", "k",
-    "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
-    "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
-
-const SetResolution = function ()
-{
-    RandomPress([1128, 586, 41, 38]);
-    Sleep(3000, 6000);
-    RandomPress([289, 97, 83, 26]);
-    Sleep(3000, 6000);
-    RandomPress([23, 209, 197, 38]);
-    Sleep();
-    RandomPress([1103, 205, 99, 22]);
-    Sleep(3000, 6000);
-    GoBack();
-};
-
-const ChooseGameServer = function ()
-{
-    RandomPress([403, 603, 124, 24]);
-    Sleep(3000, 10000);
-    const cantInServer = ReadImg("beginner_cantInServer");
-    const shot = captureScreen();
-    const availableServers = [];
-    for (let i = 0; i < 4; i++)
-    {
-        for (let j = 0; j < 5; j++)
-        {
-            let hasServer = images.findImage(shot, cantInServer, { region: [250 + j * 204, 240 + i * 73, 80, 50] });
-            if (hasServer == null)
-            {
-                availableServers.push([i, j]);
-            }
-        }
-    }
-    const randomServer = availableServers[Math.floor(random() * availableServers.length)];
-    RandomPress([150 + randomServer[1] * 204, 230 + randomServer[0] * 73, 165, 40]);
-    RandomPress([1009, 563, 137, 26]);
-    const hasCancel = images.findMultiColors(captureScreen(), "#394135", [[19, 0, "#3b4436"], [107, 1, "#363e31"], [132, 0, "#353c30"], [122, 13, "#323a2e"], [5, 11, "#2b3428"]],
-        { region: [980, 544, 192, 68] });
-    if (hasCancel) RandomPress([1009, 563, 137, 26]);
-    log("Choose game server: " + randomServer[0] + " " + randomServer[1]);
-    cantInServer.recycle();
-};
 function GenerateRandomName()
 {
+    const CharDiction = ['a', "b", "c", "d", "e", "f", "g", "h", "i", "j", "k",
+        "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+        "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
+    ];
+
     let name = [];
     for (let i = 0; i < 12; i++)
     {
@@ -87,118 +23,7 @@ function GenerateRandomName()
     }
     return name.join("");
 }
-function CreateCharacter()
-{
-    let hasCharacterOption;
-    for (let i = 0; i < 40; i++)
-    {
-        Sleep();
-        hasCharacterOption = images.findImage(captureScreen(), BeginnerImg.profession, { region: BeginnerCheckPos.profession });
 
-        if (hasCharacterOption != null) break;
-    }
-
-    if (hasCharacterOption == null) return false;
-
-    RandomPress(BeginnerPos.profession);
-    Sleep(2000, 3000);
-    //two option skip or continue
-    if (random() > 0.4)
-    {
-        for (let i = 0; i < 20; i++)
-        {
-            const hasSkip = images.findImage(captureScreen(), BeginnerImg.animate_skip, { region: BeginnerCheckPos.animate_skip });
-            if (hasSkip)
-            {
-                Sleep(300, 600);
-                RandomPress(BeginnerPos.animate_skip);
-                Sleep(3000, 5000);
-                break;
-            }
-            Sleep(200, 400);
-        }
-    }
-    else
-    {
-        Sleep(10000, 12000);
-    }
-    RandomPress(BeginnerPos.continue);
-    Sleep(2500, 4000);
-    for (let i = 0; i < 5; i++)
-    {
-        RandomPress(BeginnerPos.nameInput);
-        Sleep();
-        setText(GenerateRandomName());
-        Sleep();
-        RandomPress(BeginnerPos.keyboard_confirm);
-        Sleep();
-        RandomPress(BeginnerPos.create_confirm);
-        Sleep();
-        let shot = captureScreen();
-        let confirmTip = ReadImg("mainStory_confirm");
-        if (images.findImage(shot, BeginnerImg.close, { region: BeginnerCheckPos.close }) == null) break;
-        else if (images.findImage(shot, confirmTip, { region: [594, 419, 93, 76] }))
-        {
-            log("昵称包含敏感词汇，需要重新输入");
-            RandomPress([574, 442, 137, 27]);
-            confirmTip.recycle();
-        }
-
-    }
-    log("Character created!");
-    return true;
-}
-
-
-const ClickSkip = (shot) =>
-{
-    let skipBtn = images.findImage(shot, BeginnerImg.skip, { region: BeginnerCheckPos.skip });
-    let goldenSkipBtn = images.findImage(shot, BeginnerImg.goldenSkip, { region: BeginnerCheckPos.goldenSkip });
-    if (skipBtn)
-    {
-        RandomPress(BeginnerPos.skip);
-        log("Press Skip!");
-        return true;
-    }
-    else if (goldenSkipBtn)
-    {
-        RandomPress(BeginnerPos.goldenSkip);
-        log("Press Golden Skip!");
-        return true;
-    }
-    else return false;
-};
-
-const PassTutorial = function ()
-{
-    for (let i = 0; i < 12; i++)
-    {
-        for (let j = 0; j < 3; j++)
-        {
-            let shot = captureScreen();
-            let hasSkip = ClickSkip(shot);
-            if (hasSkip) break;
-            Sleep(3000, 5000);
-        }
-        Sleep(5000, 8000);
-    };
-};
-
-function BeginnerFlow(isRandomServer)
-{
-
-    SetResolution();
-    Sleep(3000, 5000);
-    isRandomServer && ChooseGameServer();
-    Sleep(10000, 20000);
-    RandomPress([234, 121, 788, 450]);
-    Sleep(10000, 20000);
-    CreateCharacter();
-    Sleep(10000, 20000);
-    RandomPress(BeginnerPos.startGame);
-    Sleep(20000, 30000);
-    PassTutorial();
-}
 const GetPlayerEquipmentColor = (shot, region) =>
 {
     const colorList = {
@@ -388,24 +213,121 @@ const BuyBlueEquipment = function ()
     }
     console.log("购买蓝装操作结束");
 };
-const GoOnTask = () =>
+const PickUpExpOrEquipment = () =>
 {
-
-    switch (game_config.ui.gameMode)
+    console.log("Start Flow: PickUpExpAndEquipment...");
+    const CanPickExpOrEquipment = () =>
     {
-        case "mainStory":
-            MainStory();
-            break;
-        case "instance":
-            EnterInstanceZones();
-            break;
-        case "delegate":
-            CheckDelegate();
-        default:
-            break;
+        const crucifixIconList = [
+            ["#c3ab97", [[3, 0, "#e1cbbf"], [16, 0, "#ccb597"], [10, -10, "#ab8354"], [10, -3, "#bd926b"], [10, 6, "#9b8063"], [10, 15, "#a87d55"], [10, 18, "#a27c53"]]],
+            ["#af8b6b", [[7, 0, "#ddcebb"], [18, 0, "#d2b595"], [11, -11, "#ae8861"], [11, -7, "#ba9b7e"], [12, 6, "#6b5033"], [11, 11, "#aa8a64"], [11, 16, "#a6805b"]]]
+        ];
+        return FindMultiColors(crucifixIconList, [883, 8, 42, 53]);
+    };
+    const canPickup = CanPickExpOrEquipment();
+    if (!canPickup)
+    {
+        console.log("End Flow: 没有十字架图标，没有装备或经验可拾取");
+    };
+
+    const expColorList = [
+        ["#e7e7ce", [[0, 3, "#ecead4"], [0, 12, "#857c6a"], [18, 9, "#cfcfb2"], [26, 8, "#f1ecd4"], [35, 9, "#d2d0b9"], [44, 7, "#232323"], [127, 3, "#232323"]]]
+    ];
+    const coinColorList = [
+        ["#232323", [[10, -2, "#e9d887"], [14, -2, "#eadf9e"], [18, -2, "#7f5927"], [18, 3, "#d7c384"], [14, 3, "#ddc77d"], [14, 4, "#bea863"], [13, 13, "#232323"]]]
+    ];
+    Sleep(3000, 5000);
+    RandomPress([894, 20, 21, 31]);
+    Sleep(3000, 5000);
+
+    let shot = captureScreen();
+    for (let i = 0; i < 5; i++)
+    {
+        let isExp = FindMultiColors(expColorList, [76, 135 + i * 83, 192, 68]);
+        if (isExp)
+        {
+            RandomPress([178, 139 + i * 83, 190, 55]);
+        }
+        else break;
+    }
+
+    const hasCheckMark = FindCheckMark([94, 509, 55, 54]);
+    if (!hasCheckMark)
+    {
+        RandomPress([110, 526, 52, 18]);
+    }
+    if (FindGreenBtn([81, 579, 234, 54]))
+    {
+        RandomPress([104, 595, 192, 22]); //confirm
+        Sleep(2000, 4000);
+    }
+
+    if (FindGreenBtn([656, 458, 171, 58]))
+    {
+        RandomPress([674, 474, 133, 23]); // popup confirm
+    }
+    else
+    {
+        RandomPress([475, 474, 130, 26]);  //cancel
+    }
+    Sleep();
+
+    //equipment 
+    const hasLostEquipment = FindTipPoint([42, 220, 25, 30]);
+    if (hasLostEquipment)
+    {
+        RandomPress([24, 238, 30, 46]); // equip page
+        for (let j = 0; j < 5; j++)
+        {
+            let isEquip = FindMultiColors(coinColorList, [138, 144 + j * 83, 48, 57]);
+            if (isEquip)
+            {
+                RandomPress([178, 139 + j * 83, 190, 55]);
+            }
+        }
+        const hasEquipCheckMark = FindCheckMark([94, 509, 55, 54]);
+        if (!hasEquipCheckMark)
+        {
+            RandomPress([110, 526, 52, 18]);
+        }
+        if (FindGreenBtn([81, 579, 234, 54]))
+        {
+            RandomPress([104, 595, 192, 22]); //select confirm btn
+            Sleep(2000, 4000);
+        }
+
+        if (FindGreenBtn([656, 458, 171, 58]))
+        {
+            RandomPress([674, 474, 133, 23]); // popup confirm
+        }
+        else
+        {
+            RandomPress([475, 474, 130, 26]);  //cancel
+        }
+    }
+
+    RandomPress([350, 69, 34, 15]);
+    Sleep();
+    console.log("End Flow: 拾取经验装备结束");
+};
+const ModeFlow = () =>
+{
+    const mode = game_config.ui.gameMode;
+    if (mode == "mainStory")
+    {
+        console.log("mainStory flow");
+    }
+    else if (mode == "instance")
+    {
+        EnterInstanceZones();
+    }
+    else if (mode == "delegate")
+    {
+        CheckDelegate();
     }
 };
-module.exports = { BeginnerFlow, BuyBlueEquipment, GoOnTask };
+
+module.exports = { BuyBlueEquipment, ModeFlow, PickUpExpOrEquipment };
 
 
 

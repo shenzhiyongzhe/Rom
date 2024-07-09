@@ -1,120 +1,16 @@
-const { ReadImg, Sleep, RandomPress, GoBack, GetNumber, FindTipPoint, ConvertTradeTime, NoMoneyAlert, FindMultiColors, RandomHollow, FindGreenBtn, OpenMenu } = require("./Utils.js");
+const { ReadImg, Sleep, RandomPress, GoBack, GetNumber, FindTipPoint, ConvertTradeTime, NoMoneyAlert, FindMultiColors, RandomHollow,
+    FindGreenBtn, OpenMenu, OpenBackpack, CloseBackpack, WaitUntilPageBack, FindCheckMark, FindGrayBtn } = require("./Utils.js");
 const { EmptyGrid, WhiteSquare, GreenSquare, BlueSquare, PurpleSquare, Equipped, GreenBtn } = require("./Color.js");
 const { PropsCollectionFlow } = require("./Common");
-/**
- * @param {*} page "equipment" "props" "material"
- * @returns 
- */
-const OpenBackpack = (page) =>
-{
-    const backPackIcon = ReadImg('icon/backpack_icon');
-    const hasBackpack = findImage(captureScreen(), backPackIcon, { region: [1075, 7, 56, 53] });
-    backPackIcon.recycle();
-    if (!hasBackpack) return false;
-    const backpack_close = ReadImg("icon/backpack_close");
-    const hasBackpack_close = findImage(captureScreen(), backpack_close, { region: [1235, 57, 43, 40] });
-    if (!hasBackpack_close)
-    {
-        log(page == undefined ? "open backpack" : "open backpack: " + page);
-        RandomPress([1091, 21, 29, 28]);
-        Sleep(3000, 4000);
-    }
-    const CurrentPageCheck = (region) => images.findMultiColors(captureScreen(), "#cc6a2e", [[0, 2, "#cc6a2d"], [0, 9, "#cc692d"], [0, 17, "#cc692d"], [0, 25, "#cc6a2e"], [0, 31, "#cc6a2e"]], { region });
-    if (page == "equipment")
-    {
-        const isInEquipPage = CurrentPageCheck([1209, 196, 18, 53]);
-        if (!isInEquipPage)
-        {
-            RandomPress([1237, 207, 19, 29]);
-        }
-    }
-    else if (page == "props")
-    {
-        const isInPropsPage = CurrentPageCheck([1210, 271, 16, 56]);
-        if (!isInPropsPage)
-        {
-            RandomPress([1235, 285, 28, 28]);
-        }
-    }
-    else if (page == "material")
-    {
-        const isInMaterialPage = CurrentPageCheck([1210, 349, 16, 55]);
-        if (!isInMaterialPage)
-        {
-            RandomPress([1232, 361, 24, 26]);
-        }
 
-    }
-    backpack_close.recycle();
-    Sleep();
-    return true;
-};
-const CloseBackpack = () =>
-{
-    const backpack_close = ReadImg("icon/backpack_close");
-    const hasBackpack_close = findImage(captureScreen(), backpack_close, { region: [1235, 57, 43, 40] });
-    if (hasBackpack_close)
-    {
-        console.log('close backpack');
-        if (random() > 0.5)
-        {
-            RandomPress([1241, 69, 27, 16]);
-        }
-        else
-        {
-            RandomPress([1092, 24, 28, 21]);
-        }
-    }
-    backpack_close.recycle();
 
-};
 const EmptyCheck = (region) => FindMultiColors(EmptyGrid, region);
 
 const EquippedCheck = (region) => FindMultiColors(Equipped, region);
 
 
 // -------------------------------tool ---------------------------
-const ReturnHome = () =>
-{
-    console.log('----------------return home----------------');
-    const quickItem_returnHome = ReadImg("quickItem/scroll_returnHome");
-    const hasQuickReturnHome = images.findImage(captureScreen(), quickItem_returnHome, { region: [647, 624, 71, 68] });
-    if (hasQuickReturnHome)
-    {
-        RandomPress([670, 642, 30, 35]);
-        Sleep(10000, 15000);
-    }
-    else
-    {
-        OpenBackpack("props");
-        const returnHomeIcon = ReadImg("backpack/scroll/returnHome");
-        const hasReturnHome = images.findImage(captureScreen(), returnHomeIcon, { region: [883, 104, 344, 401] });
-        returnHomeIcon.recycle();
 
-        if (hasReturnHome)
-        {
-            RandomPress([hasReturnHome.x - 10, hasReturnHome.y - 6, 30, 30]);
-            RandomPress([670, 642, 30, 35]); //添加到快捷栏
-            RandomPress([hasReturnHome.x - 10, hasReturnHome.y - 6, 30, 30]);
-            Sleep(10000, 15000);
-        }
-        else
-        {
-            RandomPress([955, 19, 35, 30]); // 商城
-            Sleep(4000, 6000);
-            RandomPress([296, 98, 72, 28]); //第三页 普通页
-            Sleep(2000, 4000);
-            RandomPress([17, 211, 173, 37]); // 消耗品分页
-            Sleep(2000, 4000);
-            RandomPress([529, 164, 227, 236]); //return home scroll
-            RandomPress([686, 578, 151, 24]); //confrim
-            GoBack();
-            RandomPress([668, 644, 37, 32]);
-        }
-    }
-    quickItem_returnHome.recycle();
-    log("return home to purchase potion");
-};
 
 // -------------------------------open box slab-----------------------------
 const HasNextPageCheck = () =>
@@ -186,7 +82,7 @@ const OpenSlab = () =>
         slabList.push(img);
     }
     const shot = captureScreen();
-    let hasOpenSlab = false;
+
     for (let i = 0; i < slabList.length; i++)
     {
         let hasSlab = images.findImage(shot, slabList[i], { region: [882, 122, 333, 333] });
@@ -195,10 +91,8 @@ const OpenSlab = () =>
             RandomPress([hasSlab.x - 10, hasSlab.y, 40, 30]);
             Sleep();
             RandomPress([hasSlab.x - 10, hasSlab.y, 40, 30]);
-            Sleep(5000, 8000);
-
-            hasOpenSlab = true;
-
+            WaitUntilPageBack();
+            Sleep();
             if (FindGreenBtn([641, 500, 125, 50]))
             {
                 RandomPress([663, 515, 86, 23]);
@@ -218,7 +112,7 @@ const OpenSlab = () =>
     GoBack();
     slabList.forEach(slab => slab.recycle());
 
-    console.log("open slab flow end; has open: " + hasOpenSlab);
+    console.log("open slab flow end;");
 };
 const OpenNoOptionBox = () =>
 {
@@ -263,18 +157,23 @@ const GetSlabColor = (region) =>
     const SlabColorList = {
         "white": [
             ["#515150", [[2, -14, "#4a4a48"], [55, -40, "#646f74"], [58, -40, "#c4c6c5"], [56, -38, "#1e2425"], [57, -38, "#79807f"], [44, -5, "#2f2f2f"], [57, -37, "#737d7b"]]],
-            ["#444442", [[-5, 14, "#434343"], [3, 9, "#565655"], [54, -27, "#4a555c"], [56, -28, "#c9cfcf"], [57, -26, "#808280"], [56, -25, "#737d7b"], [12, -19, "#494946"]]]
+            ["#444442", [[-5, 14, "#434343"], [3, 9, "#565655"], [54, -27, "#4a555c"], [56, -28, "#c9cfcf"], [57, -26, "#808280"], [56, -25, "#737d7b"], [12, -19, "#494946"]]],
+            ["#474747", [[16, -18, "#4f4f4f"], [45, -16, "#292929"], [57, -33, "#68777c"], [59, -33, "#75808b"], [62, -33, "#cbcbcb"], [59, -35, "#758286"], [59, -31, "#1e2325"]]],
+            ["#353535", [[15, -8, "#565656"], [36, -16, "#4b4b4b"], [58, -26, "#333b3f"], [61, -26, "#7b7b7c"], [64, -26, "#696d6d"], [61, -28, "#afb9ba"], [61, -25, "#5f6565"]]]
         ],
         "green": [
             ["#2f4c2b", [[-6, 5, "#243a20"], [-8, 19, "#2a4526"], [53, -27, "#19590f"], [57, -27, "#8ed188"], [55, -30, "#4ea03c"], [54, -25, "#033301"], [57, -25, "#469f39"]]],
             ["#273f24", [[-1, 8, "#2b4326"], [-5, 18, "#263d23"], [59, -34, "#9fe68d"], [57, -31, "#1c5a18"], [59, -31, "#a1c99a"], [60, -31, "#8ed188"], [59, -28, "#2a8922"]]],
             ["#2f4b2a", [[-5, 8, "#2c4728"], [-7, 20, "#304c2c"], [53, -28, "#1e5c0b"], [56, -28, "#5f8e4e"], [58, -28, "#81c47c"], [56, -30, "#399130"], [56, -26, "#073106"]]],
-            ["#1a2918", [[1, 16, "#294025"], [-4, 24, "#21341f"], [56, -23, "#1e6b1c"], [58, -23, "#8dc783"], [59, -23, "#7dc276"], [55, -21, "#0a3a04"], [58, -20, "#34892c"]]]
+            ["#1a2918", [[1, 16, "#294025"], [-4, 24, "#21341f"], [56, -23, "#1e6b1c"], [58, -23, "#8dc783"], [59, -23, "#7dc276"], [55, -21, "#0a3a04"], [58, -20, "#34892c"]]],
+            ["#273d24", [[13, -16, "#365532"], [34, -21, "#2d4628"], [53, -30, "#104109"], [55, -30, "#1f501b"], [59, -30, "#438837"], [55, -33, "#419634"], [56, -28, "#2c8c26"]]],
+            ["#2e4a2b", [[14, -14, "#41683c"], [40, -27, "#294226"], [56, -35, "#2c6c21"], [59, -35, "#509145"], [62, -35, "#8adb88"], [60, -37, "#86da79"], [59, -32, "#053205"]]],
         ],
         "blue": [
             ["#173543", [[-7, 9, "#132934"], [-7, 22, "#152f3c"], [52, -26, "#13408e"], [54, -26, "#607ca7"], [56, -26, "#80b3d6"], [54, -28, "#266dbc"], [54, -24, "#072058"]]],
             ["#183646", [[10, -6, "#163644"], [23, -4, "#1d475d"], [46, -12, "#1b5abb"], [50, -12, "#addaed"], [48, -13, "#306bc0"], [47, -9, "#012463"], [49, -9, "#2d77bf"]]],
-            ["#112e3c", [[-3, 13, "#1a4054"], [-5, 22, "#183c4e"], [56, -22, "#13408e"], [59, -22, "#91bada"], [59, -24, "#84b0db"], [57, -20, "#011e5f"], [60, -20, "#3a7dd2"]]]
+            ["#112e3c", [[-3, 13, "#1a4054"], [-5, 22, "#183c4e"], [56, -22, "#13408e"], [59, -22, "#91bada"], [59, -24, "#84b0db"], [57, -20, "#011e5f"], [60, -20, "#3a7dd2"]]],
+            ["#224f68", [[7, -12, "#133140"], [21, -7, "#23516c"], [43, -17, "#1f57a1"], [46, -17, "#517bbe"], [50, -17, "#7ca3b7"], [46, -20, "#3381cf"], [46, -15, "#0a1d52"]]]
 
         ],
         "purple": [
@@ -290,9 +189,11 @@ const GetSlabColor = (region) =>
     }
     return "null";
 };
+
 const WearBestSlab = (type) =>
 {
     console.log("^^WearBestSlab");
+    GoBack();
     OpenMenu();
     if (type == "suit")
     {
@@ -302,16 +203,13 @@ const WearBestSlab = (type) =>
     {
         RandomPress([1025, 118, 28, 27]);
     }
-    Sleep(5000, 8000);
+    WaitUntilPageBack();
     const curSlab = GetSlabColor([126, 565, 86, 82]);
     const nextSlab = GetSlabColor([216, 565, 84, 85]);
-
-    let hasWearNewSlab = false;
 
     if (FindGreenBtn([1019, 498, 156, 56]))
     {
         RandomPress([1037, 508, 119, 31]);
-        hasWearNewSlab = true;
     }
     if ((curSlab == "white" && (nextSlab == "green" || nextSlab == "blue" || nextSlab == "purple")) || (curSlab == "green" && (nextSlab == "blue" || nextSlab == "purple")))
     {
@@ -323,23 +221,57 @@ const WearBestSlab = (type) =>
             hasWearNewSlab = true;
         }
     }
-    if (!hasWearNewSlab)
-    {
-        GoBack();
-    }
     console.log("curSlab: " + curSlab);
     console.log("nextSlab: " + nextSlab);
 };
+const MergeIntoSlab = (type) =>
+{
+    console.log("开始融合石板： " + type);
 
+    RandomPress([173, 101, 62, 21]);
+    for (let i = 0; i < 10; i++)
+    {
+        let canAutoSelect = FindGreenBtn([936, 495, 157, 59]);
+        if (!canAutoSelect) break;
+        RandomPress([954, 509, 123, 29]);
+        let canMerge = FindGreenBtn([1105, 496, 151, 55]);
+        if (!canMerge) break;
+        RandomPress([1118, 508, 126, 31]);
+        Sleep();
+        WaitUntilPageBack();
+        Sleep();
+        let hasJumpAnim = FindCheckMark([1096, 638, 37, 32]);
+        if (!hasJumpAnim)
+        {
+            RandomPress([1104, 647, 87, 16]);
+        }
+        Sleep();
+        let hasOpenBtn = FindGreenBtn([525, 623, 232, 60]);
+        if (hasOpenBtn)
+        {
+            RandomPress([545, 634, 191, 35]);
+        }
+        Sleep();
+        let hasGrayBtn = FindGrayBtn([525, 623, 232, 60]);
+        if (hasGrayBtn)
+        {
+            RandomPress([545, 634, 191, 35]);
+        }
+    }
+    Sleep();
+    GoBack();
+    console.log("融合" + type + "完成");
+};
 const OpenAllProps = () =>
 {
     OpenSlab();
     OpenNoOptionBox();
     CloseBackpack();
     WearBestSlab("suit");
+    MergeIntoSlab("suit");
     Sleep();
     WearBestSlab("guardian");
-
+    MergeIntoSlab("guardian");
 };
 // -----------------------strengthen equipment -------------------------
 
@@ -494,6 +426,7 @@ const DecomposeAll = () =>
     }
     Sleep();
     RandomPress([1243, 69, 27, 15]);
+    CloseBackpack();
     console.log("分解道具完毕");
 };
 
@@ -1013,18 +946,13 @@ const PutOnSale = function ()
 };
 
 module.exports = {
-    OpenBackpack,
-    CloseBackpack,
     OpenAllEquipmentBox,
     OpenAllProps,
     WearEquipment,
     StrengthenPlayerEquipment,
     DecomposeAll,
-    ReturnHome,
     PutOnSale,
 };
 
-// StrengthenPlayerEquipment("ornament");
 
-// console.log(FindMultiColors(WhiteSquare, [1040, 521, 65, 61]));
 

@@ -3,9 +3,6 @@ const ui = {
     isBeginner: false,
     isRandomServer: false,
     instanceQueue: [],
-    exception: {
-        shop: false
-    }
 };
 
 const beginnerCheckBox = document.querySelector("input[name=isBeginner]");

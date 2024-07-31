@@ -15,14 +15,12 @@ console.setGlobalLogConfig({
 
 const floaty_window = floaty.window(
     <frame gravity="center" id="switch" w="42" h="20" bg="#ffffff" alpha="1">
-        <text id="settlement" textColor="#f44336">000</text>
+        <text id="monthlyIncome" textColor="#f44336">000</text>
     </frame>
 
 );
 
 floaty_window.setPosition(10, 650);
-
-
 
 floaty_window.switch.click(function ()
 {
@@ -36,12 +34,17 @@ floaty_window.switch.click(function ()
     else
     {
         floaty_window.switch.attr("alpha", "1");
-        StartMainTask();
+        Update();
     }
 });
 
-
-const StartMainTask = () =>
+const Start = (data) =>
+{
+    data = JSON.parse(data);
+    RWFile('ui', data);
+    game_config.ui = data;
+};
+const Update = () =>
 {
     return threads.start(function ()
     {
@@ -55,17 +58,12 @@ const StartMainTask = () =>
         }, 5000);
     });
 };
+
+
 const Main = function (data)
 {
-    data = JSON.parse(data);
-    RWFile('ui', data);
-    game_config.ui = data;
+    Start(data);
 
-    // **** 修改配置 **** 仅临时使用 //
-    // const setting = game_config.setting;
-    // setting.autoGrocery = false;
-    // RWFile('setting', setting);
-
-    StartMainTask();
+    Update();
 
 };

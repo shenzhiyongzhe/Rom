@@ -1,6 +1,14 @@
 
 const { TipPointArr, GreenBtn, GrayBtn, PageBackColorList, MenuIconColorList, MenuCloseColorList, CheckMarkColorList, HaltModeColorList } = require("./Color.js");
 const baseUrl = "/sdcard/Rom";
+const BackpackColorList = [
+    ["#c5ba90", [[17, 2, "#b6aa86"], [0, 9, "#6f7877"], [0, 16, "#4f3f2c"], [16, 11, "#a2b1b0"]]],
+    ["#adb1a2", [[14, 2, "#9baaaa"], [-2, -7, "#bdae88"], [16, -8, "#baae8b"], [7, 5, "#3a3425"]]]
+];
+const BackpackCloseColorList = [
+    ["#a5b3b5", [[15, 2, "#b9cac8"], [2, -8, "#b1a57c"], [15, -7, "#b8aa85"], [8, 3, "#17150f"]]]
+];
+
 const Sleep = (min, max) =>
 {
     min = min || 1000;
@@ -22,28 +30,33 @@ const PressBlank = () => RandomPress([270, 96, 647, 502]);
 const OpenMenu = () =>
 {
     console.log("打开菜单");
-    const hasIcon = FindMultiColors(MenuIconColorList, [1217, 11, 41, 44]);
-    const hasClose = FindMultiColors(MenuCloseColorList, [1219, 13, 39, 43]);
+    const shot = captureScreen();
+    const hasIcon = FindMultiColors(MenuIconColorList, [1217, 11, 41, 44], shot);
+    const hasClose = FindMultiColors(MenuCloseColorList, [1219, 13, 39, 43], shot);
     if (hasIcon && !hasClose)
     {
         RandomPress([1221, 15, 33, 33]);
         Sleep(2000, 4000);
+        return true;
     }
     else if (!hasIcon && hasClose)
     {
         Sleep();
+        return true;
     }
     else
     {
         console.log("当前页面没有菜单按钮");
+        return false;
     }
 
 };
 const CloseMenu = () =>
 {
     console.log("关闭菜单");
-    const hasIcon = FindMultiColors(MenuIconColorList, [1217, 11, 41, 44]);
-    const hasClose = FindMultiColors(MenuCloseColorList, [1219, 13, 39, 43]);
+    const shot = captureScreen();
+    const hasIcon = FindMultiColors(MenuIconColorList, [1217, 11, 41, 44], shot);
+    const hasClose = FindMultiColors(MenuCloseColorList, [1219, 13, 39, 43], shot);
     if (!hasIcon && hasClose)
     {
         RandomPress([1221, 15, 33, 33]);
@@ -64,18 +77,18 @@ const CloseMenu = () =>
  */
 const OpenBackpack = (page) =>
 {
-    const backPackIcon = ReadImg('icon/backpack_icon');
-    const hasBackpack = findImage(captureScreen(), backPackIcon, { region: [1075, 7, 56, 53] });
-    backPackIcon.recycle();
+    const shot = captureScreen();
+    const hasBackpack = FindMultiColors(BackpackColorList, [1085, 15, 38, 42], shot);
     if (!hasBackpack) return false;
-    const backpack_close = ReadImg("icon/backpack_close");
-    const hasBackpack_close = findImage(captureScreen(), backpack_close, { region: [1235, 57, 43, 40] });
+
+    const hasBackpack_close = FindMultiColors(BackpackCloseColorList, [912, 80, 33, 31], shot);
     if (!hasBackpack_close)
     {
         log(page == undefined ? "open backpack" : "open backpack: " + page);
         RandomPress([1091, 21, 29, 28]);
         Sleep(3000, 4000);
     }
+
     const CurrentPageCheck = (region) => images.findMultiColors(captureScreen(), "#cc6a2e", [[0, 2, "#cc6a2d"], [0, 9, "#cc692d"], [0, 17, "#cc692d"], [0, 25, "#cc6a2e"], [0, 31, "#cc6a2e"]], { region });
     if (page == "equipment")
     {
@@ -90,7 +103,7 @@ const OpenBackpack = (page) =>
         const isInPropsPage = CurrentPageCheck([1210, 271, 16, 56]);
         if (!isInPropsPage)
         {
-            RandomPress([1235, 285, 28, 28]);
+            RandomPress([1235, 286, 18, 26]);
         }
     }
     else if (page == "material")
@@ -102,14 +115,13 @@ const OpenBackpack = (page) =>
         }
 
     }
-    backpack_close.recycle();
+
     Sleep();
     return true;
 };
 const CloseBackpack = () =>
 {
-    const backpack_close = ReadImg("icon/backpack_close");
-    const hasBackpack_close = findImage(captureScreen(), backpack_close, { region: [1235, 57, 43, 40] });
+    const hasBackpack_close = FindMultiColors(BackpackCloseColorList, [912, 80, 33, 31]);
     if (hasBackpack_close)
     {
         console.log('close backpack');
@@ -121,9 +133,9 @@ const CloseBackpack = () =>
         {
             RandomPress([1092, 24, 28, 21]);
         }
+        return true;
     }
-    backpack_close.recycle();
-
+    return false;
 };
 
 const GetNumber = function (directory, region)
@@ -229,10 +241,10 @@ const GetCurrentDate = function (sign)
     const second = time.getSeconds();
     return `${year}-${month}-${day} ${hour}${s}${minute}${s}${second}`;
 };
-const FindMultiColors = (colorArr, region) =>
+const FindMultiColors = (colorArr, region, shot) =>
 {
     let hasColor = false;
-    const shot = captureScreen();
+    shot = shot || captureScreen();
     for (let i = 0; i < colorArr.length; i++)
     {
         let [color, position] = colorArr[i];
@@ -241,37 +253,14 @@ const FindMultiColors = (colorArr, region) =>
     }
     return hasColor;
 };
-const ColorCheck = function (shot, region)
-{
-    const colorArr =
-    {
-        blue: [["#1f333c", [[8, 0, "#1f3b47"], [22, 0, "#224352"], [28, 0, "#274857"], [28, 3, "#254b5e"]]],
-        ["#1d343c", [[8, 0, "#1f3a4b"], [17, 0, "#1e3d51"], [27, 0, "#25485b"], [27, 11, "#295d73"]]]],
-        green: [["#273b22", [[9, 0, "#2f4222"], [18, 0, "#304a23"], [26, 0, "#375323"], [26, 8, "#4c6428"]]],
-        ["#283e21", [[8, 0, "#2d441f"], [23, 0, "#34511f"], [26, 9, "#4e6326"]]],]
-    };
-    let color, equipColor;
-    out: for (let key in colorArr)
-    {
-        for (let i = 0; i < colorArr[key].length; i++)
-        {
-            color = images.findMultiColors(shot, colorArr[key][i][0], colorArr[key][i][1], { region: region });
-            if (color)
-            {
-                equipColor = key;
-                break out;
-            }
-        }
-    }
-    return equipColor;
-};
+
 const RandomSwipe = function ([x1, y1, w1, h1], [x2, y2, w2, h2])
 {
     let x1 = random() * w1 + x1;
     let y1 = random() * h1 + y1;
     let x2 = random() * w2 + x2;
     let y2 = random() * h2 + y2;
-    const duration = random(1, 2) * 100 + 300;
+    const duration = random(1, 2) * 10 + 400;
     swipe(x1, y1, x2, y2, duration);
     Sleep(2000, 4000);
 };
@@ -406,6 +395,25 @@ const UseRandomTransformScroll = () =>
     quickItem_randomTransformScroll.recycle();
     randomTransformScroll.recycle();
 };
+const GetCurMoney = () =>
+{
+    let curMoney = 0;
+    const hasMenu = HasMenu();
+    if (!hasMenu) return;
+    RandomPress([1155, 17, 30, 33]);
+    WaitUntilPageBack();
+    curMoney = GetNumber("amount", [567, 2, 110, 40]);
+    for (let i = 0; i < 3; i++)
+    {
+        Sleep();
+        GoBack();
+        if (!HasPageBack())
+        {
+            break;
+        }
+    }
+    return curMoney;
+};
 module.exports = {
     Sleep, ReadImg,
     RandomPress, RandomSwipe, RandomHollow, SwipToBottom,
@@ -417,5 +425,8 @@ module.exports = {
     FindGreenBtn, FindGrayBtn, FindCheckMark, SaveShot,
     IsHaltMode, ExitHaltMode,
     WaitUntilPageBack, WaitUntilMenu,
-    UseRandomTransformScroll, ReturnHome
+    UseRandomTransformScroll, ReturnHome,
+    GetCurMoney,
 };
+
+

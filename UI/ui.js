@@ -13,12 +13,10 @@ const menuList = document.querySelectorAll(".select-menu");
 
 const startScript = document.querySelector("#startScript");
 const updateScript = document.querySelector("#updateScript");
+const reset = document.querySelector("#reset");
 
-const version = document.querySelector("#version");
 //trade
-const total = document.querySelector("#total");
-const time = document.querySelector("#time");
-const settlement = document.querySelector("#settlement");
+
 
 //分页
 const pages = document.querySelectorAll(".page");
@@ -56,6 +54,7 @@ gameModeRadio.forEach((radio) =>
         ui.gameMode = radio.value;
     });
 });
+
 // //开始按钮点击事件
 startScript.addEventListener("click", () =>
 {
@@ -69,13 +68,19 @@ startScript.addEventListener("click", () =>
 });
 updateScript.addEventListener("click", () =>
 {
-    console.log("web update");
     $autox.callHandler("updateScript", "update script", (callBackData) =>
     {
         console.log(callBackData);
     });
 });
 
+reset.addEventListener("click", () =>
+{
+    $autox.callHandler("reset", "reset", (callBackData) =>
+    {
+        console.log(callBackData);
+    });
+});
 function InitUIData(data)
 {
     const game_config = JSON.parse(data);
@@ -201,7 +206,7 @@ function MenuSelect(menu, type)
     });
 }
 MenuSelect(menuList[0], "normal");
-MenuSelect(menuList[1], "special");
+
 MenuSelect(menuList[2], "wild");
 
 document.addEventListener("AutoxJsBridgeReady", () =>

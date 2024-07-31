@@ -5,7 +5,7 @@
 }
 
 body {
-    background-color: #B4F8C8;
+    background-color: #EBF2FA;
     width: 100vw;
     display: flex;
     align-items: center;
@@ -13,13 +13,13 @@ body {
     flex-wrap: wrap;
     flex-direction: column;
     font-size: 11px;
-    color: #170435
+    color: #080213
 }
 
 .neumorphism {
-    background-color: #B4F8C8;
-    box-shadow: 3px 3px 8px #d0f8dd,
-        -3px -3px 8px #96dbab;
+    background-color: #EBF2FA;
+    box-shadow: 3px 3px 8px #ffffff,
+        -3px -3px 8px #bfd3e9;
     /* inset 3px 3px 3px #70a07e, */
     /* inset -6px -6px 10px #a2ebb8; */
 }
@@ -34,10 +34,11 @@ body {
     margin-bottom: 12px;
 }
 
-.page {
-    width: 100vw;
+#container {
+    width: 100%;
     height: calc(100vh - 100px);
 }
+
 
 .flex {
     display: flex;
@@ -268,7 +269,7 @@ button {
     justify-content: center;
     align-items: center;
     height: 40px;
-    background-color: #99f3b4;
+    background-color: #58A4B0;
     font-size: 14px;
     color: white;
     border-bottom: 1px solid white;
@@ -333,10 +334,10 @@ button {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    background-color: #97f8b4;
+    background-color: #58A4B0;
     box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
     height: 60px;
-    width: 100vw;
+    width: 100%;
 }
 
 .tab {

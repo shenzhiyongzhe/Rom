@@ -1,5 +1,25 @@
 const { game_config } = require("./RomConfig");
+const initialSetting = {
+    "ui": {
+        "gameMode": "mainStory",
+        "isBeginner": false,
+        "isRandomServer": false,
+        "instanceQueue": [],
+    },
+    "setting": {
+        "date": 0,
+        "hasDailyBuy": false,
+        "hasFinishedDelegate": false,
+        "deathTimes": 0,
+        "reset": false
+    },
+    "trade": {
+        "monthlyIncome": 0,
+        "priceList": [],
+    }
+};
 let isRunning = false;
+
 function StartScript(data)
 {
     if (isRunning == true)
@@ -60,45 +80,6 @@ const UpdateScript = function ()
     });
 };
 
-const GetConfigFile = () =>
-{
-
-};
-const UpdateGame = function ()
-{
-    // threads.start(function ()
-    // {
-    //     console.log("start update game package:");
-    //     const url = "http://10.6.130.129:82/kakaogames.zip";
-    //     const packageUrl = "/sdcard/Android/kakaogames.zip";
-    //     let r = http.client().newCall(
-    //         http.buildRequest(url, {
-    //             method: "GET",
-    //         })
-    //     ).execute();
-    //     files.createWithDirs("/sdcard/Android/data/");
-    //     let fs = new java.io.FileOutputStream(packageUrl);
-
-    //     let is = r.body().byteStream();
-    //     const buffer = util.java.array("byte", 1024);
-    //     let byteRead; //每次读取的byte数
-
-    //     while ((byteRead = is.read(buffer)) != -1)
-    //     {
-    //         fs.write(buffer, 0, byteRead); //读取
-    //     }
-    //     if (files.exists(packageUrl))
-    //     {
-    //         zips.X(packageUrl, "/sdcard/Android/kakaogames");
-    //         sleep(1000);
-    //         click(580, 765);
-    //     } else
-    //     {
-    //         toastLog('下载失败');
-    //     }
-    // });
-
-};
 const UI = () =>
 {
     ui.layout(`
@@ -107,6 +88,12 @@ const UI = () =>
     </vertical>`);
 
     ui.web.loadUrl("file://" + files.path("./UI/ui.html"));
+
+    if (game_config.setting.reset == undefined)
+    {
+        const path = "/sdcard/Rom/game_config.json";
+        files.write(path, JSON.stringify(initialSetting));
+    }
     ui.web.jsBridge.registerHandler("WebToAndroid", (data, callBack) =>
     {
         StartScript(data);
@@ -122,10 +109,14 @@ const UI = () =>
         UpdateScript();
         callBack("successful");
     });
-    ui.web.jsBridge.registerHandler("updateGame", (data, callBack) =>
+    ui.web.jsBridge.registerHandler("reset", (data, callBack) =>
     {
-        UpdateGame();
-        callBack("successful");
+        const path = "/sdcard/Rom/game_config.json";
+        toastLog(data + " successful");
+
+        files.write(path, JSON.stringify(initialSetting));
+
+        callBack("reset successful");
     });
 
     //定时器中等待web加载完成
@@ -149,7 +140,7 @@ const UI = () =>
         );
         ui.run(function ()
         {
-            floaty_window.settlement.setText(`${game_config.player.trade == undefined ? 0 : game_config.player.trade.settlement}`);
+            floaty_window.monthlyIncome.setText(`${game_config.trade.monthlyIncome}`);
         });
     }, 1000);
 };

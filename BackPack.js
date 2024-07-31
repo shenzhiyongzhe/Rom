@@ -1,7 +1,9 @@
 const { ReadImg, Sleep, RandomPress, GoBack, GetNumber, FindTipPoint, ConvertTradeTime, NoMoneyAlert, FindMultiColors, RandomHollow,
-    FindGreenBtn, OpenMenu, OpenBackpack, CloseBackpack, WaitUntilPageBack, FindCheckMark, FindGrayBtn } = require("./Utils.js");
+    FindGreenBtn, OpenMenu, OpenBackpack, CloseBackpack, WaitUntilPageBack, FindCheckMark, FindGrayBtn,
+    HasMenu } = require("./Utils.js");
 const { EmptyGrid, WhiteSquare, GreenSquare, BlueSquare, PurpleSquare, Equipped, GreenBtn } = require("./Color.js");
 const { PropsCollectionFlow } = require("./Common");
+const { game_config } = require("./RomConfig.js");
 
 
 const EmptyCheck = (region) => FindMultiColors(EmptyGrid, region);
@@ -10,7 +12,53 @@ const EquippedCheck = (region) => FindMultiColors(Equipped, region);
 
 
 // -------------------------------tool ---------------------------
+const CanSell = () =>
+{
+    const sellColorList = [
+        ["#29292a", [[4, 0, "#90907a"], [8, 0, "#272828"], [4, 1, "#90907a"], [4, 4, "#90907a"], [4, 7, "#8e8e79"]]]
+    ];
+    return FindMultiColors(sellColorList, [647, 455, 38, 37]);
+};
+const IsLocked = (region) =>
+{
+    const lockColorList = [
+        ["#a49260", [[4, -2, "#a49563"], [8, -1, "#a49260"], [8, 2, "#a49360"], [7, 5, "#a49360"], [1, 5, "#a39362"]]],
+        ["#a39261", [[5, -1, "#a49563"], [8, 1, "#a49360"], [8, 4, "#a49360"], [5, 6, "#a1905f"], [1, 4, "#a69262"]]]
+    ];
+    return FindMultiColors(lockColorList, region);
+};
+const LockCanSellEquipment = () =>
+{
+    OpenBackpack("equipment");
+    SortEquipment();
+    out: for (let i = 0; i < 5; i++)
+    {
+        for (let j = 0; j < 5; j++)
+        {
+            let isEquip = EquippedCheck([930 + j * 65, 126 + i * 65, 18, 22]);
+            if (isEquip) continue;
 
+            let color = GetWeaponColor([886 + j * 65, 126 + i * 65, 60, 60]);
+            if (color != "green") continue;
+            else if (color == "white") break;
+
+            let isEmpty = EmptyCheck([886 + j * 65, 126 + i * 65, 60, 60]);
+            if (isEmpty) break out;
+
+            let isLocked = IsLocked([887 + j * 65, 162 + i * 65, 20, 26]);
+            if (isLocked) continue;
+
+            RandomPress([897 + j * 65, 140 + i * 65, 40, 37]);
+            let canSell = CanSell();
+            if (canSell)
+            {
+                RandomPress([583, 131, 10, 7]);
+            }
+        }
+    }
+    RandomPress([841, 69, 30, 15]);
+    DecomposeAll();
+};
 
 // -------------------------------open box slab-----------------------------
 const HasNextPageCheck = () =>
@@ -325,7 +373,15 @@ const WearEquipment = () =>
         else return false;
         // return [curEquipColor, equipColor];
     };
-    const IsPlusPower = (shot) =>
+    const IsQualityLess = () =>
+    {
+        const curEquipColor = GetWeaponColor([78, 77, 73, 73]);
+        const selectedEquipColor = GetWeaponColor([579, 77, 73, 74]);
+        const colorPrivilege = ["null", "white", "green", "blue", "purple"];
+        if (colorPrivilege.indexOf(curEquipColor) > colorPrivilege.indexOf(selectedEquipColor)) return true;
+        else return false;
+    };
+    const IsPlusPower = () =>
     {
         const plusArr = [
             ["#107093", [[3, 0, "#058ec0"], [5, 0, "#0a6c8f"], [2, -4, "#197a9f"], [2, 0, "#078fbf"], [2, 4, "#1f4e60"], [2, 6, "#262626"], [-5, -1, "#252526"]]],
@@ -374,11 +430,15 @@ const WearEquipment = () =>
             Sleep();
             let equipmentItem_shot = captureScreen();
             let isQualityBetter_result = IsQualityBetter(equipmentItem_shot);
-            let isPlus = IsPlusPower(equipmentItem_shot);
+            let isPlus = IsPlusPower();
             let newEquip = images.findMultiColors(equipmentItem_shot,
                 "#262626", [[19, 3, "#252626"], [4, 18, "#242526"], [31, 18, "#242526"],],
                 { region: [176, 192, 60, 132] }
             );
+            if (IsQualityLess())
+            {
+                continue;
+            }
             if (isQualityBetter_result == true)
             {
                 RandomPress([895 + j * 65, 135 + i * 65, 40, 40]);
@@ -488,9 +548,14 @@ const DecomposeAllGreenSuit = () =>
     return decomposeSuccess;
 };
 
+/**
+ * 
+ * @param {*} type "armor" "weapon" 
+ * @returns 
+ */
 const FindScroll = (type) =>
 {
-    const scroll = ReadImg(`backpack/scroll/${type}`);
+    const scroll = ReadImg(`backpack/strengthenPageScroll/${type}`);
     let scrollPos = false;
     for (let i = 0; i < 5; i++)
     {
@@ -600,7 +665,11 @@ const StrengthenToLevel_10 = function ()
     {
         let strenghten_shot = captureScreen();
         isUpToLevel_10 = GetNumber("amount", [1089, 607, 49, 31]);
-        if (isUpToLevel_10 > 10) break;
+        if (isUpToLevel_10 > 10)
+        {
+            isUpToLevel_10 = true;
+            break;
+        };
         let hasFailed = images.findMultiColors(strenghten_shot, "#1d1d1f", [[13, 1, "#202020"], [29, 0, "#1e1e1f"], [29, 20, "#202021"],
         [28, 43, "#1e1f20"], [-7, 53, "#1a1a1b"], [-31, 54, "#19191b"], [-35, 32, "#19191b"]], { region: [85, 203, 78, 81] });
         if (hasFailed) break;
@@ -642,12 +711,12 @@ const StrengthenTradeEquipment = function (arr)
     Sleep(2000, 4000);
     RandomPress([1027, 497, 61, 15]); //concel the normal strengthen
     Sleep();
-    const scroll = ReadImg(`backpack/scroll/${type}`);
+    const scroll = ReadImg(`backpack/strengthenPageScroll/${type}`);
     const shot = captureScreen();
     for (let i = 0; i < 5; i++)
     {
-        let isWhite = GetWeaponColor([920 + i * 63, 525, 55, 55]);
-        if (isWhite == "white")
+        let BGcolor = GetWeaponColor([920 + i * 63, 525, 55, 55]);
+        if (BGcolor == "white")
         {
             let hasScroll = images.findImage(shot, scroll, { region: [920 + i * 63, 525, 55, 55] });
             if (hasScroll)
@@ -662,6 +731,55 @@ const StrengthenTradeEquipment = function (arr)
     scroll.recycle();
     GoBack();
     return strengthenSuccess;
+};
+const StrengthenTradeGreenSuit = function ()
+{
+    console.log("start strengthen trade green suit");
+    LockCanSellEquipment();
+    let isStrengthenSuccess = false;
+    OpenBackpack("equipment");
+    out: for (let i = 0; i < 5; i++)
+    {
+        for (let j = 0; j < 5; j++)
+        {
+            let weaponColor = GetWeaponColor([886 + j * 65, 126 + i * 65, 60, 60]);
+            if (weaponColor == "green")
+            {
+                if (EquippedCheck([927 + j * 65, 123 + i * 65, 24, 24]))
+                {
+                    continue;
+                }
+                RandomPress([900 + j * 65, 139 + i * 65, 33, 35]);
+                Sleep();
+                let isLocked = IsLocked([574, 113, 31, 37]);
+                if (isLocked)
+                {
+                    RandomPress([582, 132, 10, 6]);
+                    Sleep();
+                    let canSell = CanSell();
+                    if (canSell)
+                    {
+                        RandomPress([604, 466, 16, 18]);
+                        WaitUntilPageBack();
+                        RandomPress([1029, 497, 63, 15]);
+                        let scroll = FindScroll("armor");
+                        if (scroll)
+                        {
+                            RandomPress([scroll.x, scroll.y, 10, 10]);
+                            isStrengthenSuccess = StrengthenToLevel_10();
+
+                        }
+                        break out;
+                    }
+                }
+
+            }
+        }
+    }
+    CloseBackpack();
+    GoBack();
+    console.log("end: strengthen armor");
+    return isStrengthenSuccess;
 };
 
 // ---------------------------------trade ------------------------------
@@ -735,14 +853,14 @@ const SaleEquipment = function ()
     let salePrice = 0;
     Sleep(2000, 3000);
     RandomPress([1232, 298, 22, 30]); // equipment icon;
-    const shot = captureScreen();
+
     out: for (let i = 0; i < 5; i++)
     {
         for (let j = 0; j < 5; j++)
         {
             Sleep();
             let color = GetWeaponColor([875 + j * 65, 175 + i * 65, 60, 60]);
-            if (color == "white" || color == "green" || color == "blue" || color == "purple")
+            if (color == "green" || color == "blue" || color == "purple")
             {
                 RandomPress([887 + j * 65, 188 + i * 65, 40, 35]); // click the equipment
                 Sleep(1000, 3000);
@@ -819,61 +937,26 @@ const GetSettlement = function ()
         {
             settlement = 0;
         }
-        let todaySettlementTimes, lastSettlement;
-        const player = game_config.player;
 
-        if (player.trade == undefined)
-        {
-            player.trade = {};
-        }
-        if (typeof player.trade.todaySettlementTimes != "number")
-        {
-            player.trade.todaySettlementTimes = 0;
-        }
-        if (typeof player.trade.settlement != "number")
-        {
-            player.trade.settlement = 0;
-        }
-        todaySettlementTimes = player.trade.todaySettlementTimes;
-        lastSettlement = player.trade.settlement;
-        const isFirstDayofMonth = new Date().getDate() == 1;
-        if (isFirstDayofMonth)
+        if (new Date().getDate() == 1)
         {
             if (todaySettlementTimes == 0)
             {
-                lastSettlement = 0;
+                game_config.trade.monthlyIncome = 0;
             }
-            else
-            {
-                todaySettlementTimes++;
 
-            }
         }
-        else
-        {
-            todaySettlementTimes = 0;
-        }
-        settlement = settlement + lastSettlement;
-        const lastTime = ConvertTradeTime(GetNumber("amount", [1050, 670, 44, 36]));
 
         RandomPress([1118, 674, 127, 30]); //settlement btn;
         Sleep();
 
-        const total = GetNumber("amount", [504, 3, 113, 32]);
         console.log("Today earnings: " + settlement + " 钻石");
-        player.trade.total = total;
-        player.trade.settlement = settlement;
-        player.trade.lastTime = lastTime;
-        player.trade.todaySettlementTimes = todaySettlementTimes;
-        RWFile("player", player);
-        Sleep();
-        ui.web.jsBridge.callHandler('updateTradeRecord', JSON.stringify(player.trade), (data) =>
-        {
-            console.log("update trade record success" + data);
-        });
+        game_config.trade.monthlyIncome += settlement;
+        RWFile("trade", game_config.trade);
+
         ui.run(function ()
         {
-            floaty_window.settlement.setText(`${settlement}`);
+            floaty_window.monthlyIncome.setText(`${game_config.trade.monthlyIncome}`);
         });
     }
     else
@@ -898,36 +981,22 @@ const RePutOnShelf = function ()
 
 const PutOnSale = function ()
 {
-    let hadSold = false;
-    // PropsCollectionFlow();
-    Sleep(2000, 3000);
     console.log("start put on sale");
-    DecomposeAllGreenSuit();
-    Sleep();
-    SortEquipment();
-    const priceList = GetAllEquipmentPrice();
-    if (priceList.length == 0)
+    let hadSold = false;
+    const hasMenu = HasMenu();
+    if (!hasMenu)
     {
-        console.log("no equipment to sale");
-        hadSold = false;
-        RandomPress([843, 69, 28, 15]); //close the equipment detail page;
+        console.log("No Menu");
+        return false;
     }
-    else
-    {
-        StrengthenTradeEquipment(priceList);
-        Sleep(2000, 3000);
-        OpenBackpack("equipment");
-    }
-    DecomposeAll();
-    Sleep();
-    RandomPress([1024, 15, 28, 31]); // trade icon;
-    Sleep(3000, 5000);
-    RandomPress([180, 99, 54, 23]); // sell page
-    Sleep();
+    RandomPress([1025, 20, 25, 25]);
+    WaitUntilPageBack();
+    RandomPress([166, 103, 74, 20]);
     const totalPrice = SaleEquipment();
     if (totalPrice > 0)
     {
         hadSold = true;
+        game_config.trade.monthlyIncome += totalPrice;
     }
     else
     {
@@ -935,13 +1004,13 @@ const PutOnSale = function ()
     }
 
     Sleep(1000, 3000);
-    SaleMaterials();
     Sleep();
     RePutOnShelf();
     Sleep();
     GetSettlement();
     GoBack();
     Sleep();
+
     return hadSold;
 };
 
@@ -952,7 +1021,7 @@ module.exports = {
     StrengthenPlayerEquipment,
     DecomposeAll,
     PutOnSale,
+    StrengthenTradeGreenSuit
 };
-
 
 

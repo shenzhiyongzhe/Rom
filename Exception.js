@@ -7,11 +7,12 @@ const {
 
 } = require("./Utils.js");
 
-const { PickUpExpOrEquipment } = require("./Player.js");
+const { PickUpExpOrEquipment, ModeFlow } = require("./Player.js");
 const { IncreaseCount } = require("./PeriodicallyCheck.js");
-const { Daily } = require("./Daily.js");
-const { game_config } = require("./RomConfig.js");
-
+const { Daily, CheckDelegate } = require("./Daily.js");
+const { game_config, RWFile } = require("./RomConfig.js");
+const { AutoBattleCheck } = require("./Instance.js");
+const { DecomposeAll } = require("./BackPack.js");
 const imgList = {
     noPotion: ReadImg("exception/noPotion")
 };
@@ -56,23 +57,11 @@ const PotionCheck = () =>
     return false;
 };
 
-
-
-const GameModeCheck = () =>
+const NoMovingCheck = () =>
 {
-    const mode = game_config.ui.gameMode;
-    if (mode == "mainStory")
-    {
-        console.log("mainStoryCheck");
-    }
-    else if (mode == "instance")
-    {
-        console.log("instanceCheck");
-    }
-    else if (mode == "delegate")
-    {
-        console.log("delegateCheck");
-    }
+    const clip = images.clip(captureScreen(), 615, 301, 60, 113);
+    sleep(5000);
+    return images.findImage(captureScreen(), clip, { region: [615, 301, 60, 113] });
 };
 
 
@@ -138,6 +127,7 @@ const PotionFlow = () =>
         ReturnHome();
     }
     RandomPress([77, 275, 94, 29]);
+    Sleep(4000, 6000);
     WaitUntilPageBack();
     const curLoad = GetNumber("amount", [1161, 599, 45, 41]);
     const totalLoad = GetNumber("amount", [1199, 605, 44, 30]);
@@ -191,9 +181,9 @@ const PotionFlow = () =>
 
     RandomPress([929, 657, 304, 32]);
     GoBack();
-
-    const potionNum = GetNumber("tinyfont", [978, 661, 32, 30]);
-    if (potionNum < 10)
+    Sleep();
+    const potionNum = PotionCheck();
+    if (potionNum)
     {
         alert("no money", "没钱买药水");
     }
@@ -219,8 +209,20 @@ const DeathFlow = () =>
     RandomPress([553, 547, 175, 30]);
     Sleep(3000, 5000);
     PickUpExpOrEquipment();
-    PotionCheck() && PotionFlow();;
-
+    PotionCheck() && PotionFlow();
+    if (game_config.setting.deathTimes == undefined)
+    {
+        game_config.setting.deathTimes = 1;
+    }
+    else
+    {
+        game_config.setting.deathTimes++;
+    }
+    RWFile("setting", game_config.setting);
+    if (game_config.setting.deathTimes > 2)
+    {
+        alert("死亡次数过多", "死亡次数：" + game_config.setting.deathTimes + "次");
+    }
 };
 
 const DisconnectionFlow = () =>
@@ -275,7 +277,22 @@ const InCityFlow = () =>
     Daily();
 };
 
-
+const GameModeCheck = () =>
+{
+    if (game_config.ui.gameMode == "instance")
+    {
+        let isInCity = IsInCity();
+        if (!isInCity)
+        {
+            AutoBattleCheck();
+        }
+    }
+};
+const NoMovingFlow = () =>
+{
+    CheckDelegate();
+};
+// ---------------------- End -------------------- 
 const MakeSureInGame = () =>
 {
     console.log("make sure in game");
@@ -316,6 +333,9 @@ const Exception = () =>
 
     HasAttackByOthers() && AttackedFlow();
 
+    NoMovingCheck() && NoMovingFlow();
+
+    GameModeCheck();
     IncreaseCount();
 };
 

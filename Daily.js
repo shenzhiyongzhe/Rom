@@ -1,11 +1,11 @@
 const { Sleep, RandomPress, GoBack, PressBlank, OpenMenu, GetNumber, RandomSwipe, FindTipPoint, RandomHollow,
     FindMultiColors, ReadImg, FindGreenBtn, FindGrayBtn, SwipToBottom, HasPageBack, WaitUntilMenu, WaitUntilPageBack, FindCheckMark,
-    CloseMenu } = require("./Utils.js");
-const { OpenAllEquipmentBox, OpenAllProps, StrengthenPlayerEquipment, } = require("./BackPack.js");
+    CloseMenu, HasMenu } = require("./Utils.js");
+const { OpenAllEquipmentBox, OpenAllProps, StrengthenPlayerEquipment, StrengthenTradeGreenSuit, PutOnSale, } = require("./BackPack.js");
 
 
 const { game_config, RWFile } = require("./RomConfig.js");
-const { MakeComsumables } = require("./Manufacture.js");
+const { MakeComsumables, MakeGreenSuit } = require("./Manufacture.js");
 const { EnterInstanceZones } = require("./Instance.js");
 
 
@@ -81,13 +81,13 @@ const GetEmail = function ()
                 Sleep(2000, 4000);
             }
             Sleep();
-            canGetAward = images.findMultiColors(captureScreen(), "#3b4436", [[5, 19, "#2b3428"], [118, 9, "#373f32"], [136, 28, "#2e362a"]], { region: [1044, 635, 214, 77] });
+            canGetAward = FindGreenBtn([1015, 628, 251, 88]);
             if (canGetAward)
             {
                 RandomPress([1078, 659, 154, 33]);
                 Sleep(8000, 12000);
                 let isOverMax = overMaxNumber();
-                if (isOverMax == false) PressBlank();
+                if (isOverMax == false) RandomHollow([405, 273, 672, 136]);
             }
         }
         else break;
@@ -99,84 +99,74 @@ const GetEmail = function ()
 
 const GetDuty = function ()
 {
-    //寻找满进度条
-    const FindMaxProgressBar = function (shot)
+    console.log("Start : Get Duty Award");
+    OpenMenu();
+    const hasDutyTipPoint = FindTipPoint([1176, 184, 30, 27]);
+    if (!hasDutyTipPoint)
     {
-        let maxArr = [];
+        console.log("End: no award to pick up");
+        return false;
+    }
+    RandomPress([1166, 207, 18, 20]);
+
+    const redCheckMarkColorList = [
+        ["#ff5a27", [[6, 5, "#ff4329"], [10, 10, "#ff3e28"], [20, -10, "#ff431d"]]],
+        ["#ff8f72", [[5, 4, "#ff6d63"], [10, 10, "#ff3b3a"], [20, -9, "#ff402a"]]],
+        ["#ff4431", [[6, 5, "#ff392b"], [8, -2, "#ff4219"], [16, -15, "#ff4c20"]]],
+        ["#ff4032", [[4, 3, "#ff6349"], [9, -6, "#ff3f34"], [13, -13, "#ff3d29"]]],
+        ["#ff432d", [[10, 10, "#ff3d30"], [17, -2, "#ff3b28"], [20, -8, "#ff3e29"]]],
+        ["#ff4932", [[7, 6, "#ff4331"], [10, 9, "#ff3f2c"], [20, -9, "#ff3921"]]],
+        ["#ff2d19", [[7, 7, "#ff2e18"], [11, -1, "#ff3e2c"], [14, -6, "#ff3c26"]]],
+        ["#ff432e", [[5, 4, "#ff392b"], [8, 0, "#ff3d29"], [17, -14, "#ff401a"]]],
+        ["#ff4b1f", [[6, 7, "#ff392c"], [9, 4, "#ff3d2d"], [17, -9, "#ff3c1b"]]]
+    ];
+    const popupColorList = [
+        ["#4c4c4c", [[8, 3, "#8b7c63"], [15, 11, "#514e3d"], [17, 3, "#938c69"], [9, 10, "#7c7359"]]],
+        ["#857b63", [[8, 8, "#7a7a5c"], [5, -1, "#968d72"], [0, 5, "#807555"]]]
+    ];
+    const HasPopup = () => FindMultiColors(popupColorList, [742, 112, 63, 42]);
+
+    const PickAward = () =>
+    {
+        const shot = captureScreen();
         for (let i = 0; i < 3; i++)
         {
             for (let j = 0; j < 2; j++)
             {
-                let isProgressBarMax = images.findMultiColors(shot,
-                    "#222222", [[175, 0, "#8f4c1c"], [307, 0, "#8f4c1b"], [388, 0, "#8f4a1b"], [389, 4, "#59361f"], [391, 0, "#222222"],],
-                    { region: [140 + j * 500, 440 + i * 76, 110, 20], threshold: 16, });
-                if (isProgressBarMax)
+                let isFinished = images.findMultiColors(shot, "#222222", [[11, 0, "#8f4d1d"], [396, 0, "#432e20"], [398, 0, "#222222"]], { region: [139 + j * 500, 431 + i * 78, 435, 50] });
+                if (!isFinished)
                 {
-                    maxArr.push(isProgressBarMax);
+                    continue;
+                }
+                let canPickup = FindMultiColors(redCheckMarkColorList, [563 + j * 500, 404 + i * 78, 74, 72]);
+                if (!canPickup)
+                {
+                    if (HasPopup())
+                    {
+                        RandomPress([765, 124, 25, 14]);
+                        Sleep();
+                    }
+                    RandomPress([581 + j * 500, 424 + i * 78, 36, 32]);
+                    Sleep();
                 }
             }
         }
-        return maxArr;
     };
-    //寻找没有领取的奖励的点
-    const CanPickUpPoints = function (shot)
-    {
-        let points = [];
-        const maxArr = FindMaxProgressBar(shot);
-        if (maxArr.length == 0) return false;
-        maxArr.forEach((element) =>
-        {
-            let isPickable = images.findMultiColors(shot, "#ff4a3d", [[3, 2, "#ff4335"], [4, 4, "#ff5549"], [9, -5, "#ff4a3d"], [12, -11, "#ff4c3c"]],
-                { region: [element.x + 400, element.y - 40, 80, 100] });
-            let isPickable_2 = images.findMultiColors(shot, "#ff836b", [[8, 9, "#ff3b3a"], [12, 0, "#ff8365"], [18, -10, "#ff412a"]],
-                { region: [element.x + 400, element.y - 40, 80, 100] });
-            if (isPickable == null && isPickable_2 == null)
-            {
-                let x = element.x + 417;
-                let y = element.y - 37;
-                points.push([x, y, 40, 40]);
-            }
-        });
 
-        return points;
-    };
-    //领取奖励
-    const DutyPickUp = function (shot)
+    if (FindTipPoint([244, 67, 110, 44]))
     {
-        const canPickArr = CanPickUpPoints(shot);
-        if (canPickArr.length == 0) return false;
-        canPickArr.forEach((element) =>
-        {
-            RandomPress(element);
-            Sleep(1000, 2000);
-        });
-    };
-    OpenMenu();
-    Sleep(2000, 4000);
-    const hasDutyTip = images.findMultiColors(captureScreen(), "#b72313", [[0, 2, "#bd2515"], [0, 4, "#be2417"]], { region: [1172, 175, 41, 45] });
-    if (!hasDutyTip) return;
-
-    RandomPress([1161, 203, 24, 25]); //duty icon;
-    Sleep(2000, 4000);
-    let shot = captureScreen();
-    for (let i = 0; i < 3; i++)
-    {
-        let hasTip = images.findMultiColors(shot, "#b52211", [[-1, 2, "#d02919"], [1, 2, "#c02515"], [1, 4, "#c72a1c"]], { region: [272 + i * 176, 56, 73, 45] });
-        let hasTip_2 = images.findMultiColors(shot, "#aa2111", [[-2, 2, "#c62717"], [1, 2, "#c32617"], [-1, 3, "#c22618"]], { region: [272 + i * 176, 56, 73, 45] });
-        if (hasTip == null && hasTip_2 == null) continue;
-        let isCurPage = images.findMultiColors(shot, "#ca9653", [[4, -1, "#a67032"], [11, -1, "#af7533"]], { region: [183 + i * 176, 99, 92, 28] });
-        if (!isCurPage) 
-        {
-            RandomPress([173 + i * 176, 82, 124, 26]);
-            Sleep();
-            shot = captureScreen();
-        }
-        //pick award
-        DutyPickUp(shot);
+        PickAward();
     }
-    RandomPress([1112, 69, 38, 16]); //close 
+    if (FindTipPoint([461, 63, 80, 35]))
+    {
+        RandomPress([354, 83, 113, 23]);
+        Sleep();
+        PickAward();
+    }
+    RandomPress([1116, 68, 32, 17]);
     console.log("get duty award, finished pick up");
 };
+
 const BulkBuy = function ()
 {
     if (game_config.setting.hasDailyBuy == true)
@@ -208,7 +198,7 @@ const BulkBuy = function ()
     WaitUntilPageBack();
     Sleep(2000, 4000);
     const totalMoney = GetNumber("amount", [590, 3, 121, 35]);
-    if (totalMoney < 700000)
+    if (totalMoney < 1500000)
     {
         console.log("当前金币为：" + totalMoney + " not enough money to buy anything");
         GoBack();
@@ -220,91 +210,60 @@ const BulkBuy = function ()
         return false;
     }
     RandomPress([26, 530, 163, 32]); //bulk btn
-    let x1 = random() * 10 + 219;
-    let y1 = random() * 10 + 573;
 
-    press(x1, y1, random() * 250 + 16); //select all
-    Sleep(2000, 4000);
 
-    //click cancel all
-    for (let i = 0; i < 10; i++)
+
+    const curSelectPrice = GetNumber("amount", [772, 561, 103, 41]);
+    if (curSelectPrice == 1499704)
     {
-        Sleep();
-        let x2 = random() * 10 + 219;
-        let y2 = random() * 10 + 573;
-        if (x1 != x2 || y1 != y2)
+        console.log("今天没有购买，开始全部购买");
+        if (FindGreenBtn([881, 549, 183, 56]))
         {
-            press(x2, y2, random() * 250 + 16);
-            Sleep(2000, 4000);
-            break;
+            RandomPress([898, 565, 154, 27]);
+            Sleep(10000, 12000);
+            RandomHollow([260, 284, 806, 142]);
+            RandomHollow([260, 284, 806, 142]);
+            game_config.setting.hasDailyBuy = true;
+            RWFile("setting", game_config.setting);
+            GoBack();
         }
-    }
-
-    SwipToBottom([703, 483, 72, 34], [692, 473, 88, 54], [341, 441, 448, 67], [355, 211, 444, 66]);
-    const hadBought = GetNumber("amount", [878, 332, 46, 52]);
-    if (hadBought != 5)
-    {
-        console.log("今天已经购买，返回");
-        RandomPress([1069, 117, 29, 15]);
-        GoBack();
-        game_config.setting.hasDailyBuy = true;
-        RWFile("setting", game_config.setting);
-        return;
-    }
-
-    if (totalMoney >= 700000 && totalMoney < 1040000)
-    {
-        console.log("当前金币为：" + totalMoney + " can only buy scroll");
-        RandomPress([218, 277, 16, 16]); // weapon scroll;
-        RandomPress([218, 350, 15, 14]); // defence scroll 
-        pressMaxScroll();
-    }
-    else if (totalMoney >= 1040000 && totalMoney < 1440000)
-    {
-        console.log("当前金币为：" + totalMoney + " can buy scroll and slab");
-        RandomPress([218, 573, 15, 14]); // select all btn
-        //cancel the return home scroll treasure box crystal box
-        RandomPress([218, 206, 16, 14]); // return home scroll
-        RandomPress([218, 420, 15, 16]); //treasure box
-        RandomPress([216, 492, 17, 16]); // crystal box
-        pressMaxScroll();
     }
     else
     {
-        console.log("当前金币为：" + totalMoney + " can buy scroll, slab and crystal box");
-        RandomPress([218, 573, 15, 14]); // select all btn
-        RandomPress([218, 206, 16, 14]); // return home scroll
-        RandomPress([218, 420, 15, 16]); //treasure box
-        RandomPress([967, 493, 14, 12]); // plus crystal box
+        let x1 = random() * 10 + 219;
+        let y1 = random() * 10 + 573;
+        press(x1, y1, random() * 250 + 16); //select all
+
+        Sleep(2000, 4000);
+        SwipToBottom([708, 489, 62, 24], [672, 470, 120, 65], [514, 496, 58, 25], [504, 204, 81, 25]);
+
         pressMaxScroll();
+        RandomPress([218, 206, 15, 14]); //cancel return home scroll
+        RandomPress([218, 421, 15, 16]); // cancel equipment box
+        const crystalBoxNum = GetNumber("amount", [877, 480, 45, 44]);
+        if (crystalBoxNum != 2)
+        {
+            RandomPress([967, 494, 17, 12]);
+        }
+        const selectedPrice = GetNumber("amount", [772, 561, 103, 41]);
+
+        // if (selectedPrice != 1284020)
+        // {
+        //     alert("购买商品出错：请排查");
+        // }
+        if (FindGreenBtn([881, 549, 183, 56]))
+        {
+            RandomPress([898, 565, 154, 27]);
+            Sleep(10000, 12000);
+            RandomHollow([260, 284, 806, 142]);
+            RandomHollow([260, 284, 806, 142]);
+            game_config.setting.hasDailyBuy = true;
+            RWFile("setting", game_config.setting);
+        }
     }
-    Sleep(3000, 6000);
-    if (FindGreenBtn([882, 547, 186, 61]))
-    {
-        RandomPress([900, 565, 148, 26]); // buy btn 
-        const setting = game_config.setting;
-        setting.hasDailyBuy = true;
-        RWFile("setting", setting);
-    }
-    Sleep(12000, 15000);
-    RandomHollow([210, 311, 847, 81]);
-    const hasNeedClickOnceMore = images.findMultiColors(captureScreen(), "#493426", [[12, 1, "#8d6f50"], [30, 3, "#906c51"], [29, 15, "#91694a"], [14, 17, "#ebe7d5"],
-    [-4, 17, "#6b4d3c"], [4, 27, "#9d9168"], [29, 26, "#6d6648"]], { region: [595, 120, 91, 92] });
-    if (totalMoney > 1440000 || hasNeedClickOnceMore)
-    {
-        RandomHollow([210, 311, 847, 81]);
-    }
-    console.log("bulk buy finished");
-    Sleep();
-    const hasGrayBtn = FindGrayBtn([421, 561, 202, 58]);
-    if (hasGrayBtn)
-    {
-        RandomPress([445, 576, 159, 26]);
-        Sleep();
-    }
+
     GoBack();
-    Sleep();
-    return true;
+
 };
 
 const EnterDelegatePage = () =>
@@ -368,6 +327,7 @@ const GetDelegate = () =>
 const StartDelegate = () =>
 {
     console.log("start delegate...");
+    const isFinished = false;
     const greenCircleColorList = [
         ["#76624e", [[25, 1, "#685a49"], [5, 0, "#556b13"], [19, 1, "#688612"], [13, 7, "#67821a"], [13, -6, "#85b013"], [12, 0, "#222222"], [8, -4, "#6c9009"]]],
         ["#735f4b", [[26, 1, "#695746"], [13, 7, "#617c16"], [13, -6, "#6c9015"], [7, 0, "#6b870f"], [20, 0, "#6c8c11"], [14, 0, "#222222"], [17, -5, "#85a801"]]],
@@ -387,17 +347,29 @@ const StartDelegate = () =>
             if (FindGreenBtn([1065, 652, 202, 58]))
             {
                 RandomPress([1079, 665, 172, 32]);
+                Sleep(6000, 9000);
+                isFinished = true;
                 break;
             }
             else break;
         }
     }
+    if (isFinished == false)
+    {
+        game_config.ui.gameMode = "delegate";
+    }
+    else
+    {
+        game_config.ui.gameMode = "instance";
+    }
+    RWFile("setting", game_config.setting);
 };
 const CheckDelegate = () =>
 {
     if (game_config.setting.hasFinishedDelegate == true)
     {
         console.log("^^今日委托已做完");
+        EnterInstanceZones();
         return;
     }
     console.log("检查委托......");
@@ -462,6 +434,13 @@ const CheckDelegate = () =>
 
 const Daily = function ()
 {
+    console.log("Start: Daily Flow");
+    const hasMenu = HasMenu();
+    if (!hasMenu)
+    {
+        console.log("没有菜单，返回");
+        return false;
+    }
     const setting = game_config.setting;
     const date = new Date().getDate();
     const hasMenuTipPoint = MenuTipPointCheck();
@@ -476,6 +455,7 @@ const Daily = function ()
         setting.date = date;
         game_config.setting.hasDailyBuy = false;
         game_config.setting.hasFinishedDelegate = false;
+        game_config.setting.deathTimes = 0;
 
         console.log("今天" + date + "号");
         RWFile("setting", setting);
@@ -493,21 +473,20 @@ const Daily = function ()
         Sleep();
         StrengthenPlayerEquipment("ornament");
         Sleep();
-        // ForgeMaterial();
+        MakeGreenSuit();
+
+        StrengthenTradeGreenSuit();
+        PutOnSale();
     }
+
     CloseMenu();
     GoBack();
     CheckDelegate();
-    if (game_config.setting.hasFinishedDelegate == true)
-    {
-        EnterInstanceZones();
-    }
+
     BulkBuy();
 };
 
 module.exports = { CheckDelegate, BulkBuy, Daily };
-
-
 
 
 

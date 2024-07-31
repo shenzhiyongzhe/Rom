@@ -1,42 +1,8 @@
 
-let game_config = {
-    "player": {
-        "deathtime": 0,
-        "level": 1,
-        "profession": "archer",
-        "equipment": {
-            "weapon": { "color": "white", "level": 0 },
-            "helmet": { "color": "white", "level": 0 },
-            "underwear": { "color": "white", "level": 0 },
-            "chestplate": { "color": "white", "level": 0 },
-            "plate": { "color": "white", "level": 0 },
-            "brachialArmor": { "color": "white", "level": 0 },
-            "pants": { "color": "white", "level": 0 },
-            "boots": { "color": "white", "level": 0 },
-            "glyph": { "color": "white", "level": 0 }
-        },
-        "trade": {
-            "total": 0,
-            "lastTime": "",
-            "settlement": 0,
-            "todaySettlementTimes": 0
-        }
-    },
-    "ui": {
-        "gameMode": "mainStory",
-        "isBeginner": false,
-        "isRandomServer": false,
-        "instanceQueue": [],
-    },
-    "setting": {
-        "date": 0,
-        "hasDailyBuy": false,
-        "hasFinishedDelegate": false
-    }
-};
-const jsonFile = "/sdcard/Rom/game_config.json";
+let game_config = {};
 function RWFile(type, obj)
 {
+    const jsonFile = "/sdcard/Rom/game_config.json";
     const isCreate = files.createWithDirs(jsonFile);
     if (isCreate)
     {
@@ -47,17 +13,9 @@ function RWFile(type, obj)
     {
         return data;
     }
-    else if (type == "player")
+    else
     {
-        data.player = obj;
-    }
-    else if (type == "ui")
-    {
-        data.ui = obj;
-    }
-    else if (type == "setting")
-    {
-        data.setting = obj;
+        data[type] = obj;
     }
     try
     {

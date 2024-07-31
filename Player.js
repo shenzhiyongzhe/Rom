@@ -1,4 +1,4 @@
-const { ReadImg, Sleep, RandomPress, GoBack, GetNumber, FindMultiColors, FindGreenBtn, FindCheckMark,FindTipPoint } = require("./Utils.js");
+const { ReadImg, Sleep, RandomPress, GoBack, GetNumber, FindMultiColors, FindGreenBtn, FindCheckMark, FindTipPoint } = require("./Utils.js");
 const { WearEquipment } = require("./BackPack.js");
 const { BlueSquare } = require("./Color.js");
 
@@ -228,6 +228,7 @@ const PickUpExpOrEquipment = () =>
     if (!canPickup)
     {
         console.log("End Flow: 没有十字架图标，没有装备或经验可拾取");
+        return false;
     };
 
     const expColorList = [

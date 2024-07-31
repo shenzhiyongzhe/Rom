@@ -1,11 +1,10 @@
 const { ReadImg, RandomPress, Sleep, FindMultiColors, GetNumber, SaveShot, GoBack, OpenMenu, IsHaltMode, ExitHaltMode,
-    UseRandomTransformScroll } = require("./Utils");
-
-
-const { AbilityPointsFlow } = require("./Common");
-const { GreenBtn, DeepGreenBtn } = require("./Color");
-
-
+    UseRandomTransformScroll,
+    HasMenu,
+    FindGreenBtn, 
+    CloseMenu,
+    WaitUntilPageBack,
+    FindCheckMark} = require("./Utils");
 
 const WorldMap = {
     "06": "림스트", //林斯特
@@ -15,7 +14,7 @@ const WorldMap = {
     "10": "악어 숲", //鳄鱼森林
     "11": "린포트", //林波特
     "12": "안개 계곡", //迷雾之谷    
-    "13": "고대 미궁 B2", //远古迷宫B213. 
+    "13": "고대 미궁 B2", //远古迷宫B2. 
     "14": "카렌 화산", //凯伦火山 카렌 화산
     "15": "카타콤 B2", //地下墓穴B2
     "16": "드베르그", //迪贝格   
@@ -34,25 +33,24 @@ const WorldMap = {
     "29": "지하 신전", //地下神殿 지하 신전 지하 신전
     "30": "드베르그 B2", //迪贝格B2
 };
-const instancePos = [
-    [42, 202, 173, 325],
-    [283, 167, 185, 368],
-    [538, 167, 179, 377],
-    [783, 169, 182, 361],
-    [1038, 168, 176, 365],
+
+const auto_inactiveColorList = [
+    ["#959597", [[4, 0, "#717167"], [10, -1, "#757466"], [15, -1, "#999999"], [16, -1, "#a2a0a1"]]]
 ];
-const instanceLevel = [
-    [396, 225, 493, 38],
-    [396, 289, 490, 38],
-    [393, 353, 496, 38]
+const auto_activeColorList = [
+    ["#c7a895", [[11, -1, "#af794f"], [17, -1, "#b48567"], [18, 0, "#b99277"], [16, 5, "#c4a28b"]]]
 ];
 
+const instanceAutoColorList = [
+    ["#a47a44", [[10, 0, "#a77d46"], [16, 0, "#81633b"], [20, 4, "#9b7445"], [8, 16, "#8c6a3f"]]],
+    ["#745631", [[6, 3, "#7d5d33"], [9, 3, "#73552f"], [16, 3, "#9b7140"], [21, 3, "#967041"]]],
+    ["#866740", [[-1, 10, "#8c7254"], [6, 10, "#a48055"], [9, 10, "#99754a"], [14, 10, "#9f794b"]]]
+]
 const GetInstanceQueue = function ()
 {
     let instanceQueue = [];
     console.log("get instance queue:" + game_config.ui.instanceQueue);
-    game_config.ui.instanceQueue.forEach((item) => { if (item.type == "special") instanceQueue.push(item); });
-    game_config.ui.instanceQueue.forEach((item) => { if (item.type == "normal") instanceQueue.push(item); });
+
     game_config.ui.instanceQueue.forEach((item) => 
     {
         if (item.type == "wild")
@@ -64,19 +62,25 @@ const GetInstanceQueue = function ()
     });
     return instanceQueue;
 };
-const AutoBattleCheck = (shot) =>
+
+const AutoBattleCheck = () =>
 {
-    shot = shot || captureScreen();
-
-    const autoBattle = ReadImg("icon/autoBattle");
-    const autoBattle_gray = ReadImg("icon/autoBattle_gray");
-    const hasAuto = images.findImage(shot, autoBattle, { region: [1132, 513, 98, 101] });
-    const hasAuto_gray = images.findImage(shot, autoBattle_gray, { region: [1132, 513, 98, 101] });
-
-    if (!hasAuto && hasAuto_gray)
+    const hasMenu = HasMenu();
+    if (!hasMenu)
+    {
+        return false;
+    }
+    const hasAuto_active = FindMultiColors(auto_activeColorList, [1132, 513, 98, 101]);
+    const hasAuto_inactive = FindMultiColors(auto_inactiveColorList, [1132, 513, 98, 101]);
+    if (hasAuto_active && !hasAuto_inactive)
+    {
+        return true;
+    }
+    else
     {
         RandomPress([1161, 549, 35, 29]);
-        console.log("auto battle");
+        console.log("click auto battle btn ...");
+        return false
     }
 };
 const NoMoneyEnterInstanceCheck = (level) =>
@@ -158,7 +162,7 @@ const GoWild = (number) =>
         const needCollected = images.findMultiColors(shot, "#d2a858", [[-4, 4, "#d0ac57"], [-4, 11, "#cba653"], [3, 10, "#c5a24f"]], { region: [958, 78, 54, 64] });
         if (!needCollected) RandomPress([977, 100, 20, 21]);
     };
-    const NoNeedTransformCheck = () => FindMultiColors(DeepGreenBtn, [943, 641, 243, 60]);
+    const NoNeedTransformCheck = () => !FindGreenBtn([943, 641, 243, 60]);
     const AlreadThereCheck = (img) =>
     {
         const positionIcon = [
@@ -261,114 +265,36 @@ const GoWild = (number) =>
             log("go to the wild: " + number + mapName);
         }
     }
+    GoBack();
     map_numberImg.recycle();
 };
-const EnterInstanceZones = () =>
+
+
+
+const AutoEnterSpecialInstance = () =>
 {
-    console.log("enter instance zones...");
-    const isHaltMode = IsHaltMode();
-    if (isHaltMode)
+    console.log("auto enter special instance...");
+    const hasOpen = OpenMenu()
+    if(!hasOpen)
     {
-        ExitHaltMode();
+        return false
     }
-    const instanceQueue = GetInstanceQueue();
-
-    // no special and normal instance check
-    const specialQueue = instanceQueue.filter(x => x.type === "special" || x.type === "normal");
-    const wildQueue = instanceQueue.filter(x => x.type === "wild");
-    if (specialQueue.length === 0 && wildQueue.length > 0)
+    RandomPress([960, 288, 23, 26]);
+    WaitUntilPageBack()
+    RandomPress([185, 104, 40, 20]);
+    
+    if (FindGreenBtn([1095, 653, 157, 53])) // auto enter
     {
-        for (let i = 0; i < wildQueue.length; i++)
-        {
-            let instance = wildQueue[i];
-            if (instance.type === "wild")
-            {
-                GoWild(instance.index);
-                break;
-            }
-        };
-
+        RandomPress([1095, 653, 157, 53]);
     }
-    else if (specialQueue.length == 0 && wildQueue.length === 0)
-    {
-        alert("No instance to enter!");
-    }
-    else
-    {
-        OpenMenu();
-        Sleep(3000, 5000);
-        RandomPress([958, 286, 27, 34]); //instance icon
-        Sleep(3000, 6000);
-
-        const instanceFinish = ReadImg('icon/instance_finish');
-        for (let i = 0; i < instanceQueue.length; i++)
-        {
-            if (instanceQueue[i].type == "special")
-            {
-                RandomPress([176, 92, 57, 39]); //special zone page
-                Sleep();
-                curInstanceType = "special";
-            }
-            else if (instanceQueue[i].type == "normal")
-            {
-                RandomPress([45, 101, 82, 25]); //normal zone page
-                Sleep();
-                curInstanceType = "normal";
-            }
-            else if (instanceQueue[i].type == "wild")
-            {
-                RandomPress([1188, 20, 83, 28]);
-                GoWild(instanceQueue[i].index);
-                break;
-            }
-
-            let hasEntered = images.findImage(captureScreen(), instanceFinish, { region: [168 + parseInt(instanceQueue[i].index) * 250, 540, 93, 40] });
-
-            if (hasEntered) continue;
-
-            RandomPress(instancePos[instanceQueue[i].index]);
-            Sleep(2000, 4000);
-            NoMoneyEnterInstanceCheck(instanceQueue[i].level);
-            switch (instanceQueue[i].level)
-            {
-                case 0:
-                    RandomPress(instanceLevel[0]);
-                    break;
-                case 1:
-                    RandomPress(instanceLevel[1]);
-                    break;
-                case 2:
-                    RandomPress(instanceLevel[2]);
-                    break;
-                default:
-                    RandomPress(instanceLevel[0]);
-                    break;
-            }
-            Sleep();
-            const isInThisZone = images.findMultiColors(captureScreen(), "#4c4c4c", [[3, 7, "#4a4a4a"], [14, 4, "#96866d"], [30, 0, "#4c4c4c"], [26, 9, "#4a4a4a"]],
-                { region: [857, 124, 69, 52] });
-            if (isInThisZone)
-            {
-                RandomPress([876, 140, 34, 14]);
-                RandomPress([1178, 20, 90, 35]);
-                Sleep();
-                break;
-            }
-            Sleep(2000, 4000);
-            RandomPress([680, 469, 142, 24]); // confirm check if there has confirm
-            console.log("Entering instance " + instanceQueue[i].type + " " + instanceQueue[i].index + " level " + instanceQueue[i].level);
-            Sleep(5000, 20000);
-            break;
-        }
-        instanceFinish.recycle();
-    }
-    Sleep(8000, 20000);
-    CrowedCheck();
-    AutoBattleCheck();
-    AbilityPointsFlow();
 };
 
-module.exports = {
-    AutoBattleCheck,
-    EnterInstanceZones
-};
+console.log(FindCheckMark([233, 300, 39, 46]));
+
+
+
+// module.exports = {
+//     AutoBattleCheck,
+   
+// };
+
